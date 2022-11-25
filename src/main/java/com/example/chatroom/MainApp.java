@@ -40,5 +40,5 @@ public class MainApp extends Application {
     public void showChatView(User user) {
 
     }
-    //测试一下git
+
 }
