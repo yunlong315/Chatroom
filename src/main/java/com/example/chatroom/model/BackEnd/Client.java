@@ -21,14 +21,24 @@ public class Client {
     Socket socket = null;
     OutputStream outputStream = null;
     DataOutputStream dataOutputStream = null;
+    InputStream inputStream = null;
+    DataInputStream dataInputStream = null;
+    // retMsg用于记录服务器返回的字符串
+    String retMsg = null;
 
     public int init() {
         try {
             InetAddress serverIP = InetAddress.getByName("10.193.108.25");
             int port = 8888;
             socket = new Socket(serverIP, port);
+
+            // 得到socket输出流
             outputStream = socket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
+
+            // 得到socket输入流
+            inputStream = socket.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -36,30 +46,72 @@ public class Client {
         return 0;
     }
 
-    public RegisterResponse register(String userAccount, String userPassWord, String userName) {
-        Map<String, User> clientMap = CenterServer.getCenterServer().clientMap;
-        if (clientMap.containsKey(userAccount)) {
-            return new RegisterResponse("userAccount duplicated");
-        } else {
-            clientMap.put(userAccount, new User(userAccount, userPassWord, userName, socket));
-            System.out.println(userAccount + userPassWord);
-            for (Map.Entry<String, User> entry : clientMap.entrySet()) {
-                System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue());
-            }
-            return new RegisterResponse(true);
+    private int sendMsg(String str) {
+        try {
+            byte[] data = str.getBytes();
+            int len = data.length + 5;
+            dataOutputStream.writeInt(len);
+            dataOutputStream.write(data);
+            dataOutputStream.flush();
+        } catch (Exception e) {
+            return -1;
         }
-//        try {
-//            String str = "register/" + userAccount + "/" + userPassWord + "/" + userName;
-//            int type = 1; // 数据类型1为String，其他的待定
-//            byte[] data = str.getBytes();
-//            int len = data.length + 5;
-//            dataOutputStream.writeByte(type);
-//            dataOutputStream.writeInt(len);
-//            dataOutputStream.write(data);
-//            dataOutputStream.flush();
-//        } catch (Exception e) {
-//            return -1;
-//        }
-//        return 0;
+        return 0;
+    }
+
+    private int receiveMsg() {
+        try {
+            int len = dataInputStream.readInt();
+            byte[] data = new byte[len - 5];
+            dataInputStream.readFully(data);
+            retMsg = new String(data);
+            return 0;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    public RegisterResponse register(String userAccount, String userPassWord, String userName) {
+        String str = "register/" + userAccount + "/" + userPassWord + "/" + userName;
+        // 向服务器发送注册数据
+        if (sendMsg(str) == -1) {
+            return new RegisterResponse("向服务器发送数据失败");
+        }
+        // 接受接受服务器返回数据
+        if (receiveMsg() == -1) {
+            return new RegisterResponse("接受服务器返回数据失败");
+        }
+        // 判断是否注册成功
+        if (retMsg.equals("success")) {
+            return new RegisterResponse(true);
+        } else {
+            return new RegisterResponse(retMsg);
+        }
+    }
+
+    public LoginResponse login(String userAccount, String userPassWord) {
+        String str = "login/" + userAccount + "/" + userPassWord;
+        // 向服务器发送注册数据
+        if (sendMsg(str) == -1) {
+            return new LoginResponse("向服务器发送数据失败");
+        }
+        // 接受接受服务器返回数据
+        if (receiveMsg() == -1) {
+            return new LoginResponse("接受服务器返回数据失败");
+        }
+        // 判断是否注册成功
+        if (retMsg.equals("success")) {
+            try {
+                ObjectInputStream input=new ObjectInputStream(inputStream);
+                User user= (User)input.readObject();
+                user.setUserSocket(socket);
+                return new LoginResponse(user);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new LoginResponse("接受服务器返回对象失败");
+            }
+        } else {
+            return new LoginResponse(retMsg);
+        }
     }
 }

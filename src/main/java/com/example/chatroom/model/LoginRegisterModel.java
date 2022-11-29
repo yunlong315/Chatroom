@@ -24,7 +24,7 @@ public class LoginRegisterModel {
         try {
             //TODO:调用真实后端接口
             //模拟登录请求失败
-            LoginResponse loginResponse = new LoginResponse("login failed");
+            LoginResponse loginResponse = Client.getClient().login(userAccount, passWord);
             LoginRegisterObject lro = new LoginRegisterObject(LoginRegisterObject.Mode.REGISTER,
                     loginResponse);
             loginRegisterObject = Optional.of(lro);
