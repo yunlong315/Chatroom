@@ -11,6 +11,10 @@ import java.util.function.Consumer;
 public class Notifications {
 
     public final static String EVENT_MODEL_UPDATE = "modelUpdate";
+    public final static String EVENT_MODEL_UPDATE_ChatList = "chatListUpdate";
+    public final static String EVENT_MODEL_UPDATE_FriendsList = "friendsListUpdate";
+    public final static String EVENT_MODEL_ADD_ChatRoom = "addChatRoom";
+    public final static String EVENT_MODEL_ADD_Friend = "addFriend";
 
     private final Map<String, List<SubscriberObject>> subscribers = new LinkedHashMap<>();
 
@@ -18,7 +22,7 @@ public class Notifications {
 
     public void publish(String event) {
 
-        Platform.runLater( () -> {
+        Platform.runLater(() -> {
             List<SubscriberObject> subscriberList = instance.subscribers.get(event);
 
             if (subscriberList != null) {
@@ -29,27 +33,27 @@ public class Notifications {
 
                 // event ends after last subscriber gets callback
             }
-        } );
+        });
     }
 
     public void subscribe(String event, Object subscriber, Consumer<String> cb) {
 
-        if( !instance.subscribers.containsKey(event) ) {
+        if (!instance.subscribers.containsKey(event)) {
             List<SubscriberObject> slist = new ArrayList<>();
-            instance.subscribers.put( event, slist );
+            instance.subscribers.put(event, slist);
         }
 
-        List<SubscriberObject> subscriberList = instance.subscribers.get( event );
+        List<SubscriberObject> subscriberList = instance.subscribers.get(event);
 
-        subscriberList.add( new SubscriberObject(subscriber, cb) );
+        subscriberList.add(new SubscriberObject(subscriber, cb));
     }
 
     public void unsubscribe(String event, Object subscriber) {
 
-        List<SubscriberObject> subscriberList = instance.subscribers.get( event );
+        List<SubscriberObject> subscriberList = instance.subscribers.get(event);
 
         if (subscriberList == null) {
-            subscriberList.remove( subscriber );
+            subscriberList.remove(subscriber);
         }
     }
 

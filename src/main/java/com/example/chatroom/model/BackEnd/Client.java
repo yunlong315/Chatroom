@@ -8,7 +8,7 @@ import java.util.Map;
 public class Client {
     private static Client client;
 
-    private Client() {
+    public Client() {
     }
 
     public static Client getClient() {
@@ -28,7 +28,7 @@ public class Client {
 
     public int init() {
         try {
-            InetAddress serverIP = InetAddress.getByName("10.193.108.25");
+            InetAddress serverIP = InetAddress.getByName("127.0.0.1");
             int port = 8888;
             socket = new Socket(serverIP, port);
 

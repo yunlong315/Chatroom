@@ -20,10 +20,10 @@
          <left>
             <BorderPane prefHeight="575.0" prefWidth="246.0" BorderPane.alignment="CENTER">
                <center>
-                  <ListView fx:id="chatListView" prefHeight="476.0" prefWidth="246.0" BorderPane.alignment="CENTER" />
+                  <ListView fx:id="chatListView" prefHeight="494.0" prefWidth="246.0" BorderPane.alignment="CENTER" />
                </center>
                <top>
-                  <GridPane alignment="CENTER" prefHeight="69.0" prefWidth="246.0" BorderPane.alignment="CENTER">
+                  <GridPane alignment="CENTER" prefHeight="80.0" prefWidth="246.0" BorderPane.alignment="CENTER">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.79999542236328" minWidth="10.0" prefWidth="168.00000762939453" />
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="134.1999954223633" minWidth="10.0" prefWidth="78.39999237060547" />
@@ -33,7 +33,7 @@
                     </rowConstraints>
                      <children>
                         <TextField fx:id="searchTextField" />
-                        <Button fx:id="addButton" alignment="CENTER" contentDisplay="CENTER" minWidth="34.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="70.0" text="添加" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                        <Button fx:id="addButton" alignment="CENTER" contentDisplay="CENTER" minWidth="34.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="30.0" prefWidth="70.0" text="添加" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
                      </children>
                      <opaqueInsets>
                         <Insets />
@@ -50,7 +50,7 @@
                <top>
                   <BorderPane prefHeight="78.0" prefWidth="514.0" BorderPane.alignment="CENTER">
                      <center>
-                        <Text fx:id="friendNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="好友xxx" textAlignment="CENTER" wrappingWidth="131.58301734924316" BorderPane.alignment="CENTER" />
+                        <Text fx:id="friendNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="聊天室xxx" textAlignment="CENTER" wrappingWidth="131.58301734924316" BorderPane.alignment="CENTER" />
                      </center>
                   </BorderPane>
                </top>
@@ -62,8 +62,8 @@
                      <right>
                         <VBox alignment="CENTER" prefHeight="106.0" prefWidth="82.0" spacing="20.0" BorderPane.alignment="CENTER">
                            <children>
-                              <Button fx:id="emotionButton" mnemonicParsing="false" text="表情" />
-                              <Button fx:id="sendOutButton" mnemonicParsing="false" text="发送" />
+                              <Button fx:id="emotionButton" mnemonicParsing="false" onAction="#onEmotionButtonClick" text="表情" />
+                              <Button fx:id="sendOutButton" mnemonicParsing="false" onAction="#onSendOutButtonClick" text="发送" />
                            </children>
                            <opaqueInsets>
                               <Insets />
@@ -91,8 +91,8 @@
          <center>
             <VBox alignment="CENTER" prefHeight="377.0" prefWidth="74.0" spacing="100.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="chatButton" mnemonicParsing="false" prefHeight="32.0" prefWidth="55.0" text="聊天" />
-                  <Button fx:id="friendsButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="54.0" text="好友" />
+                  <Button fx:id="chatButton" mnemonicParsing="false" onAction="#onChatButtonClick" prefHeight="32.0" prefWidth="55.0" text="聊天" />
+                  <Button fx:id="friendsButton" mnemonicParsing="false" onAction="#onFriendsButtonClick" prefHeight="30.0" prefWidth="54.0" text="好友" />
                </children>
                <opaqueInsets>
                   <Insets />
@@ -105,7 +105,7 @@
          <bottom>
             <VBox alignment="CENTER" prefHeight="112.0" prefWidth="74.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="settingsButton" mnemonicParsing="false" text="设置" />
+                  <Button fx:id="settingsButton" mnemonicParsing="false" onAction="#onSettingsButtonClick" text="设置" />
                </children>
             </VBox>
          </bottom>

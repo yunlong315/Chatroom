@@ -13,7 +13,6 @@ public class MainApp extends Application {
     private Stage primaryStage;
     private AnchorPane rootLayout;
 
-
     @Override
     public void start(Stage stage) throws Exception {
         this.primaryStage = stage;
@@ -37,8 +36,14 @@ public class MainApp extends Application {
         }
     }
 
-    public void showChatView(User user) {
-
+    public void showChatView(User user) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainApp.class.getResource("ChatView.fxml"));
+        Scene scene = new Scene(loader.load());
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        ChatViewController controller = loader.getController();
+        controller.setMainApp(this);
     }
 
 }
