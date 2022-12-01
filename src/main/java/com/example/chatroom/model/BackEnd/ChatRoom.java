@@ -1,38 +1,19 @@
 package com.example.chatroom.model.BackEnd;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class ChatRoom {
-    private String id;
-    private String roomName;
-    private HashMap<String, User> memberMap = new HashMap<>();
+public class ChatRoom implements Serializable
+{
+    HashMap<String,User>userHashMap=new HashMap<>();
+    static int nextID;//赋予给新创建的群，然后nextID++;
 
-    public ChatRoom(String id, String roomName) {
-        this.id = id;
-        this.roomName = roomName;
+    private int ID;
+    public ChatRoom(int ID)
+    {
+        this.ID=ID;
     }
 
-    public void addMember(User newUser) {
-        memberMap.put(newUser.getUserAccount(), newUser);
-    }
 
-    public void removeMember(String userAccount) {
-        memberMap.remove(userAccount);
-    }
 
-    public User queryMember(String userAccount) {
-        return memberMap.get(userAccount);
-    }
-
-    public boolean contains(User user) {
-        return memberMap.containsKey(user.getUserAccount());
-    }
-
-    @Override
-    public String toString() {
-        return "ChatRoom{" +
-                "id='" + id + '\'' +
-                ", roomName='" + roomName +
-                '}';
-    }
 }

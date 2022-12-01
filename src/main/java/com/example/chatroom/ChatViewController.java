@@ -73,9 +73,9 @@ public class ChatViewController {
 
     public void updateChatList(String event) {
         //模拟更新数据
-        chatRoomsProperty.get().addAll(
-                new ChatRoom("1", "聊天室1"),
-                new ChatRoom("2", "聊天室2"));
+//        chatRoomsProperty.get().addAll(
+//                new ChatRoom("1", "聊天室1"),
+//                new ChatRoom("2", "聊天室2"));
     }
 
     public void updateFriendsList(String event) {

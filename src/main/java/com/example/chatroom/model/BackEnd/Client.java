@@ -3,12 +3,11 @@ package com.example.chatroom.model.BackEnd;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Map;
 
 public class Client {
     private static Client client;
 
-    public Client() {
+    private Client() {
     }
 
     public static Client getClient() {
@@ -28,7 +27,7 @@ public class Client {
 
     public int init() {
         try {
-            InetAddress serverIP = InetAddress.getByName("127.0.0.1");
+            InetAddress serverIP = InetAddress.getByName("10.193.108.25");
             int port = 8888;
             socket = new Socket(serverIP, port);
 
@@ -102,8 +101,8 @@ public class Client {
         // 判断是否注册成功
         if (retMsg.equals("success")) {
             try {
-                ObjectInputStream input=new ObjectInputStream(inputStream);
-                User user= (User)input.readObject();
+                ObjectInputStream input = new ObjectInputStream(inputStream);
+                User user = (User) input.readObject();
                 user.setUserSocket(socket);
                 return new LoginResponse(user);
             } catch (Exception e) {
@@ -114,4 +113,88 @@ public class Client {
             return new LoginResponse(retMsg);
         }
     }
+
+    public CreateChatroomResponse createChatroom() {
+        String str = "createChatroom/";
+        // 向服务器发送注册数据
+        if (sendMsg(str) == -1) {
+            return new CreateChatroomResponse("向服务器发送数据失败");
+        }
+        // 接受接受服务器返回数据
+        if (receiveMsg() == -1) {
+            return new CreateChatroomResponse("接受服务器返回数据失败");
+        }
+        if (retMsg.equals("success")) {
+            try {
+                ObjectInputStream input = new ObjectInputStream(inputStream);
+                User user = (User) input.readObject();
+                user.setUserSocket(socket);
+                ChatRoom chatrooms = (ChatRoom) input.readObject();
+                //?
+                return new CreateChatroomResponse(user, chatrooms);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new CreateChatroomResponse("接受服务器返回对象失败");
+            }
+        } else {
+            return new CreateChatroomResponse(retMsg);
+        }
+    }
+
+
+    public ChatResponse chat() {
+        String str = "login/";
+        // 向服务器发送注册数据
+        if (sendMsg(str) == -1) {
+            return new ChatResponse("向服务器发送数据失败");
+        }
+        // 接受接受服务器返回数据
+        if (receiveMsg() == -1) {
+            return new ChatResponse("接受服务器返回数据失败");
+        }
+        if (retMsg.equals("success")) {
+            try {
+                ObjectInputStream input = new ObjectInputStream(inputStream);
+                User user = (User) input.readObject();
+                user.setUserSocket(socket);
+                ChatRoom chatrooms = (ChatRoom) input.readObject();
+
+
+                return new ChatResponse(user, chatrooms);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ChatResponse("接受服务器返回对象失败");
+            }
+        } else {
+            return new ChatResponse(retMsg);
+        }
+    }
+
+    public AddChatroomResponse addChatroom() {
+        String str = "addChatroom/";
+        // 向服务器发送注册数据
+        if (sendMsg(str) == -1) {
+            return new AddChatroomResponse("向服务器发送数据失败");
+        }
+        // 接受接受服务器返回数据
+        if (receiveMsg() == -1) {
+            return new AddChatroomResponse("接受服务器返回数据失败");
+        }
+        if (retMsg.equals("success")) {
+            try {
+                ObjectInputStream input = new ObjectInputStream(inputStream);
+                User user = (User) input.readObject();
+                user.setUserSocket(socket);
+                ChatRoom chatrooms = (ChatRoom) input.readObject();
+                return new AddChatroomResponse(user, chatrooms);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new AddChatroomResponse("接受服务器返回对象失败");
+            }
+        } else {
+            return new AddChatroomResponse(retMsg);
+        }
+    }
+
+
 }
