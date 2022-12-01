@@ -41,9 +41,11 @@ public class MainApp extends Application {
         loader.setLocation(MainApp.class.getResource("ChatView.fxml"));
         Scene scene = new Scene(loader.load());
         primaryStage.setScene(scene);
-        primaryStage.show();
         ChatViewController controller = loader.getController();
         controller.setMainApp(this);
+        controller.setNowUser(user);
+        controller.init();
+        primaryStage.show();
     }
 
 }

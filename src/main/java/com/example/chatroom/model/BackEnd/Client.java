@@ -142,7 +142,7 @@ public class Client {
     }
 
 
-    public ChatResponse chat() {
+    public ChatResponse chat(String message) {
         String str = "login/";
         // 向服务器发送注册数据
         if (sendMsg(str) == -1) {

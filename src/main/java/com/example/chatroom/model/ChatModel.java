@@ -1,12 +1,10 @@
 package com.example.chatroom.model;
 
-import com.example.chatroom.model.BackEnd.ChatRoom;
+import com.example.chatroom.model.BackEnd.ChatResponse;
 import com.example.chatroom.model.BackEnd.Client;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-//test
+
 public class ChatModel {
     private Notifications notifications = new Notifications();
     private Optional<ChatObject> chatObject = Optional.empty();
@@ -44,7 +42,14 @@ public class ChatModel {
     }
 
     public Optional<ChatObject> sendMessage(String message) {
-
+        try {
+            ChatResponse chatResponse = Client.getClient().chat(message);
+            ChatObject sendMessageObject = new ChatObject(chatResponse);
+            chatObject = Optional.of(sendMessageObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
         return chatObject;
     }
 }

@@ -1,25 +1,26 @@
 package com.example.chatroom.model.BackEnd;
 
-public class ChatResponse
-{
+public class ChatResponse {
     private boolean success = false;
-    private String errorMessage="";
+    private String errorMessage = "";
     private final User user;
     private final ChatRoom chatrooms;
+    //todo:需要包含所发送的消息
+    private final String message="";
+
     //失败信息构造方法
-    public ChatResponse  (String errorMessage)
-    {
+    public ChatResponse(String errorMessage) {
         this.success = false;
         this.errorMessage += errorMessage;
         this.user = null;
-        this.chatrooms=null;
+        this.chatrooms = null;
     }
+
     //成功信息构造方法
-    ChatResponse (User user, ChatRoom chatrooms)
-    {
+    ChatResponse(User user, ChatRoom chatrooms) {
         this.success = true;
         this.user = user;
-        this.chatrooms=chatrooms;
+        this.chatrooms = chatrooms;
         this.errorMessage = null;
     }
 
@@ -33,5 +34,9 @@ public class ChatResponse
 
     public User getUser() {
         return user;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }
