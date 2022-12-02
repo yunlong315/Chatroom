@@ -34,6 +34,10 @@ public class User implements Serializable {
         this.userSocket = userSocket;
     }
 
+    public Socket getUserSocket() {
+        return userSocket;
+    }
+
     public String getUserAccount() {
         return userAccount;
     }
