@@ -1,5 +1,7 @@
 package com.example.chatroom.model.BackEnd;
 
+import com.example.chatroom.model.BackEnd.reponses.*;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -27,7 +29,7 @@ public class Client {
 
     public int init() {
         try {
-            InetAddress serverIP = InetAddress.getByName("10.193.108.25");
+            InetAddress serverIP = InetAddress.getByName("127.0.0.1");
             int port = 8888;
             socket = new Socket(serverIP, port);
 
@@ -129,9 +131,9 @@ public class Client {
                 ObjectInputStream input = new ObjectInputStream(inputStream);
                 User user = (User) input.readObject();
                 user.setUserSocket(socket);
-                ChatRoom chatrooms = (ChatRoom) input.readObject();
+                ChatRoom chatroom = (ChatRoom) input.readObject();
                 //?
-                return new CreateChatroomResponse(user, chatrooms);
+                return new CreateChatroomResponse(chatroom);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new CreateChatroomResponse("接受服务器返回对象失败");
@@ -157,10 +159,9 @@ public class Client {
                 ObjectInputStream input = new ObjectInputStream(inputStream);
                 User user = (User) input.readObject();
                 user.setUserSocket(socket);
-                ChatRoom chatrooms = (ChatRoom) input.readObject();
+                ChatRoom chatroom = (ChatRoom) input.readObject();
 
-
-                return new ChatResponse(user, chatrooms);
+                return new ChatResponse(user, chatroom);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new ChatResponse("接受服务器返回对象失败");
@@ -170,29 +171,29 @@ public class Client {
         }
     }
 
-    public AddChatroomResponse addChatroom() {
+    public JoinChatroomResponse joinChatroom() {
         String str = "addChatroom/";
         // 向服务器发送注册数据
         if (sendMsg(str) == -1) {
-            return new AddChatroomResponse("向服务器发送数据失败");
+            return new JoinChatroomResponse("向服务器发送数据失败");
         }
         // 接受接受服务器返回数据
         if (receiveMsg() == -1) {
-            return new AddChatroomResponse("接受服务器返回数据失败");
+            return new JoinChatroomResponse("接受服务器返回数据失败");
         }
         if (retMsg.equals("success")) {
             try {
                 ObjectInputStream input = new ObjectInputStream(inputStream);
                 User user = (User) input.readObject();
                 user.setUserSocket(socket);
-                ChatRoom chatrooms = (ChatRoom) input.readObject();
-                return new AddChatroomResponse(user, chatrooms);
+                ChatRoom chatroom = (ChatRoom) input.readObject();
+                return new JoinChatroomResponse(user, chatroom);
             } catch (Exception e) {
                 e.printStackTrace();
-                return new AddChatroomResponse("接受服务器返回对象失败");
+                return new JoinChatroomResponse("接受服务器返回对象失败");
             }
         } else {
-            return new AddChatroomResponse(retMsg);
+            return new JoinChatroomResponse(retMsg);
         }
     }
 

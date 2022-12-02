@@ -1,4 +1,4 @@
-package com.example.chatroom.model.BackEnd;
+package com.example.chatroom.model.BackEnd.reponses;
 
 import java.net.HttpCookie;
 
@@ -6,12 +6,13 @@ import java.net.HttpCookie;
  * 后端注册方法的返回类。记录注册操作的信息。
  */
 
-public class RegisterResponse {
+public class RegisterResponse implements IResponse{
     private boolean success = false;
     private String errorMessage = "";
 
     //失败信息构造方法
-    RegisterResponse(String errorMessage) {
+
+    public RegisterResponse(String errorMessage) {
         this.success = false;
         this.errorMessage += errorMessage;
     }

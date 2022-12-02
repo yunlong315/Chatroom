@@ -1,8 +1,8 @@
 package com.example.chatroom.model;
 
 import com.example.chatroom.model.BackEnd.Client;
-import com.example.chatroom.model.BackEnd.LoginResponse;
-import com.example.chatroom.model.BackEnd.RegisterResponse;
+import com.example.chatroom.model.BackEnd.reponses.LoginResponse;
+import com.example.chatroom.model.BackEnd.reponses.RegisterResponse;
 
 import java.util.Optional;
 
@@ -25,8 +25,7 @@ public class LoginRegisterModel {
             //TODO:调用真实后端接口
             //模拟登录请求失败
             LoginResponse loginResponse = Client.getClient().login(userAccount, passWord);
-            LoginRegisterObject lro = new LoginRegisterObject(LoginRegisterObject.Mode.LOGIN,
-                    loginResponse);
+            LoginRegisterObject lro = new LoginRegisterObject(loginResponse);
             loginRegisterObject = Optional.of(lro);
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,14 +34,10 @@ public class LoginRegisterModel {
         return loginRegisterObject;
     }
 
-    public Optional<LoginRegisterObject> register(String userAccount, String passWord) {
+    public Optional<LoginRegisterObject> register(String userAccount, String passWord,String userName) {
         try {
-            //TODO:调用真实后端接口
-            //TODO:把“userName”字符串换成真正的userName参数
-            //模拟注册请求成功
-            RegisterResponse registerResponse = Client.getClient().register(userAccount, passWord, "userName");
-            LoginRegisterObject lro = new LoginRegisterObject(LoginRegisterObject.Mode.REGISTER,
-                    registerResponse);
+            RegisterResponse registerResponse = Client.getClient().register(userAccount, passWord, userName);
+            LoginRegisterObject lro = new LoginRegisterObject(registerResponse);
             loginRegisterObject = Optional.of(lro);
 
         } catch (Exception e) {

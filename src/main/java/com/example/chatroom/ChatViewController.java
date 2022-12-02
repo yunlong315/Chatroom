@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ChatViewController {
     @FXML
@@ -76,23 +77,49 @@ public class ChatViewController {
         this.nowUser = nowUser;
     }
 
-    //在显示页面前初始化当前用户、聊天室、好友等信息
+    /**
+     * 根据当前用户信息初始化界面
+     */
     public void init() {
-        //todo
+        chatListView.itemsProperty().bind(messagesProperty);
+        String userName = nowUser.getUserName();
+        //TODO:初始化用户姓名
+
+        List<ChatRoom> chatRoomList = nowUser.getChatRoomList();
+        //TODO:初始化聊天室列表
+
+        List<User> userList = nowUser.getUserList();
+        //TODO:（暂不考虑）初始化好友列表
     }
 
+
+
     public ChatViewController() {
-        chatListView.itemsProperty().bind(messagesProperty);
+
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_FriendsList, this, this::updateFriendsList);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);
     }
 
+    /**
+     * 更新聊天室列表。
+     * @param event
+     */
     public void updateChatList(String event) {
         //模拟更新数据
-
+        chatModel.getChatObject().ifPresent(
+            (chatObject)->
+            {
+                List<ChatRoom> chatRoomList = chatObject.getChatRoomList();
+                //TODO:根据chatRoomList更新聊天室列表
+            }
+        );
     }
 
+    /**
+     * 更新好友列表。
+     * @param event
+     */
     public void updateFriendsList(String event) {
         //模拟更新数据
         friendsProperty.get().addAll(
@@ -112,7 +139,10 @@ public class ChatViewController {
         return retBox;
     }
 
-
+    /**
+     * 更新消息列表。
+     * @param event
+     */
     public void updateMessageList(String event) {
         chatModel.getChatObject().ifPresent(
                 (chatObject) -> {
@@ -129,7 +159,9 @@ public class ChatViewController {
                 });
     }
 
-    //切换listview的内容为聊天信息
+    /**
+     * 绑定“聊天”按钮，切换listview的内容为聊天信息。
+     */
     @FXML
     public void onChatButtonClick() {
         updateChatList("");
@@ -137,7 +169,9 @@ public class ChatViewController {
         nowPage = Page.CHATPAGE;
     }
 
-    //切换listview的内容为好友信息
+    /**
+     * 绑定“好友”按钮，切换listview的内容为好友信息。
+     */
     @FXML
     public void onFriendsButtonClick() {
         updateFriendsList("");
@@ -145,7 +179,10 @@ public class ChatViewController {
         nowPage = Page.FRIENDSPAGE;
     }
 
-    //弹出设置对话框
+    /**
+     * 绑定“设置”按钮，弹出设置对话框。
+     * @throws IOException
+     */
     @FXML
     public void onSettingsButtonClick() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SettingsView.fxml"));
@@ -154,20 +191,34 @@ public class ChatViewController {
         settingsStage.setTitle("设置");
         settingsStage.setScene(scene);
         settingsStage.show();
+        onAddButtonClick();
     }
-
-    //添加聊天室或者好友，取决于当前listview的状态
+    /**
+     * 绑定“添加”按钮。
+     * 若当前视图为聊天列表，创建一个新聊天室；
+     * 若当前视图为好友列表，添加新好友。
+     */
+    //
     @FXML
     public void onAddButtonClick() {
         String content = searchTextField.getText();
         switch (nowPage) {
             case CHATPAGE:
-                chatModel.addChatRoom();
+                chatModel.createChatroom();
                 break;
             case FRIENDSPAGE:
                 chatModel.addFriend(content);
                 break;
         }
+    }
+
+    /**
+     * 绑定“加入”按钮，加入指定id的聊天室。
+     */
+    @FXML
+    public void onJoinButtonClick()
+    {
+
     }
 
     //弹出表情窗口

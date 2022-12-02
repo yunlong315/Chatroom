@@ -12,7 +12,6 @@ public class CenterServer {
 //    单例模式，方便其他类快速访问
     private static CenterServer cs = new CenterServer();
 
-
     private CenterServer() {}
 
     public static CenterServer getCenterServer() {

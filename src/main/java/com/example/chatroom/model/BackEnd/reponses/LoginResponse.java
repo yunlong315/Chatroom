@@ -1,25 +1,27 @@
-package com.example.chatroom.model.BackEnd;
+package com.example.chatroom.model.BackEnd.reponses;
 
-public class AddChatroomResponse
-{
+import com.example.chatroom.model.BackEnd.User;
+
+/**
+ *后端登录方法的返回类。记录登录操作的信息。
+ */
+
+public class LoginResponse implements IResponse{
     private boolean success = false;
     private String errorMessage="";
     private final User user;
-    private final ChatRoom chatrooms;
     //失败信息构造方法
-    public AddChatroomResponse (String errorMessage)
+    public LoginResponse(String errorMessage)
     {
         this.success = false;
         this.errorMessage += errorMessage;
         this.user = null;
-        this.chatrooms=null;
     }
     //成功信息构造方法
-    AddChatroomResponse(User user, ChatRoom chatrooms)
+    public LoginResponse(User user)
     {
         this.success = true;
         this.user = user;
-        this.chatrooms=chatrooms;
         this.errorMessage = null;
     }
 
@@ -33,9 +35,5 @@ public class AddChatroomResponse
 
     public User getUser() {
         return user;
-    }
-
-    public ChatRoom getChatrooms() {
-        return chatrooms;
     }
 }

@@ -1,7 +1,8 @@
 package com.example.chatroom.model;
 
-import com.example.chatroom.model.BackEnd.LoginResponse;
-import com.example.chatroom.model.BackEnd.RegisterResponse;
+import com.example.chatroom.model.BackEnd.reponses.IResponse;
+import com.example.chatroom.model.BackEnd.reponses.LoginResponse;
+import com.example.chatroom.model.BackEnd.reponses.RegisterResponse;
 import com.example.chatroom.model.BackEnd.User;
 
 public class LoginRegisterObject {
@@ -15,18 +16,24 @@ public class LoginRegisterObject {
         REGISTER;
     }
 
-    public LoginRegisterObject(Mode requestType, RegisterResponse response){
-        this.requestType = requestType;
+    public LoginRegisterObject(IResponse response) {
         wasError = !response.isSuccess();
         errorMessage = response.getErrorMessage();
-        user = null;
+        if (response instanceof RegisterResponse) {
+            requestType = Mode.REGISTER;
+            user = null;
+        }
+        else if (response instanceof LoginResponse loginResponse) {
+            requestType = Mode.LOGIN;
+            user = loginResponse.getUser();
+        }
+        else
+        {
+            user = null;
+            requestType = null;
+        }
     }
-    public LoginRegisterObject(Mode requestType, LoginResponse response){
-        this.requestType = requestType;
-        wasError = !response.isSuccess();
-        errorMessage = response.getErrorMessage();
-        user = response.getUser();
-    }
+
     public Boolean getWasError() {
         return wasError;
     }

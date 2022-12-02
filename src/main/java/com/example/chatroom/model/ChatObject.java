@@ -1,18 +1,37 @@
 package com.example.chatroom.model;
 
-import com.example.chatroom.model.BackEnd.ChatResponse;
+import com.example.chatroom.model.BackEnd.ChatRoom;
+import com.example.chatroom.model.BackEnd.reponses.ChatResponse;
 import com.example.chatroom.model.BackEnd.User;
+import com.example.chatroom.model.BackEnd.reponses.CreateChatroomResponse;
+import com.example.chatroom.model.BackEnd.reponses.IResponse;
+import com.example.chatroom.model.BackEnd.reponses.JoinChatroomResponse;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+
+ */
 public class ChatObject {
-    private boolean wasError;
-    private String errorMessage;
-    private User sender = null;
-    private String message = "";
-    public ChatObject(ChatResponse chatResponse) {
-        this.wasError = !chatResponse.isSuccess();
-        this.errorMessage = chatResponse.getErrorMessage();
-        this.sender = chatResponse.getUser();
-        this.message= chatResponse.getMessage();
+    private final boolean wasError;
+    private final String errorMessage;
+    private final User sender = null;
+    private final String message = "";
+    private final List<ChatRoom> chatRoomList;
+    public ChatObject(IResponse response) {
+        this.wasError = !response.isSuccess();
+        this.errorMessage = response.getErrorMessage();
+        chatRoomList = new ArrayList<>();
+        //根据具体的Response类进行构造
+        if(response instanceof CreateChatroomResponse createChatroomResponse)
+        {
+            chatRoomList.add(createChatroomResponse.getChatroom());
+        }
+        else if (response instanceof JoinChatroomResponse joinChatroomResponse)
+        {
+            chatRoomList.add(joinChatroomResponse.getChatroom());
+        }
     }
 
     public boolean isWasError() {
@@ -29,5 +48,9 @@ public class ChatObject {
 
     public String getMessage() {
         return message;
+    }
+
+    public List<ChatRoom> getChatRoomList() {
+        return chatRoomList;
     }
 }

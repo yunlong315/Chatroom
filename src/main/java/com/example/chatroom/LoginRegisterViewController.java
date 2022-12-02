@@ -54,7 +54,6 @@ public class LoginRegisterViewController {
                     if (!resObject.getWasError()) {
                         if (resObject.isLogin()) {
                             User user = resObject.getUser();
-                            //TODO:登录成功，切换到聊天视图
                             try {
                                 mainApp.showChatView(user);
                             } catch (IOException e) {
@@ -94,7 +93,8 @@ public class LoginRegisterViewController {
         if (isRegisterInputValid()) {
             String userAccount = registerAccountField.getText();
             String passWord = registerPasswordField.getText();
-            loginRegisterModel.register(userAccount, passWord);
+            String userName = registerNameField.getText();
+            loginRegisterModel.register(userAccount, passWord,userName);
         }
     }
 
@@ -145,10 +145,7 @@ public class LoginRegisterViewController {
             return false;
         }
     }
-
-
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
     }
-
 }

@@ -1,25 +1,25 @@
-package com.example.chatroom.model.BackEnd;
+package com.example.chatroom.model.BackEnd.reponses;
 
-public class CreateChatroomResponse
+import com.example.chatroom.model.BackEnd.ChatRoom;
+import com.example.chatroom.model.BackEnd.User;
+
+public class CreateChatroomResponse implements IResponse
 {
     private boolean success = false;
     private String errorMessage="";
-    private final User user;
-    private final ChatRoom chatrooms;
+    private final ChatRoom chatroom;
     //失败信息构造方法
     public CreateChatroomResponse (String errorMessage)
     {
         this.success = false;
         this.errorMessage += errorMessage;
-        this.user = null;
-        this.chatrooms=null;
+        this.chatroom =null;
     }
     //成功信息构造方法
-    CreateChatroomResponse(User user, ChatRoom chatrooms)
+    public CreateChatroomResponse(ChatRoom chatroom)
     {
         this.success = true;
-        this.user = user;
-        this.chatrooms=chatrooms;
+        this.chatroom=chatroom;
         this.errorMessage = null;
     }
 
@@ -31,11 +31,7 @@ public class CreateChatroomResponse
         return success;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public ChatRoom getChatrooms() {
-        return chatrooms;
+    public ChatRoom getChatroom() {
+        return chatroom;
     }
 }
