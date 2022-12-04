@@ -2,34 +2,32 @@ package com.example.chatroom.model;
 
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
+import com.example.chatroom.model.backend.reponses.ChatResponse;
 import com.example.chatroom.model.backend.reponses.CreateChatroomResponse;
 import com.example.chatroom.model.backend.reponses.IResponse;
 import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
-
+ *
  */
 public class ChatObject {
     private final boolean wasError;
     private final String errorMessage;
-    private final User sender = null;
-    private final String message = "";
-    private final List<ChatRoom> chatRoomList;
+    private User sender = null;
+    private String message = null;
+    private ChatRoom chatRoom = null;
+
     public ChatObject(IResponse response) {
         this.wasError = !response.isSuccess();
         this.errorMessage = response.getErrorMessage();
-        chatRoomList = new ArrayList<>();
         //根据具体的Response类进行构造
-        if(response instanceof CreateChatroomResponse createChatroomResponse)
-        {
-            chatRoomList.add(createChatroomResponse.getChatroom());
-        }
-        else if (response instanceof JoinChatroomResponse joinChatroomResponse)
-        {
-            chatRoomList.add(joinChatroomResponse.getChatroom());
+        if (response instanceof CreateChatroomResponse createChatroomResponse) {
+            chatRoom = createChatroomResponse.getChatroom();
+        } else if (response instanceof JoinChatroomResponse joinChatroomResponse) {
+            chatRoom = joinChatroomResponse.getChatroom();
+        } else if (response instanceof ChatResponse chatResponse) {
+            message = chatResponse.getMessage();
+            sender = chatResponse.getUser();
         }
     }
 
@@ -49,7 +47,7 @@ public class ChatObject {
         return message;
     }
 
-    public List<ChatRoom> getChatRoomList() {
-        return chatRoomList;
+    public ChatRoom getChatRoom() {
+        return chatRoom;
     }
 }

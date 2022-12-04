@@ -1,10 +1,10 @@
 package com.example.chatroom;
 
-import com.example.chatroom.model.backend.ChatRoom;
-import com.example.chatroom.model.backend.User;
 import com.example.chatroom.model.ChatModel;
 import com.example.chatroom.model.ChatObject;
 import com.example.chatroom.model.Notifications;
+import com.example.chatroom.model.backend.ChatRoom;
+import com.example.chatroom.model.backend.User;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -20,7 +20,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class ChatViewController {
     @FXML
@@ -38,7 +40,11 @@ public class ChatViewController {
     @FXML
     private TextField searchTextField;
     @FXML
-    private Text friendNameText;
+    private Text titleText;
+    @FXML
+    private Text userNameText;
+    @FXML
+    private Text userAccountText;
     @FXML
     private TextArea messageTextArea;
     @FXML
@@ -51,7 +57,7 @@ public class ChatViewController {
     private ListView<HBox> messageListView;
 
     //当前所在界面
-    private Page nowPage = Page.CHATPAGE;
+    private Page nowPage;
 
     private enum Page {
         CHATPAGE,
@@ -60,6 +66,8 @@ public class ChatViewController {
 
     private MainApp mainApp;
     private User nowUser;
+
+    private ChatRoom selectedChatRoom = null;
     private final ChatModel chatModel = new ChatModel();
     private final Notifications notifications = new Notifications();
     private ReadOnlyObjectProperty<ObservableList<ChatRoom>> chatRoomsProperty =
@@ -74,27 +82,45 @@ public class ChatViewController {
     }
 
     public void setNowUser(User nowUser) {
-
         this.nowUser = nowUser;
         chatModel.setUser(nowUser);
+    }
+
+    /**
+     * 实现根据选定的聊天室切换聊天界面
+     */
+    private void changeToOneChatroom(ChatRoom chatRoom) {
+        titleText.setText("聊天室" + chatRoom.getID());
+        //todo:获得当前聊天室的所有聊天记录
+        List<HBox> messageList = new ArrayList<>();
+        messagesProperty.get().addAll(messageList);
+    }
+
+    public void addChatListViewListener() {
+        chatListView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue instanceof ChatRoom) {
+                        ChatRoom chatRoom = (ChatRoom) newValue;
+                        selectedChatRoom = chatRoom;
+                        changeToOneChatroom(chatRoom);
+                    }
+                }
+        );
     }
 
     /**
      * 根据当前用户信息初始化界面
      */
     public void init() {
-        chatListView.itemsProperty().bind(messagesProperty);
-        String userName = nowUser.getUserName();
-        //TODO:初始化用户姓名
-
-        List<ChatRoom> chatRoomList = nowUser.getChatRoomList();
-        //TODO:初始化聊天室列表
-
-        List<User> userList = nowUser.getUserList();
-        //TODO:（暂不考虑）初始化好友列表
+        messageListView.itemsProperty().bind(messagesProperty);
+        addChatListViewListener();
+        userNameText.setText(nowUser.getUserName());
+        userAccountText.setText(nowUser.getUserAccount());
+        chatRoomsProperty.get().addAll(nowUser.getChatRoomList());
+        friendsProperty.get().addAll(nowUser.getFriendsList());
+        nowPage = Page.CHATPAGE;
+        chatListView.itemsProperty().bind(chatRoomsProperty);//打开聊天界面时，默认显示聊天列表
     }
-
-
 
     public ChatViewController() {
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
@@ -104,21 +130,20 @@ public class ChatViewController {
 
     /**
      * 更新聊天室列表。
+     *
      * @param event
      */
     public void updateChatList(String event) {
-        //模拟更新数据
         chatModel.getChatObject().ifPresent(
-            (chatObject)->
-            {
-                List<ChatRoom> chatRoomList = chatObject.getChatRoomList();
-                //TODO:根据chatRoomList更新聊天室列表
-            }
+                (chatObject) -> {
+                    chatRoomsProperty.get().addAll(chatObject.getChatRoom());
+                }
         );
     }
 
     /**
      * 更新好友列表。
+     *
      * @param event
      */
     public void updateFriendsList(String event) {
@@ -128,7 +153,7 @@ public class ChatViewController {
                 new User("xxx"));
     }
 
-    public HBox getMessageBox(ChatObject chatObject) {
+    private HBox getMessageBox(ChatObject chatObject) {
         HBox retBox = new HBox();
         Text messageText = new Text(chatObject.getMessage());
         if (chatObject.getSender().equals(nowUser)) {
@@ -142,6 +167,7 @@ public class ChatViewController {
 
     /**
      * 更新消息列表。
+     *
      * @param event
      */
     public void updateMessageList(String event) {
@@ -182,6 +208,7 @@ public class ChatViewController {
 
     /**
      * 绑定“设置”按钮，弹出设置对话框。
+     *
      * @throws IOException
      */
     @FXML
@@ -194,6 +221,7 @@ public class ChatViewController {
         settingsStage.show();
         onAddButtonClick();
     }
+
     /**
      * 绑定“添加”按钮。
      * 若当前视图为聊天列表，创建一个新聊天室；
@@ -217,9 +245,31 @@ public class ChatViewController {
      * 绑定“加入”按钮，加入指定id的聊天室。
      */
     @FXML
-    public void onJoinButtonClick()
-    {
-
+    public void onJoinButtonClick() {
+        TextInputDialog textInputDialog = new TextInputDialog("");
+        textInputDialog.setTitle("加入聊天室");
+        textInputDialog.setHeaderText("请输入聊天室ID");
+        textInputDialog.setContentText("聊天室ID:");
+        textInputDialog.showAndWait();
+        String ID;
+        int id;
+        try {
+            ID = textInputDialog.getResult();
+        } catch (final NoSuchElementException ex) {
+            ID = null;
+        }
+        if (ID != null) {
+            try {
+                id = Integer.parseInt(ID);
+                chatModel.joinChatroom(id);
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Invalid Input");
+                alert.setHeaderText(null);
+                alert.setContentText("输入的ID非数字");
+                alert.show();
+            }
+        }
     }
 
     //弹出表情窗口
@@ -231,10 +281,12 @@ public class ChatViewController {
     //发送消息
     @FXML
     public void onSendOutButtonClick() {
+        //todo:从chatlistview中获得当前聊天室的相关信息
+
         String message = messageTextArea.getText();
         if (!message.isEmpty()) {
             //发送非空字符串
-            chatModel.sendMessage(message);
+            chatModel.sendMessage(message, selectedChatRoom);
         }
     }
 }

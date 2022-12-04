@@ -54,6 +54,7 @@ public class Client {
     private String registerRetMsg = "";  // registerRetMsg用于记录register操作后服务器返回的结果，下同
     private String loginRetMsg = "";
     private String createChatroomRetMsg = "";
+    private String chatRetMsg = "";
 
     public int init() {
         try {
@@ -122,6 +123,9 @@ public class Client {
                         case "createChatroomResponse":
                             createChatroomRetMsg = retMsg;
                             break;
+                        case "chat":
+                            chatRetMsg = retMsg;
+                            break;
                     }
                 }
             }
@@ -187,35 +191,25 @@ public class Client {
     }
 
 
-    public ChatResponse chat(String message) {
-        String str = "login/";
+    public void chat(String message, User user, ChatRoom chatRoom) {
+        String str = String.format("chat/%s/%d/%s", user.getUserAccount(), chatRoom.getID(), message);
         // 向服务器发送注册数据
         if (sendMsg(str) == -1) {
-            return new ChatResponse("向服务器发送数据失败");
-        }
-        // 接受接受服务器返回数据
-        if (receiveMsg() == -1) {
-            return new ChatResponse("接受服务器返回数据失败");
-        }
-        if (retMsg.equals("success")) {
-            try {
-                ObjectInputStream input = new ObjectInputStream(inputStream);
-                User user = (User) input.readObject();
-                user.setUserSocket(socket);
-                ChatRoom chatroom = (ChatRoom) input.readObject();
-
-                return new ChatResponse(user, chatroom);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new ChatResponse("接受服务器返回对象失败");
-            }
-        } else {
-            return new ChatResponse(retMsg);
+            chatRetMsg = "chat/向服务器发送数据失败";
         }
     }
 
-    public JoinChatroomResponse joinChatroom() {
-        String str = "addChatroom/";
+    public ChatResponse chatResponse(String message, User user, ChatRoom chatRoom) {
+        String[] args = chatRetMsg.split("/");
+        if (args[1].equals("success")) {
+            return new ChatResponse(user, chatRoom, message);
+        } else {
+            return new ChatResponse(args[1]);
+        }
+    }
+
+    public JoinChatroomResponse joinChatroom(String userAccount, int chatroomID) {
+        String str = String.format("joinChatroom/%s/%d", userAccount, chatroomID);
         // 向服务器发送注册数据
         if (sendMsg(str) == -1) {
             return new JoinChatroomResponse("向服务器发送数据失败");

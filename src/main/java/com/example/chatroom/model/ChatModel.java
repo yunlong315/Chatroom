@@ -1,9 +1,11 @@
 package com.example.chatroom.model;
 
+import com.example.chatroom.model.backend.ChatRoom;
+import com.example.chatroom.model.backend.Client;
 import com.example.chatroom.model.backend.User;
 import com.example.chatroom.model.backend.reponses.ChatResponse;
-import com.example.chatroom.model.backend.Client;
 import com.example.chatroom.model.backend.reponses.CreateChatroomResponse;
+import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
 
 import java.util.Optional;
 
@@ -27,9 +29,10 @@ public class ChatModel {
         return chatObject;
     }
 
-    public Optional<ChatObject> sendMessage(String message) {
+    public Optional<ChatObject> sendMessage(String message, ChatRoom chatRoom) {
         try {
-            ChatResponse chatResponse = client.chat(message);
+            client.chat(message, user, chatRoom);
+            ChatResponse chatResponse = client.chatResponse(message, user, chatRoom);
             ChatObject sendMessageObject = new ChatObject(chatResponse);
             chatObject = Optional.of(sendMessageObject);
         } catch (Exception e) {
@@ -48,6 +51,14 @@ public class ChatModel {
         ChatObject createChatroomObject = new ChatObject(response);
         chatObject = Optional.of(createChatroomObject);
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
+    }
+
+    public Optional<ChatObject> joinChatroom(int chatroomID) {
+        JoinChatroomResponse response = client.joinChatroom(user.getUserAccount(), chatroomID);
+        ChatObject joinChatroomObject = new ChatObject(response);
+        chatObject = Optional.of(joinChatroomObject);
+        notifications.publish(Notifications.EVENT_MODEL_JOIN_ChatRoom);
+        return chatObject;
     }
 
     public void setUser(User user) {

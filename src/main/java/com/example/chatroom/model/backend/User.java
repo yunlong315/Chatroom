@@ -13,7 +13,7 @@ public class User implements Serializable {
     //TODO:chatRoomList储存用户目前加入的所有聊天室
     private List<ChatRoom> chatRoomList = new ArrayList<>();
     //TODO:(暂不考虑)friendsList储存用户目前所有好友
-    private List<User> userList = new ArrayList<>();
+    private List<User> friendsList = new ArrayList<>();
 
     public User(String userAccount, String userPassWord, String userName, Socket userSocket) {
         this.userAccount = userAccount;
@@ -53,8 +53,8 @@ public class User implements Serializable {
         return chatRoomList;
     }
 
-    public List<User> getUserList() {
-        return userList;
+    public List<User> getFriendsList() {
+        return friendsList;
     }
 
     public String getUserName() {

@@ -49,7 +49,7 @@
                <top>
                   <BorderPane prefHeight="78.0" prefWidth="514.0" BorderPane.alignment="CENTER">
                      <center>
-                        <Text fx:id="friendNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="聊天室xxx" textAlignment="CENTER" wrappingWidth="131.58301734924316" BorderPane.alignment="CENTER" />
+                        <Text fx:id="titleText" strokeType="OUTSIDE" strokeWidth="0.0" text="聊天室xxx" textAlignment="CENTER" wrappingWidth="131.58301734924316" BorderPane.alignment="CENTER" />
                      </center>
                   </BorderPane>
                </top>
@@ -81,9 +81,15 @@
    <left>
       <BorderPane prefHeight="575.0" prefWidth="74.0" BorderPane.alignment="CENTER">
          <top>
-            <VBox alignment="CENTER" prefHeight="106.0" prefWidth="74.0" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" prefHeight="106.0" prefWidth="74.0" spacing="5.0" BorderPane.alignment="CENTER">
                <children>
                   <ImageView fx:id="headImage" fitHeight="51.0" fitWidth="49.0" pickOnBounds="true" preserveRatio="true" />
+                  <Text fx:id="userNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="用户名" textAlignment="CENTER">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Text>
+                  <Text fx:id="userAccountText" strokeType="OUTSIDE" strokeWidth="0.0" text="账号" textAlignment="CENTER" />
                </children>
             </VBox>
          </top>
@@ -91,6 +97,7 @@
             <VBox alignment="CENTER" prefHeight="377.0" prefWidth="74.0" spacing="100.0" BorderPane.alignment="CENTER">
                <children>
                   <Button fx:id="chatButton" mnemonicParsing="false" onAction="#onChatButtonClick" prefHeight="32.0" prefWidth="55.0" text="聊天" />
+                  <Button fx:id="joinButton" mnemonicParsing="false" onAction="#onJoinButtonClick" text="加入聊天" />
                   <Button fx:id="friendsButton" mnemonicParsing="false" onAction="#onFriendsButtonClick" prefHeight="30.0" prefWidth="54.0" text="好友" />
                </children>
                <opaqueInsets>

@@ -8,7 +8,12 @@ public class ChatRoom implements Serializable {
     static int nextID;//赋予给新创建的群，然后nextID++;
     private int ID;
     private String chatroomName = "新建聊天室";
+
     public ChatRoom(int ID) {
         this.ID = ID;
+    }
+
+    public int getID() {
+        return ID;
     }
 }

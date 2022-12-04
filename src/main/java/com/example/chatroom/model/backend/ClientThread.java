@@ -2,7 +2,6 @@ package com.example.chatroom.model.backend;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,12 +50,12 @@ public class ClientThread extends Thread {
                         // cmd = ["createChatroom", userAccount]
                         createChatroom(cmd);
                         break;
-                    case "addChatroom":
-                        // cmd = ["addChatroom", userAccount]
-                        addChatroom(cmd);
+                    case "joinChatroom":
+                        // cmd = ["joinChatroom", userAccount,chatroomID]
+                        joinChatroom(cmd);
                         break;
                     case "chat":
-                        // cmd = ["chat", userAccount,chatroomID]
+                        // cmd = ["chat", userAccount,chatroomID,chatcontents]
                         chat(cmd);
                         break;
 
@@ -129,7 +128,7 @@ public class ClientThread extends Thread {
     }
 
     //用户通过搜索chatroomID加入聊天室
-    public void addChatroom(String[] cmd) {
+    public void joinChatroom(String[] cmd) {
         // cmd = ["addChatroom", userAccount,chatroomID]
 
         String userAccount = cmd[1];
