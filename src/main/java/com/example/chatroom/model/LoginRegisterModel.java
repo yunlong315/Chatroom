@@ -1,8 +1,8 @@
 package com.example.chatroom.model;
 
-import com.example.chatroom.model.BackEnd.Client;
-import com.example.chatroom.model.BackEnd.reponses.LoginResponse;
-import com.example.chatroom.model.BackEnd.reponses.RegisterResponse;
+import com.example.chatroom.model.backend.Client;
+import com.example.chatroom.model.backend.reponses.LoginResponse;
+import com.example.chatroom.model.backend.reponses.RegisterResponse;
 
 import java.util.Optional;
 
@@ -12,8 +12,7 @@ public class LoginRegisterModel {
     private Optional<LoginRegisterObject> loginRegisterObject = Optional.empty();
 
     public LoginRegisterModel() {
-        Client client = Client.getClient();
-        client.init();
+        Client.getClient().init();
     }
 
     public Optional<LoginRegisterObject> getLoginRegisterObject() {
@@ -22,9 +21,9 @@ public class LoginRegisterModel {
 
     public Optional<LoginRegisterObject> login(String userAccount, String passWord) {
         try {
-            //TODO:调用真实后端接口
-            //模拟登录请求失败
-            LoginResponse loginResponse = Client.getClient().login(userAccount, passWord);
+            Client.getClient().login(userAccount, passWord);
+            Thread.sleep(100);
+            LoginResponse loginResponse = Client.getClient().loginResponse();
             LoginRegisterObject lro = new LoginRegisterObject(loginResponse);
             loginRegisterObject = Optional.of(lro);
         } catch (Exception e) {
@@ -34,9 +33,11 @@ public class LoginRegisterModel {
         return loginRegisterObject;
     }
 
-    public Optional<LoginRegisterObject> register(String userAccount, String passWord,String userName) {
+    public Optional<LoginRegisterObject> register(String userAccount, String passWord, String userName) {
         try {
-            RegisterResponse registerResponse = Client.getClient().register(userAccount, passWord, userName);
+            Client.getClient().register(userAccount, passWord, userName);
+            Thread.sleep(100);
+            RegisterResponse registerResponse = Client.getClient().registerResponse();
             LoginRegisterObject lro = new LoginRegisterObject(registerResponse);
             loginRegisterObject = Optional.of(lro);
 

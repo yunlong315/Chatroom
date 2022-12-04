@@ -1,6 +1,6 @@
-package com.example.chatroom.model.BackEnd.reponses;
+package com.example.chatroom.model.backend.reponses;
 
-import com.example.chatroom.model.BackEnd.User;
+import com.example.chatroom.model.backend.User;
 
 /**
  *后端登录方法的返回类。记录登录操作的信息。

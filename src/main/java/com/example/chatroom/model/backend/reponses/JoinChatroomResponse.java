@@ -1,7 +1,7 @@
-package com.example.chatroom.model.BackEnd.reponses;
+package com.example.chatroom.model.backend.reponses;
 
-import com.example.chatroom.model.BackEnd.ChatRoom;
-import com.example.chatroom.model.BackEnd.User;
+import com.example.chatroom.model.backend.ChatRoom;
+import com.example.chatroom.model.backend.User;
 
 public class JoinChatroomResponse implements IResponse
 {

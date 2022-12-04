@@ -2,7 +2,7 @@ package com.example.chatroom;
 
 import com.example.chatroom.model.LoginRegisterModel;
 import com.example.chatroom.model.Notifications;
-import com.example.chatroom.model.BackEnd.User;
+import com.example.chatroom.model.backend.User;
 import com.example.chatroom.util.PatternUtil;
 import javafx.beans.property.*;
 import javafx.fxml.FXML;
