@@ -1,11 +1,10 @@
 package com.example.chatroom.model;
 
-import com.example.chatroom.model.BackEnd.ChatRoom;
-import com.example.chatroom.model.BackEnd.reponses.ChatResponse;
-import com.example.chatroom.model.BackEnd.User;
-import com.example.chatroom.model.BackEnd.reponses.CreateChatroomResponse;
-import com.example.chatroom.model.BackEnd.reponses.IResponse;
-import com.example.chatroom.model.BackEnd.reponses.JoinChatroomResponse;
+import com.example.chatroom.model.backend.ChatRoom;
+import com.example.chatroom.model.backend.User;
+import com.example.chatroom.model.backend.reponses.CreateChatroomResponse;
+import com.example.chatroom.model.backend.reponses.IResponse;
+import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
 
 import java.util.ArrayList;
 import java.util.List;

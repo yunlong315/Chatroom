@@ -1,11 +1,14 @@
 package com.example.chatroom;
 
-import com.example.chatroom.model.BackEnd.User;
+import com.example.chatroom.model.backend.Client;
+import com.example.chatroom.model.backend.User;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
@@ -17,7 +20,12 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         this.primaryStage = stage;
         this.primaryStage.setTitle("Chatroom");
+        this.primaryStage.setOnCloseRequest((e)->closeClient());
         showLoginRegisterView();
+    }
+
+    private void closeClient() {
+        Client.closeClient();
     }
 
     public void showLoginRegisterView() {

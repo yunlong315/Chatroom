@@ -1,4 +1,4 @@
-package com.example.chatroom.model.BackEnd;
+package com.example.chatroom.model.backend;
 
 import java.io.Serializable;
 import java.net.Socket;
@@ -17,8 +17,8 @@ public class User implements Serializable {
 
     public User(String userAccount, String userPassWord, String userName, Socket userSocket) {
         this.userAccount = userAccount;
-        this.userName = userName;
         this.userPassWord = userPassWord;
+        this.userName = userName;
         this.userSocket = userSocket;
     }
 

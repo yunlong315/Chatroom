@@ -1,7 +1,7 @@
 package com.example.chatroom;
 
-import com.example.chatroom.model.BackEnd.ChatRoom;
-import com.example.chatroom.model.BackEnd.User;
+import com.example.chatroom.model.backend.ChatRoom;
+import com.example.chatroom.model.backend.User;
 import com.example.chatroom.model.ChatModel;
 import com.example.chatroom.model.ChatObject;
 import com.example.chatroom.model.Notifications;
@@ -74,7 +74,9 @@ public class ChatViewController {
     }
 
     public void setNowUser(User nowUser) {
+
         this.nowUser = nowUser;
+        chatModel.setUser(nowUser);
     }
 
     /**
@@ -95,7 +97,6 @@ public class ChatViewController {
 
 
     public ChatViewController() {
-
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_FriendsList, this, this::updateFriendsList);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);

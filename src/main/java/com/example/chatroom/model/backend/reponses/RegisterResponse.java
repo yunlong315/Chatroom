@@ -1,6 +1,4 @@
-package com.example.chatroom.model.BackEnd.reponses;
-
-import java.net.HttpCookie;
+package com.example.chatroom.model.backend.reponses;
 
 /**
  * 后端注册方法的返回类。记录注册操作的信息。

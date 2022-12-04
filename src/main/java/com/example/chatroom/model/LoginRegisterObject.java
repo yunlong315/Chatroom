@@ -1,9 +1,9 @@
 package com.example.chatroom.model;
 
-import com.example.chatroom.model.BackEnd.reponses.IResponse;
-import com.example.chatroom.model.BackEnd.reponses.LoginResponse;
-import com.example.chatroom.model.BackEnd.reponses.RegisterResponse;
-import com.example.chatroom.model.BackEnd.User;
+import com.example.chatroom.model.backend.reponses.IResponse;
+import com.example.chatroom.model.backend.reponses.LoginResponse;
+import com.example.chatroom.model.backend.reponses.RegisterResponse;
+import com.example.chatroom.model.backend.User;
 
 public class LoginRegisterObject {
     private final Boolean wasError;

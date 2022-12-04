@@ -1,4 +1,4 @@
-package com.example.chatroom.model.BackEnd;
+package com.example.chatroom.model.backend;
 
 import java.io.IOException;
 import java.io.InputStream;
