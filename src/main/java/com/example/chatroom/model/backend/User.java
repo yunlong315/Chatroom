@@ -3,6 +3,7 @@ package com.example.chatroom.model.backend;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class User implements Serializable {
@@ -10,8 +11,7 @@ public class User implements Serializable {
     private String userPassWord;
     private String userName;
     private transient Socket userSocket = null;
-    //TODO:chatRoomList储存用户目前加入的所有聊天室
-    private List<ChatRoom> chatRoomList = new ArrayList<>();
+    private List<ChatRoom> chatRoomList = Collections.synchronizedList(new ArrayList<>());
     //TODO:(暂不考虑)friendsList储存用户目前所有好友
     private List<User> friendsList = new ArrayList<>();
 

@@ -10,6 +10,7 @@ public class LoginResponse implements IResponse{
     private boolean success = false;
     private String errorMessage="";
     private final User user;
+    private String tmpMsg = "";  // tmpMsg用于后端暂时储存返回信息
     //失败信息构造方法
     public LoginResponse(String errorMessage)
     {
@@ -35,5 +36,13 @@ public class LoginResponse implements IResponse{
 
     public User getUser() {
         return user;
+    }
+
+    public String getTmpMsg() {
+        return tmpMsg;
+    }
+
+    public void setTmpMsg(String tmpMsg) {
+        this.tmpMsg = tmpMsg;
     }
 }

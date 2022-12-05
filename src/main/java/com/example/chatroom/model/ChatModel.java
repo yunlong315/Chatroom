@@ -46,15 +46,21 @@ public class ChatModel {
      * 由client发送创建聊天室的请求，获得response后发布。
      */
     public void createChatroom() {
-        client.createChatroom(user.getUserAccount());
-        CreateChatroomResponse response = client.createChatroomResponse(user);
-        ChatObject createChatroomObject = new ChatObject(response);
-        chatObject = Optional.of(createChatroomObject);
+        try {
+            client.createChatroom(user.getUserAccount());
+            CreateChatroomResponse response = client.getCreateChatroomResponse(user);
+            ChatObject createChatroomObject = new ChatObject(response);
+            chatObject = Optional.of(createChatroomObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
     }
 
     public Optional<ChatObject> joinChatroom(int chatroomID) {
-        JoinChatroomResponse response = client.joinChatroom(user.getUserAccount(), chatroomID);
+        client.joinChatroom(user.getUserAccount(), chatroomID);
+        JoinChatroomResponse response = client.getJoinChatroomResponse();
         ChatObject joinChatroomObject = new ChatObject(response);
         chatObject = Optional.of(joinChatroomObject);
         notifications.publish(Notifications.EVENT_MODEL_JOIN_ChatRoom);

@@ -6,6 +6,7 @@ public class CreateChatroomResponse implements IResponse {
     private boolean success = false;
     private String errorMessage = "";
     private final ChatRoom chatroom;
+    private String tmpMsg = "";
 
     //失败信息构造方法
     public CreateChatroomResponse(String errorMessage) {
@@ -31,5 +32,13 @@ public class CreateChatroomResponse implements IResponse {
 
     public ChatRoom getChatroom() {
         return chatroom;
+    }
+
+    public String getTmpMsg() {
+        return tmpMsg;
+    }
+
+    public void setTmpMsg(String tmpMsg) {
+        this.tmpMsg = tmpMsg;
     }
 }
