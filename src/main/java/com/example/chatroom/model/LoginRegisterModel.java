@@ -22,8 +22,7 @@ public class LoginRegisterModel {
     public Optional<LoginRegisterObject> login(String userAccount, String passWord) {
         try {
             Client.getClient().login(userAccount, passWord);
-            Thread.sleep(100);
-            LoginResponse loginResponse = Client.getClient().loginResponse();
+            LoginResponse loginResponse = Client.getClient().getLoginResponse();
             LoginRegisterObject lro = new LoginRegisterObject(loginResponse);
             loginRegisterObject = Optional.of(lro);
         } catch (Exception e) {
@@ -36,11 +35,9 @@ public class LoginRegisterModel {
     public Optional<LoginRegisterObject> register(String userAccount, String passWord, String userName) {
         try {
             Client.getClient().register(userAccount, passWord, userName);
-            Thread.sleep(100);
-            RegisterResponse registerResponse = Client.getClient().registerResponse();
+            RegisterResponse registerResponse = Client.getClient().getRegisterResponse();
             LoginRegisterObject lro = new LoginRegisterObject(registerResponse);
             loginRegisterObject = Optional.of(lro);
-
         } catch (Exception e) {
             e.printStackTrace();
         }

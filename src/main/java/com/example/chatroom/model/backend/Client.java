@@ -5,6 +5,7 @@ import com.example.chatroom.model.backend.reponses.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Client {
     private static Client client;
@@ -50,9 +51,14 @@ public class Client {
     private Thread readThread = null;
     private boolean readThreadExit = false;
 
+    private byte[] retByteArr;  // retByteArr用于记录服务器返回的字符串
     private String retMsg = "";  // retMsg用于记录服务器返回的字符串
-    private String registerRetMsg = "";  // registerRetMsg用于记录register操作后服务器返回的结果，下同
-    private String loginRetMsg = "";
+    private final RegisterResponse registerResponse = new RegisterResponse("");
+    private final LoginResponse loginResponse = new LoginResponse("");
+    private byte[] loginResponseByteArr;
+    private final CreateChatroomResponse createChatroomResponse = new CreateChatroomResponse("");
+    private final JoinChatroomResponse joinChatroomResponse = new JoinChatroomResponse("");
+    private byte[] joinChatroomResponseByteArr;
     private String createChatroomRetMsg = "";
     private String chatRetMsg = "";
 
@@ -78,12 +84,14 @@ public class Client {
 
     private int sendMsg(String str) {
         try {
+            Thread.sleep(1);
             byte[] data = str.getBytes();
             int len = data.length + 5;
             dataOutputStream.writeInt(len);
             dataOutputStream.write(data);
             dataOutputStream.flush();
         } catch (Exception e) {
+            e.printStackTrace();
             return -1;
         }
         return 0;
@@ -91,9 +99,11 @@ public class Client {
 
     private int receiveMsg() {
         try {
+            // 先读取一个整数表示数据长度，再读取该长度的数据，保证不粘包丢包
             int len = dataInputStream.readInt();
             byte[] data = new byte[len - 5];
             dataInputStream.readFully(data);
+            retByteArr = data;
             retMsg = new String(data);
             return 0;
         } catch (Exception e) {
@@ -111,17 +121,34 @@ public class Client {
                         continue;
                     }
                     System.out.println("receive: " + retMsg);
-                    String[] cmd = retMsg.split("/");
-                    switch (cmd[0]) {
+                    String cmd = retMsg.substring(0, retMsg.indexOf('/'));
+                    switch (cmd) {
                         case "registerResponse":
                             // 将服务器返回的数据存储到registerRetMsg中
-                            registerRetMsg = retMsg;
+                            synchronized (registerResponse) {
+                                registerResponse.setTmpMsg(retMsg);
+                                registerResponse.notify();
+                            }
                             break;
                         case "loginResponse":
-                            loginRetMsg = retMsg;
+                            synchronized (loginResponse) {
+                                loginResponse.setTmpMsg(retMsg);
+                                loginResponseByteArr = retByteArr;
+                                loginResponse.notify();
+                            }
                             break;
                         case "createChatroomResponse":
-                            createChatroomRetMsg = retMsg;
+                            synchronized (createChatroomResponse) {
+                                createChatroomResponse.setTmpMsg(retMsg);
+                                createChatroomResponse.notify();
+                            }
+                            break;
+                        case "joinChatroomResponse":
+                            synchronized (joinChatroomResponse) {
+                                joinChatroomResponse.setTmpMsg(retMsg);
+                                joinChatroomResponseByteArr = retByteArr;
+                                joinChatroomResponse.notify();
+                            }
                             break;
                         case "chat":
                             chatRetMsg = retMsg;
@@ -135,14 +162,24 @@ public class Client {
 
     public void register(String userAccount, String userPassWord, String userName) {
         String str = "register/" + userAccount + "/" + userPassWord + "/" + userName;
-        // 向服务器发送注册数据
-        if (sendMsg(str) == -1) {
-            registerRetMsg = "register/向服务器发送数据失败";
-        }
+        // 向服务器发送注册数据，失败处理交给getRegisterResponse()方法
+        sendMsg(str);
     }
 
-    public RegisterResponse registerResponse() {
-        String msg = registerRetMsg.split("/")[1];
+    public RegisterResponse getRegisterResponse() {
+        // 进入等待状态，直到其他方法调用 registerResponse.notify() 函数
+        synchronized (registerResponse) {
+            try {
+                registerResponse.wait(5000);
+                if (registerResponse.getTmpMsg().equals("")) {
+                    registerResponse.setTmpMsg("registerResponse/响应超时，请检查网络");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String msg = registerResponse.getTmpMsg().split("/")[1];
+        registerResponse.setTmpMsg("");  // 将registerResponse还原为初始态，方便下一次使用
         if (msg.equals("success")) {
             return new RegisterResponse(true);
         } else {
@@ -153,17 +190,45 @@ public class Client {
     public void login(String userAccount, String userPassWord) {
         String str = "login/" + userAccount + "/" + userPassWord;
         // 向服务器发送注册数据
-        if (sendMsg(str) == -1) {
-            loginRetMsg = "login/向服务器发送数据失败";
-        }
+        sendMsg(str);
     }
 
-    public LoginResponse loginResponse() {
-        // args: ["loginResponse", "success"/errorMsg, (userAccount, pwd, userName)]
-        String[] args = loginRetMsg.split("/");
+    public LoginResponse getLoginResponse() {
+        // args: ["loginResponse", "success"/errorMsg, (User user)]
+        // 进入等待状态，直到其他方法调用 loginResponse.notify() 函数
+        synchronized (loginResponse) {
+            try {
+                loginResponse.wait(5000);
+                if (loginResponse.getTmpMsg().equals("")) {
+                    loginResponse.setTmpMsg("registerResponse/响应超时，请检查网络");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] args = loginResponse.getTmpMsg().split("/");
+        loginResponse.setTmpMsg("");
         // 判断是否注册成功
         if (args[1].equals("success")) {
-            return new LoginResponse(new User(args[2], args[3], args[4], socket));
+            int len = "loginResponse/success/".getBytes().length;
+            byte[] objByte = new byte[loginResponseByteArr.length - len];
+            System.arraycopy(loginResponseByteArr, len, objByte, 0, objByte.length);
+            User user = null;
+            try {
+                //bytearray to object
+                ByteArrayInputStream bi = new ByteArrayInputStream(objByte);
+                ObjectInputStream oi = new ObjectInputStream(bi);
+                user = (User)oi.readObject();
+                bi.close();
+                oi.close();
+                user.setUserSocket(socket);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (user == null) {
+                return new LoginResponse("接收服务器发送对象失败");
+            }
+            return new LoginResponse(user);
         } else {
             return new LoginResponse(args[1]);
         }
@@ -172,14 +237,24 @@ public class Client {
     public void createChatroom(String userAccount) {
         String str = "createChatroom/" + userAccount;
         // 向服务器发送注册数据
-        if (sendMsg(str) == -1) {
-            createChatroomRetMsg = "createChatroomRetMsg/向服务器发送数据失败";
-        }
+        sendMsg(str);
     }
 
-    public CreateChatroomResponse createChatroomResponse(User user) {
+    public CreateChatroomResponse getCreateChatroomResponse(User user) {
         // args: ["createChatroomRetMsg", "success"/errorMsg, (chatroomId)]
-        String[] args = createChatroomRetMsg.split("/");
+        // 进入等待状态，直到其他方法调用 loginResponse.notify() 函数
+        synchronized (createChatroomResponse) {
+            try {
+                createChatroomResponse.wait(5000);
+                if (createChatroomResponse.getTmpMsg().equals("")) {
+                    createChatroomResponse.setTmpMsg("registerResponse/响应超时，请检查网络");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] args = createChatroomResponse.getTmpMsg().split("/");
+        createChatroomResponse.setTmpMsg("");
         // 判断是否注册成功
         if (args[1].equals("success")) {
             ChatRoom chatRoom = new ChatRoom(Integer.parseInt(args[2]));
@@ -208,31 +283,48 @@ public class Client {
         }
     }
 
-    public JoinChatroomResponse joinChatroom(String userAccount, int chatroomID) {
+    public void joinChatroom(String userAccount, int chatroomID) {
         String str = String.format("joinChatroom/%s/%d", userAccount, chatroomID);
         // 向服务器发送注册数据
-        if (sendMsg(str) == -1) {
-            return new JoinChatroomResponse("向服务器发送数据失败");
-        }
-        // 接受接受服务器返回数据
-        if (receiveMsg() == -1) {
-            return new JoinChatroomResponse("接受服务器返回数据失败");
-        }
-        if (retMsg.equals("success")) {
-            try {
-                ObjectInputStream input = new ObjectInputStream(inputStream);
-                User user = (User) input.readObject();
-                user.setUserSocket(socket);
-                ChatRoom chatroom = (ChatRoom) input.readObject();
-                return new JoinChatroomResponse(user, chatroom);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new JoinChatroomResponse("接受服务器返回对象失败");
-            }
-        } else {
-            return new JoinChatroomResponse(retMsg);
-        }
+        sendMsg(str);
     }
 
+    public JoinChatroomResponse getJoinChatroomResponse() {
+        // args = ["joinChatroomResponse", "success"/errorMsg, (Chatroom chatroom)]
+        synchronized (joinChatroomResponse) {
+            try {
+                joinChatroomResponse.wait(5000);
+                if (joinChatroomResponse.getTmpMsg().equals("")) {
+                    joinChatroomResponse.setTmpMsg("joinChatroomResponse/响应超时，请检查网络");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] args = joinChatroomResponse.getTmpMsg().split("/");
+        joinChatroomResponse.setTmpMsg("");
+        if (args[1].equals("success")) {
+            int len = "joinChatroomResponse/success/".getBytes().length;
+            byte[] objByte = new byte[joinChatroomResponseByteArr.length - len];
+            System.arraycopy(joinChatroomResponseByteArr, len, objByte, 0, objByte.length);
+            ChatRoom chatRoom = null;
+            try {
+                //bytearray to object
+                ByteArrayInputStream bi = new ByteArrayInputStream(objByte);
+                ObjectInputStream oi = new ObjectInputStream(bi);
+                chatRoom = (ChatRoom) oi.readObject();
+                bi.close();
+                oi.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (chatRoom == null) {
+                return new JoinChatroomResponse("接收服务器发送对象失败");
+            }
+            return new JoinChatroomResponse(chatRoom);
+        } else {
+            return new JoinChatroomResponse(args[1]);
+        }
+    }
 
 }

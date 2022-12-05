@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CenterServer extends Thread {
+public class CenterServer {
 
     //    单例模式，方便其他类快速访问
     private static CenterServer cs = new CenterServer();
@@ -21,7 +21,7 @@ public class CenterServer extends Thread {
 
     //    用户账号集合Map<String id, User user>
     Map<String, User> clientMap = Collections.synchronizedMap(new HashMap<>());
-    HashMap<String, ChatRoom> chatroomHashMap = new HashMap<>();//记录聊天室
+    Map<Integer, ChatRoom> chatroomHashMap = Collections.synchronizedMap(new HashMap<>());//记录聊天室
 
     private int listen(ServerSocket serverSocket) throws IOException {
         while (true) {
