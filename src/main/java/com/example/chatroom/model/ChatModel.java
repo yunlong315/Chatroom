@@ -29,10 +29,15 @@ public class ChatModel {
         return chatObject;
     }
 
-    public Optional<ChatObject> sendMessage(String message, ChatRoom chatRoom) {
+    /**
+     * 发送聊天信息。
+     * @param message-聊天信息
+     * @param chatroomID-聊天室id
+     * @return
+     */
+    public Optional<ChatObject> sendMessage(String message, int chatroomID) {
         try {
-            client.chat(message, user, chatRoom);
-            ChatResponse chatResponse = client.chatResponse(message, user, chatRoom);
+            ChatResponse chatResponse =client.chat(message, user.getUserAccount(), chatroomID);
             ChatObject sendMessageObject = new ChatObject(chatResponse);
             chatObject = Optional.of(sendMessageObject);
         } catch (Exception e) {
@@ -41,14 +46,12 @@ public class ChatModel {
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
         return chatObject;
     }
-
     /**
      * 由client发送创建聊天室的请求，获得response后发布。
      */
     public void createChatroom() {
         try {
-            client.createChatroom(user.getUserAccount());
-            CreateChatroomResponse response = client.getCreateChatroomResponse(user);
+            CreateChatroomResponse response=client.createChatroom(user);
             ChatObject createChatroomObject = new ChatObject(response);
             chatObject = Optional.of(createChatroomObject);
         } catch (Exception e) {
@@ -57,10 +60,8 @@ public class ChatModel {
 
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
     }
-
     public Optional<ChatObject> joinChatroom(int chatroomID) {
-        client.joinChatroom(user.getUserAccount(), chatroomID);
-        JoinChatroomResponse response = client.getJoinChatroomResponse();
+        JoinChatroomResponse response=client.joinChatroom(user.getUserAccount(), chatroomID);
         ChatObject joinChatroomObject = new ChatObject(response);
         chatObject = Optional.of(joinChatroomObject);
         notifications.publish(Notifications.EVENT_MODEL_JOIN_ChatRoom);

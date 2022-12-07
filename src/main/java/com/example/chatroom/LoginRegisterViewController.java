@@ -3,6 +3,7 @@ package com.example.chatroom;
 import com.example.chatroom.model.LoginRegisterModel;
 import com.example.chatroom.model.Notifications;
 import com.example.chatroom.model.backend.User;
+import com.example.chatroom.util.AlertUtil;
 import com.example.chatroom.util.PatternUtil;
 import javafx.beans.property.*;
 import javafx.fxml.FXML;
@@ -59,21 +60,15 @@ public class LoginRegisterViewController {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setContentText("登录成功");
-                            alert.showAndWait();
+                            //登录成功，弹出成功信息
+                            AlertUtil.showAlert("登录成功");
                         } else {
                             //注册成功，弹出成功信息
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setContentText("注册成功");
-                            alert.showAndWait();
+                            AlertUtil.showAlert("注册成功");
                         }
                     } else {
                         //弹出错误信息
-                        errorMessage.set(resObject.getErrorMessage());
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setContentText(errorMessage.getValue());
-                        alert.showAndWait();
+                        AlertUtil.showAlert(resObject.getErrorMessage());
                     }
                 }
         );
@@ -110,11 +105,7 @@ public class LoginRegisterViewController {
             return true;
         } else {
             // Show the error message.
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Invalid Input");
-            alert.setHeaderText(null);
-            alert.setContentText(errorMessage);
-            alert.show();
+            AlertUtil.showAlert(errorMessage);
             return false;
         }
     }
@@ -137,11 +128,7 @@ public class LoginRegisterViewController {
             return true;
         } else {
             // Show the error message.
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Invalid Input");
-            alert.setHeaderText(null);
-            alert.setContentText(errorMessage);
-            alert.show();
+            AlertUtil.showAlert(errorMessage);
             return false;
         }
     }

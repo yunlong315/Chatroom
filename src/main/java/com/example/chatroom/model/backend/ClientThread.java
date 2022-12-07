@@ -20,7 +20,6 @@ public class ClientThread extends Thread {
             // 得到socket输出流
             outputStream = socket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
-
             // 得到socket输入流
             inputStream = socket.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
@@ -59,7 +58,6 @@ public class ClientThread extends Thread {
                         // cmd = ["chat", userAccount,chatroomID,chatcontents]
                         chat(cmd);
                         break;
-
                 }
             }
         } catch (SocketException | EOFException e) {
@@ -158,7 +156,10 @@ public class ClientThread extends Thread {
         sendMsg("createChatroomResponse/success/" + chatroomID);
     }
 
-    //用户通过搜索chatroomID加入聊天室
+    /**
+     * 将用户加入聊天室，并向所有聊天室中用户广播这个更新。
+     * cmd = ["addChatroom", userAccount, chatroomID]
+     */
     public void joinChatroom(String[] cmd) {
         // cmd = ["addChatroom", userAccount, chatroomID]
         String userAccount = cmd[1];
@@ -188,21 +189,21 @@ public class ClientThread extends Thread {
 
     //userAccount发送到chatroom
     public void chat(String[] cmd) throws IOException {
-        // cmd = ["chat", userAccount,chatroomID,chatcontents]
+        // cmd = ["chat", userAccount,chatroomID,chatContents]
         String chatContents = cmd[3];
         String userAccount = cmd[1];
-        String chatroomID = cmd[2];
+        int chatroomID = Integer.parseInt(cmd[2]);
         //获取聊天室
         Map<Integer, ChatRoom> chatroomHashMap = CenterServer.getCenterServer().chatroomHashMap;
         ChatRoom thisChatroom = chatroomHashMap.get(chatroomID);
         //获取所有成员（包括自己）
         HashMap<String, User> userHashMap = thisChatroom.userHashMap;
-        for (String userID : userHashMap.keySet()) {
-            User userInChatroom = userHashMap.get(userID);
-            Socket userInChatroomSocket = userInChatroom.getUserSocket();
-            ClientChat clientChat = new ClientChat(userInChatroomSocket, chatContents);
-            clientChat.start();
+        //对除自己外其他成员发送消息
+        for (User user : userHashMap.values()) {
+            Socket userSocket = user.getUserSocket();
+
         }
+        //向自己返回成功消息
     }
 
 }

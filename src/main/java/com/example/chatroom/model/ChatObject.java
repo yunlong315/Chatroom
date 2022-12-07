@@ -12,8 +12,13 @@ import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
  */
 public class ChatObject {
     private final boolean wasError;
+    /**
+     * 报错消息
+     */
     private final String errorMessage;
-    private User sender = null;
+    /**
+     * 收到的聊天消息
+     */
     private String message = null;
     private ChatRoom chatRoom = null;
 
@@ -27,22 +32,18 @@ public class ChatObject {
             chatRoom = joinChatroomResponse.getChatroom();
         } else if (response instanceof ChatResponse chatResponse) {
             message = chatResponse.getMessage();
-            sender = chatResponse.getUser();
+            //TODO:此处不需要sender
+            //sender = chatResponse.getUser();
         }
     }
 
-    public boolean isWasError() {
+    public boolean wasError() {
         return wasError;
     }
 
     public String getErrorMessage() {
         return errorMessage;
     }
-
-    public User getSender() {
-        return sender;
-    }
-
     public String getMessage() {
         return message;
     }

@@ -5,6 +5,7 @@ import com.example.chatroom.model.ChatObject;
 import com.example.chatroom.model.Notifications;
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
+import com.example.chatroom.util.AlertUtil;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -136,7 +137,13 @@ public class ChatViewController {
     public void updateChatList(String event) {
         chatModel.getChatObject().ifPresent(
                 (chatObject) -> {
-                    chatRoomsProperty.get().addAll(chatObject.getChatRoom());
+                    if(!chatObject.wasError()) {
+                        chatRoomsProperty.get().addAll(chatObject.getChatRoom());
+                    }
+                    else
+                    {
+                        AlertUtil.showAlert(chatObject.getErrorMessage());
+                    }
                 }
         );
     }
@@ -156,11 +163,13 @@ public class ChatViewController {
     private HBox getMessageBox(ChatObject chatObject) {
         HBox retBox = new HBox();
         Text messageText = new Text(chatObject.getMessage());
-        if (chatObject.getSender().equals(nowUser)) {
-            retBox.setAlignment(Pos.CENTER_RIGHT);
-        } else {
-            retBox.setAlignment(Pos.CENTER_LEFT);
-        }
+        //TODO:用户发送消息时，自己的屏幕上就显示发送的消息。服务器不会将消息转发给自己。
+//        if (chatObject.getSender().equals(nowUser)) {
+//            retBox.setAlignment(Pos.CENTER_RIGHT);
+//        } else {
+//            retBox.setAlignment(Pos.CENTER_LEFT);
+//        }
+        retBox.setAlignment(Pos.CENTER_LEFT);
         retBox.getChildren().addAll(messageText);
         return retBox;
     }
@@ -173,12 +182,10 @@ public class ChatViewController {
     public void updateMessageList(String event) {
         chatModel.getChatObject().ifPresent(
                 (chatObject) -> {
-                    if (chatObject.isWasError()) {
+                    if (chatObject.wasError()) {
                         //弹出错误信息
                         String errorMessage = chatObject.getErrorMessage();
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle(errorMessage);
-                        alert.showAndWait();
+                        AlertUtil.showAlert(errorMessage);
                     } else {
                         HBox messageHBox = getMessageBox(chatObject);
                         messagesProperty.get().addAll(messageHBox);
@@ -219,7 +226,6 @@ public class ChatViewController {
         settingsStage.setTitle("设置");
         settingsStage.setScene(scene);
         settingsStage.show();
-        onAddButtonClick();
     }
 
     /**
@@ -263,11 +269,7 @@ public class ChatViewController {
                 id = Integer.parseInt(ID);
                 chatModel.joinChatroom(id);
             } catch (NumberFormatException e) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Invalid Input");
-                alert.setHeaderText(null);
-                alert.setContentText("输入的ID非数字");
-                alert.show();
+                AlertUtil.showAlert("输入的ID非数字");
             }
         }
     }
@@ -286,7 +288,7 @@ public class ChatViewController {
         String message = messageTextArea.getText();
         if (!message.isEmpty()) {
             //发送非空字符串
-            chatModel.sendMessage(message, selectedChatRoom);
+            chatModel.sendMessage(message, selectedChatRoom.getID());
         }
     }
 }

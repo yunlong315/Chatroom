@@ -50,7 +50,6 @@ public class Client {
     private DataInputStream dataInputStream = null;
     private Thread readThread = null;
     private boolean readThreadExit = false;
-
     private byte[] retByteArr;  // retByteArr用于记录服务器返回的字符串
     private String retMsg = "";  // retMsg用于记录服务器返回的字符串
     private final RegisterResponse registerResponse = new RegisterResponse("");
@@ -58,6 +57,7 @@ public class Client {
     private byte[] loginResponseByteArr;
     private final CreateChatroomResponse createChatroomResponse = new CreateChatroomResponse("");
     private final JoinChatroomResponse joinChatroomResponse = new JoinChatroomResponse("");
+    private final ChatResponse chatResponse = new ChatResponse("");
     private byte[] joinChatroomResponseByteArr;
     private String createChatroomRetMsg = "";
     private String chatRetMsg = "";
@@ -82,6 +82,11 @@ public class Client {
         return 0;
     }
 
+    /**
+     * 向服务器发送一个字符串。发送成功返回0，失败返回-1。
+     * @param str
+     * @return int
+     */
     private int sendMsg(String str) {
         try {
             Thread.sleep(1);
@@ -111,6 +116,9 @@ public class Client {
         }
     }
 
+    /**
+     * 新建一个专门接受服务器消息的线程。
+     */
     private void readFromCenterServer() {
         System.out.println("Listening to the CenterServer...");
         readThread = new Thread(new Runnable() {
@@ -150,6 +158,11 @@ public class Client {
                                 joinChatroomResponse.notify();
                             }
                             break;
+                        case "chatResponse":
+                            synchronized (chatResponse){
+                                chatResponse.setTmpMsg(retMsg);
+                                chatResponse.notify();
+                            }
                         case "chat":
                             chatRetMsg = retMsg;
                             break;
@@ -160,13 +173,14 @@ public class Client {
         readThread.start();
     }
 
-    public void register(String userAccount, String userPassWord, String userName) {
+    public RegisterResponse register(String userAccount, String userPassWord, String userName) {
         String str = "register/" + userAccount + "/" + userPassWord + "/" + userName;
         // 向服务器发送注册数据，失败处理交给getRegisterResponse()方法
         sendMsg(str);
+        return getRegisterResponse();
     }
 
-    public RegisterResponse getRegisterResponse() {
+    private RegisterResponse getRegisterResponse() {
         // 进入等待状态，直到其他方法调用 registerResponse.notify() 函数
         synchronized (registerResponse) {
             try {
@@ -187,20 +201,21 @@ public class Client {
         }
     }
 
-    public void login(String userAccount, String userPassWord) {
+    public LoginResponse login(String userAccount, String userPassWord) {
         String str = "login/" + userAccount + "/" + userPassWord;
         // 向服务器发送注册数据
         sendMsg(str);
+        return getLoginResponse();
     }
 
-    public LoginResponse getLoginResponse() {
+    private LoginResponse getLoginResponse() {
         // args: ["loginResponse", "success"/errorMsg, (User user)]
         // 进入等待状态，直到其他方法调用 loginResponse.notify() 函数
         synchronized (loginResponse) {
             try {
                 loginResponse.wait(5000);
                 if (loginResponse.getTmpMsg().equals("")) {
-                    loginResponse.setTmpMsg("registerResponse/响应超时，请检查网络");
+                    loginResponse.setTmpMsg("loginResponse/响应超时，请检查网络");
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -234,13 +249,14 @@ public class Client {
         }
     }
 
-    public void createChatroom(String userAccount) {
-        String str = "createChatroom/" + userAccount;
+    public CreateChatroomResponse createChatroom(User user) {
+        String str = "createChatroom/" + user.getUserAccount();
         // 向服务器发送注册数据
         sendMsg(str);
+        return getCreateChatroomResponse(user);
     }
 
-    public CreateChatroomResponse getCreateChatroomResponse(User user) {
+    private CreateChatroomResponse getCreateChatroomResponse(User user) {
         // args: ["createChatroomRetMsg", "success"/errorMsg, (chatroomId)]
         // 进入等待状态，直到其他方法调用 loginResponse.notify() 函数
         synchronized (createChatroomResponse) {
@@ -265,31 +281,43 @@ public class Client {
         }
     }
 
-
-    public void chat(String message, User user, ChatRoom chatRoom) {
-        String str = String.format("chat/%s/%d/%s", user.getUserAccount(), chatRoom.getID(), message);
-        // 向服务器发送注册数据
-        if (sendMsg(str) == -1) {
-            chatRetMsg = "chat/向服务器发送数据失败";
-        }
-    }
-
-    public ChatResponse chatResponse(String message, User user, ChatRoom chatRoom) {
-        String[] args = chatRetMsg.split("/");
-        if (args[1].equals("success")) {
-            return new ChatResponse(user, chatRoom, message);
-        } else {
-            return new ChatResponse(args[1]);
-        }
-    }
-
-    public void joinChatroom(String userAccount, int chatroomID) {
-        String str = String.format("joinChatroom/%s/%d", userAccount, chatroomID);
-        // 向服务器发送注册数据
+    /**
+     * 向服务器发送聊天信息。
+     */
+    public ChatResponse chat(String message, String userAccount, int chatroomID) {
+        String str = String.format("chat/%s/%d/%s", userAccount, chatroomID, message);
+        // 向服务器发送聊天信息
         sendMsg(str);
+        return getChatResponse();
     }
 
-    public JoinChatroomResponse getJoinChatroomResponse() {
+    public ChatResponse getChatResponse() {
+
+        synchronized (chatResponse) {
+            try{
+                chatResponse.wait(5000);
+                if(chatResponse.getTmpMsg().equals(""))
+                {
+                    joinChatroomResponse.setTmpMsg("chatResponse/响应超时，请检查网络");
+                }
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] args = chatResponse.getTmpMsg().split("/");
+        chatResponse.setTmpMsg("");
+        //TODO:完善该类
+        return null;
+    }
+
+    public JoinChatroomResponse joinChatroom(String userAccount, int chatroomID) {
+        String str = String.format("joinChatroom/%s/%d", userAccount, chatroomID);
+        // 向服务器发送加入聊天室数据
+        sendMsg(str);
+        return getJoinChatroomResponse();
+    }
+
+    private JoinChatroomResponse getJoinChatroomResponse() {
         // args = ["joinChatroomResponse", "success"/errorMsg, (Chatroom chatroom)]
         synchronized (joinChatroomResponse) {
             try {

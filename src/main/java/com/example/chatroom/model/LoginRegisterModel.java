@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public class LoginRegisterModel {
     private final Notifications notifications = new Notifications();
-    //private final Client client;
     private Optional<LoginRegisterObject> loginRegisterObject = Optional.empty();
 
     public LoginRegisterModel() {
@@ -21,8 +20,7 @@ public class LoginRegisterModel {
 
     public Optional<LoginRegisterObject> login(String userAccount, String passWord) {
         try {
-            Client.getClient().login(userAccount, passWord);
-            LoginResponse loginResponse = Client.getClient().getLoginResponse();
+            LoginResponse loginResponse=Client.getClient().login(userAccount, passWord);
             LoginRegisterObject lro = new LoginRegisterObject(loginResponse);
             loginRegisterObject = Optional.of(lro);
         } catch (Exception e) {
@@ -34,8 +32,7 @@ public class LoginRegisterModel {
 
     public Optional<LoginRegisterObject> register(String userAccount, String passWord, String userName) {
         try {
-            Client.getClient().register(userAccount, passWord, userName);
-            RegisterResponse registerResponse = Client.getClient().getRegisterResponse();
+            RegisterResponse registerResponse =Client.getClient().register(userAccount, passWord, userName);
             LoginRegisterObject lro = new LoginRegisterObject(registerResponse);
             loginRegisterObject = Optional.of(lro);
         } catch (Exception e) {
