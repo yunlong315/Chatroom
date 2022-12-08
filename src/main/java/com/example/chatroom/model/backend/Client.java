@@ -1,5 +1,7 @@
 package com.example.chatroom.model.backend;
 
+import com.example.chatroom.model.ChatModel;
+import com.example.chatroom.model.Notifications;
 import com.example.chatroom.model.backend.reponses.*;
 
 import java.io.*;
@@ -9,7 +11,7 @@ import java.util.Arrays;
 
 public class Client {
     private static Client client;
-
+    private ChatModel chatModel;
     private Client() {
         // readFromCenterServer()新建了一个线程，用于不断获取从服务器发送而来的数据，Client被构造时即开始运行
         readFromCenterServer();
@@ -26,6 +28,10 @@ public class Client {
         if (client != null) {
             client.close();
         }
+    }
+
+    public void setChatModel(ChatModel chatModel) {
+        this.chatModel = chatModel;
     }
 
     private void close() {
@@ -292,12 +298,15 @@ public class Client {
     public ChatResponse chat(String message, String userAccount, int chatroomID) {
         String str = String.format("chat/%s/%d/%s", userAccount, chatroomID, message);
         // 向服务器发送聊天信息
-        sendMsg(str);
+        if(sendMsg(str)==-1)
+        {
+            return new ChatResponse("发送失败");
+        }
         return getChatResponse();
     }
 
     public ChatResponse getChatResponse() {
-
+        // args = ["chatResponse", "success"/errorMsg]
         synchronized (chatResponse) {
             try{
                 chatResponse.wait(5000);
@@ -311,8 +320,13 @@ public class Client {
         }
         String[] args = chatResponse.getTmpMsg().split("/");
         chatResponse.setTmpMsg("");
-        //TODO:完善该类
-        return null;
+        String msg =chatResponse.getTmpMsg().split("/")[1];
+        chatResponse.setTmpMsg("");  // 将registerResponse还原为初始态，方便下一次使用
+        if (msg.equals("success")) {
+            return new ChatResponse(true);
+        } else {
+            return new ChatResponse(msg);
+        }
     }
 
     public JoinChatroomResponse joinChatroom(String userAccount, int chatroomID) {

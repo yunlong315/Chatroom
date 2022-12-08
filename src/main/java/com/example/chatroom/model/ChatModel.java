@@ -6,17 +6,18 @@ import com.example.chatroom.model.backend.User;
 import com.example.chatroom.model.backend.reponses.ChatResponse;
 import com.example.chatroom.model.backend.reponses.CreateChatroomResponse;
 import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
-
 import java.util.Optional;
 
 public class ChatModel {
     private Notifications notifications = new Notifications();
-    private Optional<ChatObject> chatObject = Optional.empty();
+    private Optional<ChatObject>  chatObject = Optional.empty();
+    private ReceiveObject receiveObject= new ReceiveObject();
     private final Client client;
     private User user;
 
     public ChatModel() {
         client = Client.getClient();
+        client.setChatModel(this);
     }
 
     public Optional<ChatObject> getChatObject() {
@@ -60,15 +61,28 @@ public class ChatModel {
 
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
     }
-    public Optional<ChatObject> joinChatroom(int chatroomID) {
+    public void joinChatroom(int chatroomID) {
         JoinChatroomResponse response=client.joinChatroom(user.getUserAccount(), chatroomID);
         ChatObject joinChatroomObject = new ChatObject(response);
         chatObject = Optional.of(joinChatroomObject);
         notifications.publish(Notifications.EVENT_MODEL_JOIN_ChatRoom);
-        return chatObject;
     }
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    /**
+     * 此方法只在client的读线程被调用
+     * @param message
+     */
+    public void receiveMsg(String message)
+    {
+        receiveObject.setMessage(message);
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
+    }
+
+    public ReceiveObject getReceiveObject() {
+        return receiveObject;
     }
 }

@@ -158,10 +158,14 @@ public class ClientThread extends Thread {
         Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
         //对除自己外其他成员发送消息
         for (User user : userHashMap.values()) {
-            Socket userSocket = user.getUserSocket();
-
+            if (clientIOHashMap.containsKey(user.getUserAccount()) && !user.getUserAccount().equals(userAccount)){
+                ClientIO io = cs.clientIOMap.get(user.getUserAccount());
+                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, chatContents));
+            }
         }
         //向自己返回成功消息
+        io.sendMsg("chatResponse/success");
+        System.out.println("用户成功发送消息");
     }
 
     private void logout() {

@@ -18,7 +18,6 @@ public class User implements Serializable {
         this.userAccount = userAccount;
         this.userPassWord = userPassWord;
         this.userName = userName;
-        this.userSocket = userSocket;
     }
 
     public User(String userName) {
@@ -27,14 +26,6 @@ public class User implements Serializable {
 
     public String getUserPassWord() {
         return userPassWord;
-    }
-
-    public void setUserSocket(Socket userSocket) {
-        this.userSocket = userSocket;
-    }
-
-    public Socket getUserSocket() {
-        return userSocket;
     }
 
     public String getUserAccount() {

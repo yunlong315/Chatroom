@@ -8,7 +8,7 @@ import com.example.chatroom.model.backend.reponses.IResponse;
 import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
 
 /**
- *
+ *主动请求后收到的返回存于此处
  */
 public class ChatObject {
     private final boolean wasError;
@@ -16,10 +16,6 @@ public class ChatObject {
      * 报错消息
      */
     private final String errorMessage;
-    /**
-     * 收到的聊天消息
-     */
-    private String message = null;
     private ChatRoom chatRoom = null;
 
     public ChatObject(IResponse response) {
@@ -31,9 +27,7 @@ public class ChatObject {
         } else if (response instanceof JoinChatroomResponse joinChatroomResponse) {
             chatRoom = joinChatroomResponse.getChatroom();
         } else if (response instanceof ChatResponse chatResponse) {
-            message = chatResponse.getMessage();
-            //TODO:此处不需要sender
-            //sender = chatResponse.getUser();
+            //TODO:
         }
     }
 
@@ -43,9 +37,6 @@ public class ChatObject {
 
     public String getErrorMessage() {
         return errorMessage;
-    }
-    public String getMessage() {
-        return message;
     }
 
     public ChatRoom getChatRoom() {

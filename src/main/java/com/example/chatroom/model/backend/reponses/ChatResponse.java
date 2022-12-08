@@ -7,7 +7,6 @@ public class ChatResponse implements IResponse {
     private boolean success = false;
     private String errorMessage = "";
     private String tmpMsg = "";
-    private String message;
 
     //失败信息构造方法
     public ChatResponse(String errorMessage) {
@@ -33,9 +32,5 @@ public class ChatResponse implements IResponse {
 
     public String getTmpMsg() {
         return tmpMsg;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }

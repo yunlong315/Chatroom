@@ -31,7 +31,6 @@ public class Notifications {
     private static Notifications instance = new Notifications();
 
     public void publish(String event) {
-
         Platform.runLater(() -> {
             List<SubscriberObject> subscriberList = instance.subscribers.get(event);
             if (subscriberList != null) {
