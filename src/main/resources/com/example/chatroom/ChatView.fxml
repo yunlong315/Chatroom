@@ -49,8 +49,15 @@
                <top>
                   <BorderPane prefHeight="78.0" prefWidth="514.0" BorderPane.alignment="CENTER">
                      <center>
-                        <Text fx:id="titleText" strokeType="OUTSIDE" strokeWidth="0.0" text="聊天室xxx" textAlignment="CENTER" wrappingWidth="131.58301734924316" BorderPane.alignment="CENTER" />
+                        <Text fx:id="titleText" strokeType="OUTSIDE" strokeWidth="0.0" text="聊天室名称(ID:xxx)" textAlignment="CENTER" wrappingWidth="131.58301734924316" BorderPane.alignment="CENTER" />
                      </center>
+                     <right>
+                        <Button fx:id="changeRoomNameButton" minWidth="30.0" mnemonicParsing="false" onAction="#onChangeRoomNameButtonClick" prefHeight="30.0" prefWidth="30.0" text="改名" BorderPane.alignment="CENTER">
+                           <BorderPane.margin>
+                              <Insets right="20.0" />
+                           </BorderPane.margin>
+                        </Button>
+                     </right>
                   </BorderPane>
                </top>
                <bottom>

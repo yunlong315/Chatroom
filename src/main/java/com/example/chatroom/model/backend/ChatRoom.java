@@ -16,4 +16,12 @@ public class ChatRoom implements Serializable {
     public int getID() {
         return ID;
     }
+
+    public String getChatroomName() {
+        return chatroomName;
+    }
+
+    public void setChatroomName(String chatroomName) {
+        this.chatroomName = chatroomName;
+    }
 }
