@@ -8,24 +8,13 @@ import java.util.Map;
 
 public class ClientThread extends Thread {
 
-    private Socket clientSocket;
-    OutputStream outputStream = null;
-    DataOutputStream dataOutputStream = null;
-    InputStream inputStream = null;
-    DataInputStream dataInputStream = null;
+    private ClientIO io = null;
+    CenterServer cs = null;
+    String userAccount = null;
 
     public ClientThread(Socket socket) {
-        this.clientSocket = socket;
-        try {
-            // 得到socket输出流
-            outputStream = socket.getOutputStream();
-            dataOutputStream = new DataOutputStream(outputStream);
-            // 得到socket输入流
-            inputStream = socket.getInputStream();
-            dataInputStream = new DataInputStream(inputStream);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cs = CenterServer.getCenterServer();
+        io = new ClientIO(socket);
     }
 
     @Override
@@ -33,9 +22,9 @@ public class ClientThread extends Thread {
         try {
             while (true) {
                 // 获取Client发送的数据，格式为”数据类型+数据长度+数据“
-                int len = dataInputStream.readInt();
+                int len = io.dataInputStream.readInt();
                 byte[] data = new byte[len - 5];
-                dataInputStream.readFully(data);
+                io.dataInputStream.readFully(data);
                 String[] cmd = new String(data).split("/");
                 switch (cmd[0]) {
                     case "register":
@@ -61,6 +50,7 @@ public class ClientThread extends Thread {
                 }
             }
         } catch (SocketException | EOFException e) {
+            logout();
             System.out.println("User logout");
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,75 +58,41 @@ public class ClientThread extends Thread {
         }
     }
 
-    private void sendMsg(String str) {
-        try {
-            byte[] data = str.getBytes();
-            int len = data.length + 5;
-            dataOutputStream.writeInt(len);
-            dataOutputStream.write(data);
-            dataOutputStream.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendObject(String str, Object obj) {
-        try {
-            // 将字符串和对象转换成byte[]
-            byte[] strBytes = str.getBytes();
-            byte[] objBytes;
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            ObjectOutputStream oo = new ObjectOutputStream(bo);
-            oo.writeObject(obj);
-            objBytes = bo.toByteArray();
-            // 将以上两个byte[]合并成一个byte[]
-            byte[] data = new byte[strBytes.length + objBytes.length];
-            System.arraycopy(strBytes, 0, data, 0, strBytes.length);
-            System.arraycopy(objBytes, 0, data, strBytes.length, objBytes.length);
-            // 输出给客户端
-            int len = data.length + 5;
-            dataOutputStream.writeInt(len);
-            dataOutputStream.write(data);
-            dataOutputStream.flush();
-            bo.close();
-            oo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void register(String[] cmd) {
         // cmd = ["register", userAccount, pwd, userName]
-        Map<String, User> clientMap = CenterServer.getCenterServer().clientMap;
+        Map<String, User> clientMap = cs.clientMap;
         String userAccount = cmd[1];
         if (clientMap.containsKey(userAccount)) {
             System.out.println("账号重复");
-            sendMsg("registerResponse/账号重复");
+            io.sendMsg("registerResponse/账号重复");
         } else {
-            clientMap.put(userAccount, new User(userAccount, cmd[2], cmd[3], clientSocket));
+            clientMap.put(userAccount, new User(userAccount, cmd[2], cmd[3], io.socket));
             System.out.println("注册成功! 账号为: " + userAccount + "; 目前已注册账号有：");
             for (Map.Entry<String, User> entry : clientMap.entrySet()) {
                 System.out.println("\tuserAccount = " + entry.getKey() + ", userName = " + entry.getValue().getUserName());
             }
-            sendMsg("registerResponse/success");
+            io.sendMsg("registerResponse/success");
         }
     }
 
     private void login(String[] cmd) {
         // cmd = ["login", userAccount, pwd]
-        Map<String, User> clientMap = CenterServer.getCenterServer().clientMap;
+        Map<String, User> clientMap = cs.clientMap;
         if (!clientMap.containsKey(cmd[1])) {
             // 账号不存在
             System.out.println("账号不存在");
-            sendMsg("loginResponse/账号不存在");
+            io.sendMsg("loginResponse/账号不存在");
         } else if (!clientMap.get(cmd[1]).getUserPassWord().equals(cmd[2])) {
             // 账号密码错误
             System.out.println("账号密码错误");
-            sendMsg("loginResponse/账号密码错误");
+            io.sendMsg("loginResponse/账号密码错误");
         } else {
             // 登录成功
-            sendObject("loginResponse/success/", clientMap.get(cmd[1]));
-            // sendMsg("loginResponse/success/" + cmd[1] + "/" + cmd[2] + "/" + clientMap.get(cmd[1]).getUserName());
+            io.sendObject("loginResponse/success/", clientMap.get(cmd[1]));
+            userAccount = cmd[1];
+            cs.clientIOMap.put(userAccount, io);
+
+            // io.sendMsg("loginResponse/success/" + cmd[1] + "/" + cmd[2] + "/" + clientMap.get(cmd[1]).getUserName());
             System.out.println("登录成功! 账号为: " + cmd[1]);
         }
     }
@@ -148,12 +104,13 @@ public class ClientThread extends Thread {
         int chatroomID = ChatRoom.nextID++;
         String userAccount = cmd[1];
         ChatRoom newChatroom = new ChatRoom(chatroomID);
-        Map<String, User> clientMap = CenterServer.getCenterServer().clientMap;
+        Map<String, User> clientMap = cs.clientMap;
         User thisUser = clientMap.get(userAccount);
         newChatroom.userHashMap.put(userAccount, thisUser);
-        CenterServer.getCenterServer().chatroomHashMap.put(newChatroom.getID(), newChatroom);
+        thisUser.getChatRoomList().add(newChatroom);
+        cs.chatroomHashMap.put(newChatroom.getID(), newChatroom);
         System.out.println("创建聊天室成功，聊天室ID为：" + chatroomID);
-        sendMsg("createChatroomResponse/success/" + chatroomID);
+        io.sendMsg("createChatroomResponse/success/" + chatroomID);
     }
 
     /**
@@ -164,46 +121,54 @@ public class ClientThread extends Thread {
         // cmd = ["addChatroom", userAccount, chatroomID]
         String userAccount = cmd[1];
         int chatroomID = Integer.parseInt(cmd[2]);
-        Map<Integer, ChatRoom> chatroomHashMap = CenterServer.getCenterServer().chatroomHashMap;
+        Map<Integer, ChatRoom> chatroomHashMap = cs.chatroomHashMap;
         // 判断聊天室是否存在
         if (!chatroomHashMap.containsKey(chatroomID)) {
-            sendMsg("joinChatroomResponse/该聊天室ID不存在");
+            io.sendMsg("joinChatroomResponse/该聊天室ID不存在");
             System.out.println(chatroomID + "号聊天室不存在");
             return;
         }
-        User thisUser = CenterServer.getCenterServer().clientMap.get(userAccount);
+        User thisUser = cs.clientMap.get(userAccount);
         ChatRoom thisChatroom = chatroomHashMap.get(chatroomID);
         // 判断用户是否已经在聊天室中
         if (thisChatroom.userHashMap.containsKey(userAccount)) {
-            sendMsg("joinChatroomResponse/用户已在聊天室中");
+            io.sendMsg("joinChatroomResponse/用户已在聊天室中");
             System.out.println(userAccount + "用户已在" + chatroomID + "号聊天室中");
             return;
         }
         // 成功加入
         thisChatroom.userHashMap.put(userAccount, thisUser);
         thisUser.getChatRoomList().add(thisChatroom);
-        sendObject("joinChatroomResponse/success/", thisChatroom);
+        io.sendObject("joinChatroomResponse/success/", thisChatroom);
         System.out.printf("%s用户成功加入%d号聊天室%n", userAccount, chatroomID);
         // TODO:向该聊天室中其他成员广播新用户加入的信息
     }
 
     //userAccount发送到chatroom
     public void chat(String[] cmd) throws IOException {
-        // cmd = ["chat", userAccount,chatroomID,chatContents]
+        // cmd = ["chat", userAccount, chatroomID, chatContents]
         String chatContents = cmd[3];
         String userAccount = cmd[1];
         int chatroomID = Integer.parseInt(cmd[2]);
         //获取聊天室
-        Map<Integer, ChatRoom> chatroomHashMap = CenterServer.getCenterServer().chatroomHashMap;
+        Map<Integer, ChatRoom> chatroomHashMap = cs.chatroomHashMap;
         ChatRoom thisChatroom = chatroomHashMap.get(chatroomID);
         //获取所有成员（包括自己）
         HashMap<String, User> userHashMap = thisChatroom.userHashMap;
+        Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
         //对除自己外其他成员发送消息
         for (User user : userHashMap.values()) {
             Socket userSocket = user.getUserSocket();
 
         }
         //向自己返回成功消息
+    }
+
+    private void logout() {
+        if (userAccount != null) {
+            // 删除clientIOMap中账号对应IO
+            cs.clientIOMap.remove(userAccount);
+        }
     }
 
 }

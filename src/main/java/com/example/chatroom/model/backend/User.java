@@ -10,7 +10,6 @@ public class User implements Serializable {
     private String userAccount;
     private String userPassWord;
     private String userName;
-    private transient Socket userSocket = null;
     private List<ChatRoom> chatRoomList = Collections.synchronizedList(new ArrayList<>());
     //TODO:(暂不考虑)friendsList储存用户目前所有好友
     private List<User> friendsList = new ArrayList<>();

@@ -89,7 +89,6 @@ public class Client {
      */
     private int sendMsg(String str) {
         try {
-            Thread.sleep(1);
             byte[] data = str.getBytes();
             int len = data.length + 5;
             dataOutputStream.writeInt(len);
@@ -166,6 +165,8 @@ public class Client {
                         case "chat":
                             chatRetMsg = retMsg;
                             break;
+                        case "receiveChatMsg":
+                            receiveChatMsg(retMsg);
                     }
                 }
             }
@@ -236,13 +237,17 @@ public class Client {
                 user = (User)oi.readObject();
                 bi.close();
                 oi.close();
-                user.setUserSocket(socket);
+                // user.setUserSocket(socket);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             if (user == null) {
                 return new LoginResponse("接收服务器发送对象失败");
             }
+            for (ChatRoom chatRoom: user.getChatRoomList()) {
+                System.out.println("chatroom: " + chatRoom.getID());
+            }
+            System.out.println("login success");
             return new LoginResponse(user);
         } else {
             return new LoginResponse(args[1]);
@@ -355,4 +360,13 @@ public class Client {
         }
     }
 
+    private void receiveChatMsg(String retMsg) {
+        // args = ["receiveChatMsg", sender, chatroomID, chatContents]
+        //TODO:改进解析方式
+        String[] args = retMsg.split("/");
+        String sender = args[1];
+        int chatroomID = Integer.parseInt(args[2]);
+        String chatContents = args[3];
+        chatModel.receiveMsg(retMsg);
+    }
 }

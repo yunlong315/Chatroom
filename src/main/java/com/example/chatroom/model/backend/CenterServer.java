@@ -22,6 +22,7 @@ public class CenterServer {
     //    用户账号集合Map<String id, User user>
     Map<String, User> clientMap = Collections.synchronizedMap(new HashMap<>());
     Map<Integer, ChatRoom> chatroomHashMap = Collections.synchronizedMap(new HashMap<>());//记录聊天室
+    Map<String, ClientIO> clientIOMap = Collections.synchronizedMap(new HashMap<>());
 
     private int listen(ServerSocket serverSocket) throws IOException {
         while (true) {
