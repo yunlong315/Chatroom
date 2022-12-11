@@ -1,25 +1,25 @@
 package com.example.chatroom;
 
 import com.example.chatroom.model.ChatModel;
-import com.example.chatroom.model.ChatObject;
 import com.example.chatroom.model.Notifications;
 import com.example.chatroom.model.ReceiveObject;
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
-import com.example.chatroom.uiComponent.MessageBox;
+import com.example.chatroom.uiComponent.ChatroomBox;
+import com.example.chatroom.uiComponent.FriendBox;
+import com.example.chatroom.uiComponent.NewMessageBox;
 import com.example.chatroom.util.AlertUtil;
+import com.example.chatroom.util.AutoSizeUtil;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -55,10 +55,10 @@ public class ChatViewController {
     private ImageView headImage;
 
     @FXML
-    private ListView chatListView;
+    private ListView<HBox> chatListView;
 
     @FXML
-    private ListView<Pane> messageListView;
+    private ListView<HBox> messageListView;
 
     //当前所在界面
     private Page nowPage;
@@ -72,13 +72,14 @@ public class ChatViewController {
     private User nowUser;
 
     private ChatRoom selectedChatRoom = null;
+    private ChatroomBox selectedChatRoomBox = null;
     private final ChatModel chatModel = new ChatModel();
     private final Notifications notifications = new Notifications();
-    private ReadOnlyObjectProperty<ObservableList<ChatRoom>> chatRoomsProperty =
+    private ReadOnlyObjectProperty<ObservableList<HBox>> chatRoomsProperty =
             new SimpleObjectProperty<>(FXCollections.observableArrayList());
-    private ReadOnlyObjectProperty<ObservableList<User>> friendsProperty =
+    private ReadOnlyObjectProperty<ObservableList<HBox>> friendsProperty =
             new SimpleObjectProperty<>(FXCollections.observableArrayList());
-    private ReadOnlyObjectProperty<ObservableList<Pane>> messagesProperty =
+    private ReadOnlyObjectProperty<ObservableList<HBox>> messagesProperty =
             new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
     public void setMainApp(MainApp mainApp) {
@@ -96,20 +97,34 @@ public class ChatViewController {
     private void changeToOneChatroom(ChatRoom chatRoom) {
         titleText.setText(chatRoom.getChatroomName() + String.format("(ID:%d)", chatRoom.getID()));
         //todo:获得当前聊天室的所有聊天记录
-        List<Pane> messageList = new ArrayList<>();
+        List<HBox> messageList = new ArrayList<>();
         messagesProperty.get().addAll(messageList);
     }
 
     public void addChatListViewListener() {
         chatListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                    if (newValue instanceof ChatRoom) {
-                        ChatRoom chatRoom = (ChatRoom) newValue;
+                    if (newValue instanceof ChatroomBox) {
+                        ChatRoom chatRoom = ((ChatroomBox) newValue).getChatRoom();
                         selectedChatRoom = chatRoom;
+                        selectedChatRoomBox = (ChatroomBox) newValue;
                         changeToOneChatroom(chatRoom);
                     }
                 }
         );
+    }
+
+
+    private void initChatRoomList() {
+        for (ChatRoom chatRoom : nowUser.getChatRoomList()) {
+            chatRoomsProperty.get().addAll(new ChatroomBox(chatRoom));
+        }
+    }
+
+    private void initFriendList() {
+        for (User user : nowUser.getFriendsList()) {
+            chatRoomsProperty.get().addAll(new FriendBox(user));
+        }
     }
 
     /**
@@ -121,8 +136,8 @@ public class ChatViewController {
         userNameText.setText(nowUser.getUserName());
         userAccountText.setText(nowUser.getUserAccount());
 
-        chatRoomsProperty.get().addAll(nowUser.getChatRoomList());
-        friendsProperty.get().addAll(nowUser.getFriendsList());
+        initChatRoomList();
+        initFriendList();
 
         nowPage = Page.CHATPAGE;
 
@@ -144,7 +159,7 @@ public class ChatViewController {
         chatModel.getChatObject().ifPresent(
                 (chatObject) -> {
                     if (!chatObject.wasError()) {
-                        chatRoomsProperty.get().addAll(chatObject.getChatRoom());
+                        chatRoomsProperty.get().addAll(new ChatroomBox(chatObject.getChatRoom()));
                     } else {
                         AlertUtil.showAlert(chatObject.getErrorMessage());
                     }
@@ -159,20 +174,20 @@ public class ChatViewController {
      */
     public void updateFriendsList(String event) {
         //模拟更新数据
-        friendsProperty.get().addAll(
-                new User("zzz"),
-                new User("xxx"));
+//        friendsProperty.get().addAll(
+//                new User("zzz"),
+//                new User("xxx"));
     }
 
-    private HBox getMessageBox(ReceiveObject receiveObject) {
-        HBox retBox = new HBox();
-        Text messageText = new Text(receiveObject.getMessage());
-        //TODO:用户发送消息时，自己的屏幕上就显示发送的消息。服务器不会将消息转发给自己。
-        retBox.setAlignment(Pos.CENTER_LEFT);
-        retBox.getChildren().addAll(messageText);
-        System.out.println(messageText.getText());
-        return retBox;
-    }
+//    private HBox getMessageBox(ReceiveObject receiveObject) {
+//        HBox retBox = new HBox();
+//        Text messageText = new Text(receiveObject.getMessage());
+//        //TODO:用户发送消息时，自己的屏幕上就显示发送的消息。服务器不会将消息转发给自己。
+//        retBox.setAlignment(Pos.CENTER_LEFT);
+//        retBox.getChildren().addAll(messageText);
+//        System.out.println(messageText.getText());
+//        return retBox;
+//    }
 
 
     /**
@@ -184,7 +199,7 @@ public class ChatViewController {
         ReceiveObject receiveObject = chatModel.getReceiveObject();
         //todo:获得receiveObject中的user
         User user = new User("123");
-        Pane messageBox = new MessageBox().left(user, receiveObject.getMessage());
+        HBox messageBox = new NewMessageBox().left(user, receiveObject.getMessage());
         messagesProperty.get().addAll(messageBox);
 
     }
@@ -277,17 +292,23 @@ public class ChatViewController {
     //发送消息
     @FXML
     public void onSendOutButtonClick() {
-        String message = messageTextArea.getText();
-        if (!message.isEmpty()) {
-            //发送非空字符串
-            chatModel.sendMessage(message, selectedChatRoom.getID());
-            Pane myMessageBox = new MessageBox().right(nowUser, message);
-            messagesProperty.get().addAll(myMessageBox);
+        if (selectedChatRoom == null) {
+            AlertUtil.showAlert("请先选择一个聊天室！");
+        } else {
+            String message = messageTextArea.getText();
+            if (!message.isEmpty()) {
+                //发送非空字符串
+                chatModel.sendMessage(message, selectedChatRoom.getID());
+                HBox myMessageBox = new NewMessageBox().right(nowUser, message);
+                messagesProperty.get().addAll(myMessageBox);
+            }
         }
+        messageTextArea.setText("");
     }
 
     @FXML
     public void onChangeRoomNameButtonClick() {
+        //todo:后续要通过后端操作
         if (selectedChatRoom == null) {
             return;
         }
@@ -304,6 +325,7 @@ public class ChatViewController {
         }
         if (name != null) {
             selectedChatRoom.setChatroomName(name);
+            selectedChatRoomBox.setChatroomLabel();
             titleText.setText(String.format("%s(ID:%d)",
                     selectedChatRoom.getChatroomName(), selectedChatRoom.getID()));
         }
