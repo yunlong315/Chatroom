@@ -11,8 +11,7 @@ public class User implements Serializable {
     private String userPassWord;
     private String userName;
     private List<ChatRoom> chatRoomList = Collections.synchronizedList(new ArrayList<>());
-    //TODO:(暂不考虑)friendsList储存用户目前所有好友
-    private List<User> friendsList = new ArrayList<>();
+    private List<User> friendsList = Collections.synchronizedList(new ArrayList<>());
 
     public User(String userAccount, String userPassWord, String userName, Socket userSocket) {
         this.userAccount = userAccount;

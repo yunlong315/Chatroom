@@ -12,6 +12,7 @@ import java.util.Arrays;
 public class Client {
     private static Client client;
     private ChatModel chatModel;
+
     private Client() {
         // readFromCenterServer()新建了一个线程，用于不断获取从服务器发送而来的数据，Client被构造时即开始运行
         readFromCenterServer();
@@ -63,8 +64,11 @@ public class Client {
     private byte[] loginResponseByteArr;
     private final CreateChatroomResponse createChatroomResponse = new CreateChatroomResponse("");
     private final JoinChatroomResponse joinChatroomResponse = new JoinChatroomResponse("");
-    private final ChatResponse chatResponse = new ChatResponse("");
     private byte[] joinChatroomResponseByteArr;
+    private final ChatResponse chatResponse = new ChatResponse("");
+    private final AddFriendResponse addFriendResponse = new AddFriendResponse("");
+    private byte[] addFriendResponseByteArr;
+    private byte[] addFriendRequestByteArr;
     private String createChatroomRetMsg = "";
     private String chatRetMsg = "";
 
@@ -90,6 +94,7 @@ public class Client {
 
     /**
      * 向服务器发送一个字符串。发送成功返回0，失败返回-1。
+     *
      * @param str
      * @return int
      */
@@ -119,6 +124,23 @@ public class Client {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    private Object receiveObj(int len, byte[] addFriendResponseByteArr) {
+        byte[] objByte = new byte[addFriendResponseByteArr.length - len];
+        System.arraycopy(addFriendResponseByteArr, len, objByte, 0, objByte.length);
+        Object obj = null;
+        try {
+            //bytearray to object
+            ByteArrayInputStream bi = new ByteArrayInputStream(objByte);
+            ObjectInputStream oi = new ObjectInputStream(bi);
+            obj = oi.readObject();
+            bi.close();
+            oi.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return obj;
     }
 
     /**
@@ -164,15 +186,28 @@ public class Client {
                             }
                             break;
                         case "chatResponse":
-                            synchronized (chatResponse){
+                            synchronized (chatResponse) {
                                 chatResponse.setTmpMsg(retMsg);
                                 chatResponse.notify();
                             }
+                            break;
                         case "chat":
                             chatRetMsg = retMsg;
                             break;
                         case "receiveChatMsg":
                             receiveChatMsg(retMsg);
+                            break;
+                        case "addFriend":
+                            synchronized (addFriendResponse) {
+                                addFriendResponse.setTmpMsg(retMsg);
+                                addFriendResponseByteArr = retByteArr;
+                                addFriendResponse.notify();
+                            }
+                            break;
+                        case "addFriendRequest":
+                            addFriendRequestByteArr = retByteArr;
+                            addFriendRequest();
+                            break;
                     }
                 }
             }
@@ -233,24 +268,12 @@ public class Client {
         // 判断是否注册成功
         if (args[1].equals("success")) {
             int len = "loginResponse/success/".getBytes().length;
-            byte[] objByte = new byte[loginResponseByteArr.length - len];
-            System.arraycopy(loginResponseByteArr, len, objByte, 0, objByte.length);
             User user = null;
-            try {
-                //bytearray to object
-                ByteArrayInputStream bi = new ByteArrayInputStream(objByte);
-                ObjectInputStream oi = new ObjectInputStream(bi);
-                user = (User)oi.readObject();
-                bi.close();
-                oi.close();
-                // user.setUserSocket(socket);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            user = (User)receiveObj(len, loginResponseByteArr);
             if (user == null) {
                 return new LoginResponse("接收服务器发送对象失败");
             }
-            for (ChatRoom chatRoom: user.getChatRoomList()) {
+            for (ChatRoom chatRoom : user.getChatRoomList()) {
                 System.out.println("chatroom: " + chatRoom.getID());
             }
             System.out.println("login success");
@@ -298,8 +321,7 @@ public class Client {
     public ChatResponse chat(String message, String userAccount, int chatroomID) {
         String str = String.format("chat/%s/%d/%s", userAccount, chatroomID, message);
         // 向服务器发送聊天信息
-        if(sendMsg(str)==-1)
-        {
+        if (sendMsg(str) == -1) {
             return new ChatResponse("发送失败");
         }
         return getChatResponse();
@@ -308,19 +330,18 @@ public class Client {
     public ChatResponse getChatResponse() {
         // args = ["chatResponse", "success"/errorMsg]
         synchronized (chatResponse) {
-            try{
+            try {
                 chatResponse.wait(5000);
-                if(chatResponse.getTmpMsg().equals(""))
-                {
-                    joinChatroomResponse.setTmpMsg("chatResponse/响应超时，请检查网络");
+                if (chatResponse.getTmpMsg().equals("")) {
+                    chatResponse.setTmpMsg("chatResponse/响应超时，请检查网络");
                 }
-            }catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         String[] args = chatResponse.getTmpMsg().split("/");
         chatResponse.setTmpMsg("");
-        String msg =chatResponse.getTmpMsg().split("/")[1];
+        String msg = args[1];
         chatResponse.setTmpMsg("");  // 将registerResponse还原为初始态，方便下一次使用
         if (msg.equals("success")) {
             return new ChatResponse(true);
@@ -352,19 +373,8 @@ public class Client {
         joinChatroomResponse.setTmpMsg("");
         if (args[1].equals("success")) {
             int len = "joinChatroomResponse/success/".getBytes().length;
-            byte[] objByte = new byte[joinChatroomResponseByteArr.length - len];
-            System.arraycopy(joinChatroomResponseByteArr, len, objByte, 0, objByte.length);
             ChatRoom chatRoom = null;
-            try {
-                //bytearray to object
-                ByteArrayInputStream bi = new ByteArrayInputStream(objByte);
-                ObjectInputStream oi = new ObjectInputStream(bi);
-                chatRoom = (ChatRoom) oi.readObject();
-                bi.close();
-                oi.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            chatRoom = (ChatRoom)receiveObj(len, joinChatroomResponseByteArr);
             if (chatRoom == null) {
                 return new JoinChatroomResponse("接收服务器发送对象失败");
             }
@@ -382,5 +392,45 @@ public class Client {
         int chatroomID = Integer.parseInt(args[2]);
         String chatContents = args[3];
         chatModel.receiveMsg(retMsg);
+    }
+
+    public AddFriendResponse addFriend(String userAccount, String friendAccount) {
+        String str = "addFriend/" + userAccount + "/" + friendAccount;
+        sendMsg(str);
+        return getAddFriendResponse();
+    }
+
+    private AddFriendResponse getAddFriendResponse() {
+        // args = ["addFriendResponse", "success"/errorMsg, (User user)]
+        synchronized (addFriendResponse) {
+            try {
+                addFriendResponse.wait(5000);
+                if (addFriendResponse.getTmpMsg().equals("")) {
+                    addFriendResponse.setTmpMsg("addFriendResponse/响应超时，请检查网络");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] args = addFriendResponse.getTmpMsg().split("/");
+        addFriendResponse.setTmpMsg("");
+        if (args[1].equals("success")) {
+            int len = "addFriendResponse/success/".getBytes().length;
+            User user = null;
+            user = (User)receiveObj(len, addFriendResponseByteArr);
+            if (user == null) {
+                return new AddFriendResponse("接收服务器发送对象失败");
+            }
+            return new AddFriendResponse(user);
+        } else {
+            return new AddFriendResponse(args[1]);
+        }
+    }
+
+    private void addFriendRequest() {
+        User user = null;
+        int len = "addFriendRequest/success/".getBytes().length;
+        user = (User) receiveObj(len, addFriendRequestByteArr);
+        // TODO: 更新好友列表
     }
 }

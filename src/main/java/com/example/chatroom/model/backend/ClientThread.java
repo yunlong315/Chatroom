@@ -47,6 +47,10 @@ public class ClientThread extends Thread {
                         // cmd = ["chat", userAccount,chatroomID,chatcontents]
                         chat(cmd);
                         break;
+                    case "addFriend":
+                        // cmd = ["addFriend", userAccount]
+                        addFriend(cmd);
+                        break;
                 }
             }
         } catch (SocketException | EOFException e) {
@@ -140,7 +144,7 @@ public class ClientThread extends Thread {
         thisChatroom.userHashMap.put(userAccount, thisUser);
         thisUser.getChatRoomList().add(thisChatroom);
         io.sendObject("joinChatroomResponse/success/", thisChatroom);
-        System.out.printf("%s用户成功加入%d号聊天室%n", userAccount, chatroomID);
+        System.out.printf("%s用户成功加入%d号聊天室\n", userAccount, chatroomID);
         // TODO:向该聊天室中其他成员广播新用户加入的信息
     }
 
@@ -154,7 +158,7 @@ public class ClientThread extends Thread {
         Map<Integer, ChatRoom> chatroomHashMap = cs.chatroomHashMap;
         ChatRoom thisChatroom = chatroomHashMap.get(chatroomID);
         //获取所有成员（包括自己）
-        HashMap<String, User> userHashMap = thisChatroom.userHashMap;
+        Map<String, User> userHashMap = thisChatroom.userHashMap;
         Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
         //对除自己外其他成员发送消息
         for (User user : userHashMap.values()) {
@@ -175,4 +179,26 @@ public class ClientThread extends Thread {
         }
     }
 
+    private void addFriend(String[] cmd) {
+        // cmd = ["addFriend", userAccount, friendAccount]
+        String userAccount = cmd[1];
+        String friendAccount = cmd[2];
+        Map<String, User> userHashMap = cs.clientMap;
+        // 判断friendAccount是否已注册
+        if (!userHashMap.containsKey(friendAccount)) {
+            io.sendMsg("addFriendResponse/该账号尚未注册");
+            System.out.println(friendAccount + "尚未注册");
+            return;
+        }
+        // 成功添加好友
+        User self = userHashMap.get(userAccount);
+        User friend = userHashMap.get(friendAccount);
+        self.getFriendsList().add(friend);
+        friend.getFriendsList().add(self);
+        io.sendObject("addFriendResponse/success/", self);
+        System.out.printf("%s成功添加%s为好友\n", userAccount, friendAccount);
+        // TODO: 通知friend被添加好友
+        ClientIO friendIO = cs.clientIOMap.get(friendAccount);
+        friendIO.sendObject("addFriendRequest/success/", friend);
+    }
 }
