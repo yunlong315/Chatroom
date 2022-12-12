@@ -391,7 +391,6 @@ public class Client {
         String sender = args[1];
         int chatroomID = Integer.parseInt(args[2]);
         String chatContents = args[3];
-        chatModel.receiveMsg(retMsg);
     }
 
     public AddFriendResponse addFriend(String userAccount, String friendAccount) {
