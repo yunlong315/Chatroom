@@ -87,6 +87,7 @@ public class ChatViewController {
     }
 
     public void setNowUser(User nowUser) {
+        CachedData.addUser(nowUser);
         this.nowUser = nowUser;
         chatModel.setUser(nowUser);
     }
@@ -148,6 +149,24 @@ public class ChatViewController {
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_FriendsList, this, this::updateFriendsList);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_SENDED, this, this::updateSended);
+    }
+
+
+    /**
+     * 更新发送信息的状态
+     *
+     * @param event
+     */
+    private void updateSended(String event) {
+        //如发送失败则显示失败信息，发送成功则无需操作。
+        chatModel.getChatObject().ifPresent(
+                (chatObject) -> {
+                    if (chatObject.wasError()) {
+                        AlertUtil.showAlert(chatObject.getErrorMessage());
+                    }
+                }
+        );
     }
 
     /**
@@ -160,6 +179,10 @@ public class ChatViewController {
                 (chatObject) -> {
                     if (!chatObject.wasError()) {
                         chatRoomsProperty.get().addAll(new ChatroomBox(chatObject.getChatRoom()));
+                        ChatRoom chatroom = chatObject.getChatRoom();
+                        for (User user : chatroom.getUserHashMap().values()) {
+                            CachedData.addUser(user);
+                        }
                     } else {
                         AlertUtil.showAlert(chatObject.getErrorMessage());
                     }
@@ -179,15 +202,6 @@ public class ChatViewController {
 //                new User("xxx"));
     }
 
-//    private HBox getMessageBox(ReceiveObject receiveObject) {
-//        HBox retBox = new HBox();
-//        Text messageText = new Text(receiveObject.getMessage());
-//        //TODO:用户发送消息时，自己的屏幕上就显示发送的消息。服务器不会将消息转发给自己。
-//        retBox.setAlignment(Pos.CENTER_LEFT);
-//        retBox.getChildren().addAll(messageText);
-//        System.out.println(messageText.getText());
-//        return retBox;
-//    }
 
 
     /**
@@ -197,11 +211,11 @@ public class ChatViewController {
      */
     public void updateMessageList(String event) {
         ReceiveObject receiveObject = chatModel.getReceiveObject();
-        //todo:获得receiveObject中的user
-        User user = new User("123");
+        //TODO:获取user,目前只能获得user的账号
+        //TODO:从本地缓存中获取聊天消息
+        User user = CachedData.getUser(receiveObject.getSender());
         HBox messageBox = new NewMessageBox().left(user, receiveObject.getMessage());
         messagesProperty.get().addAll(messageBox);
-
     }
 
     /**
@@ -251,7 +265,8 @@ public class ChatViewController {
                 chatModel.createChatroom();
                 break;
             case FRIENDSPAGE:
-                chatModel.addFriend(content);
+                if (!content.isEmpty())
+                    chatModel.addFriend(nowUser.getUserAccount(), content);
                 break;
         }
     }

@@ -22,6 +22,10 @@ public class User implements Serializable {
     public User(String userName) {
         this.userName = userName;
     }
+    public void addFriend(User user)
+    {
+        friendsList.add(user);
+    }
 
     public String getUserPassWord() {
         return userPassWord;
@@ -48,5 +52,17 @@ public class User implements Serializable {
 
     public String getUserName() {
         return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setFriendsList(List<User> friendsList) {
+        this.friendsList = friendsList;
+    }
+
+    public void setChatRoomList(List<ChatRoom> chatRoomList) {
+        this.chatRoomList = chatRoomList;
     }
 }

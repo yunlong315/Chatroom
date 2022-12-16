@@ -27,6 +27,7 @@ public class Notifications {
     public final static String EVENT_MODEL_ADD_Friend = "addFriend";
     public final static String EVENT_MODEL_JOIN_ChatRoom = "joinChatroom";
     public final static String EVENT_MODEL_UPDATE_MESSAGE = "updateMessage";
+    public final static String EVENT_MODEL_UPDATE_SENDED = "updateSended";
     private final Map<String, List<SubscriberObject>> subscribers = new LinkedHashMap<>();
     private static Notifications instance = new Notifications();
 

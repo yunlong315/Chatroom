@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClientThread extends Thread {
-
     private ClientIO io = null;
     CenterServer cs = null;
     String userAccount = null;

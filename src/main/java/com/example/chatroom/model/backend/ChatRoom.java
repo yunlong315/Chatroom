@@ -9,10 +9,11 @@ public class ChatRoom implements Serializable {
     Map<String, User> userHashMap = Collections.synchronizedMap(new HashMap<>()) ;
     static int nextID;//赋予给新创建的群，然后nextID++;
     private int ID;
-    private String chatroomName = "新建聊天室";
+    private String chatroomName = null;
 
     public ChatRoom(int ID) {
         this.ID = ID;
+        chatroomName = "新建聊天室" + ID;
     }
 
     public int getID() {
@@ -25,5 +26,14 @@ public class ChatRoom implements Serializable {
 
     public void setChatroomName(String chatroomName) {
         this.chatroomName = chatroomName;
+    }
+
+    public Map<String, User> getUserHashMap() {
+        return userHashMap;
+    }
+
+    @Override
+    public String toString() {
+        return chatroomName;
     }
 }

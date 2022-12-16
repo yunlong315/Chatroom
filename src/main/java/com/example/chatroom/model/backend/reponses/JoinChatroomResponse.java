@@ -23,16 +23,12 @@ public class JoinChatroomResponse implements IResponse
         this.chatroom=chatroom;
         this.errorMessage = null;
     }
-
     public String getErrorMessage() {
         return errorMessage;
     }
-
     public boolean isSuccess() {
         return success;
     }
-
-
     public ChatRoom getChatroom() {
         return chatroom;
     }

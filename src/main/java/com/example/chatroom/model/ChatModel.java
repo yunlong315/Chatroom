@@ -1,5 +1,6 @@
 package com.example.chatroom.model;
 
+import com.example.chatroom.CachedData;
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.Client;
 import com.example.chatroom.model.backend.User;
@@ -12,7 +13,10 @@ import java.util.Optional;
 public class ChatModel {
     private Notifications notifications = new Notifications();
     private Optional<ChatObject> chatObject = Optional.empty();
-    private ReceiveObject receiveObject = new ReceiveObject();
+    /**
+     * 储存读线程中的信息。
+     */
+    private ReceiveObject receiveObject = null;
     private final Client client;
     private User user;
 
@@ -36,7 +40,7 @@ public class ChatModel {
      *
      * @param message-聊天信息
      * @param chatroomID-聊天室id
-     * @return
+     * @return chatObject
      */
     public Optional<ChatObject> sendMessage(String message, int chatroomID) {
         try {
@@ -46,7 +50,8 @@ public class ChatModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
+        CachedData.addMessage(user.getUserAccount(), chatroomID, message);
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_SENDED);
         return chatObject;
     }
 
@@ -69,7 +74,8 @@ public class ChatModel {
         JoinChatroomResponse response = client.joinChatroom(user.getUserAccount(), chatroomID);
         ChatObject joinChatroomObject = new ChatObject(response);
         chatObject = Optional.of(joinChatroomObject);
-        notifications.publish(Notifications.EVENT_MODEL_JOIN_ChatRoom);
+        //TODO:目前加入聊天室成功后通过EVENT_MODEL_UPDATE_ChatList更新，并没有使用EVENT_MODEL_JOIN_ChatRoom
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
     }
 
     public void setUser(User user) {
@@ -81,8 +87,9 @@ public class ChatModel {
      *
      * @param message
      */
-    public void receiveMsg(String message) {
-        receiveObject.setMessage(message);
+    public void receiveMsg(String sender, int chatroomId, String message) {
+        receiveObject = new ReceiveObject(sender, chatroomId, message);
+        CachedData.addMessage(sender, chatroomId, message);
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
     }
 

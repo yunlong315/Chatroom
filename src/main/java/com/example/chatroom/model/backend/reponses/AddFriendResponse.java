@@ -38,4 +38,8 @@ public class AddFriendResponse implements IResponse{
     public String getTmpMsg() {
         return tmpMsg;
     }
+
+    public User getUser() {
+        return user;
+    }
 }

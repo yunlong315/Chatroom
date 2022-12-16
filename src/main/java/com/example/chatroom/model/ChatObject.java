@@ -17,6 +17,7 @@ public class ChatObject {
      */
     private final String errorMessage;
     private ChatRoom chatRoom = null;
+    private User user;
 
     public ChatObject(IResponse response) {
         this.wasError = !response.isSuccess();
@@ -27,8 +28,14 @@ public class ChatObject {
         } else if (response instanceof JoinChatroomResponse joinChatroomResponse) {
             chatRoom = joinChatroomResponse.getChatroom();
         } else if (response instanceof ChatResponse chatResponse) {
-            //TODO:
+            //chatResponse只包含成功与否的信息
+        } else if (response instanceof AddFriendResponse addFriendResponse) {
+            user = addFriendResponse.getUser();
         }
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public boolean wasError() {
