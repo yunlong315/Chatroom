@@ -9,7 +9,6 @@ import com.example.chatroom.uiComponent.ChatroomBox;
 import com.example.chatroom.uiComponent.FriendBox;
 import com.example.chatroom.uiComponent.NewMessageBox;
 import com.example.chatroom.util.AlertUtil;
-import com.example.chatroom.util.AutoSizeUtil;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -73,6 +72,7 @@ public class ChatViewController {
 
     private ChatRoom selectedChatRoom = null;
     private ChatroomBox selectedChatRoomBox = null;
+
     private final ChatModel chatModel = new ChatModel();
     private final Notifications notifications = new Notifications();
     private ReadOnlyObjectProperty<ObservableList<HBox>> chatRoomsProperty =
@@ -97,8 +97,8 @@ public class ChatViewController {
      */
     private void changeToOneChatroom(ChatRoom chatRoom) {
         titleText.setText(chatRoom.getChatroomName() + String.format("(ID:%d)", chatRoom.getID()));
-        //todo:获得当前聊天室的所有聊天记录
-        List<HBox> messageList = new ArrayList<>();
+        List<HBox> messageList = new NewMessageBox().getBoxList(nowUser, CachedData.getMessageList(chatRoom.getID()));
+        messagesProperty.get().clear();
         messagesProperty.get().addAll(messageList);
     }
 
@@ -196,12 +196,22 @@ public class ChatViewController {
      * @param event
      */
     public void updateFriendsList(String event) {
-        //模拟更新数据
-//        friendsProperty.get().addAll(
-//                new User("zzz"),
-//                new User("xxx"));
+        chatModel.getChatObject().ifPresent(
+                (chatObject) -> {
+                    if (!chatObject.wasError()) {
+                        User user = chatObject.getUser();
+                        CachedData.addUser(user);
+                        user = CachedData.getUser(user.getUserAccount());
+                        nowUser.addFriend(user);
+                        friendsProperty.get().clear();
+                        List<User> friends = nowUser.getFriendsList();
+                        for (User friend : friends) {
+                            friendsProperty.get().add(new FriendBox(friend));
+                        }
+                    }
+                }
+        );
     }
-
 
 
     /**
@@ -248,7 +258,7 @@ public class ChatViewController {
         Stage settingsStage = new Stage();
         settingsStage.setTitle("设置");
         settingsStage.setScene(scene);
-        settingsStage.show();
+        settingsStage.showAndWait();
     }
 
     /**

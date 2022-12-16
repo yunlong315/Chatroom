@@ -1,5 +1,6 @@
 package com.example.chatroom.uiComponent;
 
+import com.example.chatroom.Message;
 import com.example.chatroom.model.backend.User;
 import com.example.chatroom.util.AutoSizeUtil;
 import javafx.geometry.NodeOrientation;
@@ -11,6 +12,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NewMessageBox {
     private HBox mainBox;
@@ -80,5 +84,17 @@ public class NewMessageBox {
         mainBox.getChildren().addAll(anchorPane, vBox);
 
         return mainBox;
+    }
+
+    public List<HBox> getBoxList(User master, List<Message> messages) {
+        List<HBox> boxList = new ArrayList<>();
+        for (Message message : messages) {
+            if (message.getUser().equals(master)) {
+                boxList.add(right(message.getUser(), message.getMessage()));
+            } else {
+                boxList.add(left(message.getUser(), message.getMessage()));
+            }
+        }
+        return boxList;
     }
 }

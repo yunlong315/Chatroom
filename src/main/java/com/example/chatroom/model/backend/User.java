@@ -42,6 +42,11 @@ public class User implements Serializable {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return userAccount.equals(((User) o).getUserAccount());
+    }
+
     public List<ChatRoom> getChatRoomList() {
         return chatRoomList;
     }

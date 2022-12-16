@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatRoom implements Serializable {
-    Map<String, User> userHashMap = Collections.synchronizedMap(new HashMap<>()) ;
+    Map<String, User> userHashMap = Collections.synchronizedMap(new HashMap<>());
     static int nextID;//赋予给新创建的群，然后nextID++;
     private int ID;
     private String chatroomName = null;

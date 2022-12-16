@@ -2,13 +2,10 @@ package com.example.chatroom.model;
 
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
-import com.example.chatroom.model.backend.reponses.ChatResponse;
-import com.example.chatroom.model.backend.reponses.CreateChatroomResponse;
-import com.example.chatroom.model.backend.reponses.IResponse;
-import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
+import com.example.chatroom.model.backend.reponses.*;
 
 /**
- *主动请求后收到的返回存于此处
+ * 主动请求后收到的返回存于此处
  */
 public class ChatObject {
     private final boolean wasError;

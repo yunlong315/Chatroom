@@ -4,9 +4,7 @@ import com.example.chatroom.CachedData;
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.Client;
 import com.example.chatroom.model.backend.User;
-import com.example.chatroom.model.backend.reponses.ChatResponse;
-import com.example.chatroom.model.backend.reponses.CreateChatroomResponse;
-import com.example.chatroom.model.backend.reponses.JoinChatroomResponse;
+import com.example.chatroom.model.backend.reponses.*;
 
 import java.util.Optional;
 
@@ -31,7 +29,10 @@ public class ChatModel {
 
     // changeToChatList方法已删除
 
-    public Optional<ChatObject> addFriend(String account) {
+    public Optional<ChatObject> addFriend(String myAccount, String friendAccount) {
+        AddFriendResponse response = client.addFriend(myAccount, friendAccount);
+        ChatObject addFriendObject = new ChatObject(response);
+        chatObject = Optional.of(addFriendObject);
         return chatObject;
     }
 
