@@ -47,8 +47,12 @@ public class ClientThread extends Thread {
                         chat(cmd);
                         break;
                     case "addFriend":
-                        // cmd = ["addFriend", userAccount]
+                        // cmd = ["addFriend", userAccount, friendAccount]
                         addFriend(cmd);
+                        break;
+                    case "inviteFriend":
+                        // cmd = ["inviteFriend", userAccount, friendAccount, chatroomID]
+                        inviteFriend(cmd);
                         break;
                 }
             }
@@ -127,7 +131,7 @@ public class ClientThread extends Thread {
         Map<Integer, ChatRoom> chatroomHashMap = cs.chatroomHashMap;
         // 判断聊天室是否存在
         if (!chatroomHashMap.containsKey(chatroomID)) {
-            io.sendMsg("joinChatroomResponse/该聊天室ID不存在");
+            io.sendMsg("joinChatroomResponse/聊天室不存在");
             System.out.println(chatroomID + "号聊天室不存在");
             return;
         }
@@ -144,7 +148,14 @@ public class ClientThread extends Thread {
         thisUser.getChatRoomList().add(thisChatroom);
         io.sendObject("joinChatroomResponse/success/", thisChatroom);
         System.out.printf("%s用户成功加入%d号聊天室\n", userAccount, chatroomID);
-        // TODO:向该聊天室中其他成员广播新用户加入的信息
+        // 向该聊天室中其他成员广播新用户加入的信息
+        Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
+        for (User user : thisChatroom.userHashMap.values()) {
+            if (clientIOHashMap.containsKey(user.getUserAccount()) && !user.getUserAccount().equals(userAccount)){
+                ClientIO io = cs.clientIOMap.get(user.getUserAccount());
+                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
+            }
+        }
     }
 
     //userAccount发送到chatroom
@@ -194,10 +205,52 @@ public class ClientThread extends Thread {
         User friend = userHashMap.get(friendAccount);
         self.getFriendsList().add(friend);
         friend.getFriendsList().add(self);
-        io.sendObject("addFriendResponse/success/", self);
+        // 返回好友对应User类
+        io.sendObject("addFriendResponse/success/", friend);
         System.out.printf("%s成功添加%s为好友\n", userAccount, friendAccount);
         // TODO: 通知friend被添加好友
         ClientIO friendIO = cs.clientIOMap.get(friendAccount);
         friendIO.sendObject("addFriendRequest/success/", friend);
+    }
+
+    private void inviteFriend(String[] cmd) {
+        // cmd = ["inviteFriend", userAccount, friendAccount, chatroomID]
+        String userAccount = cmd[1];
+        String friendAccount = cmd[2];
+        int chatroomID = Integer.parseInt(cmd[3]);
+        // 判断是否是好友
+        Map<String, User> userHashMap = cs.clientMap;
+        User self = userHashMap.get(userAccount);
+        boolean flag = false;
+        for (User fri: self.getFriendsList()) {
+            if (fri.getUserAccount().equals(friendAccount)) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            io.sendMsg("inviteFriendResponse/尚未成为好友");
+            System.out.println(friendAccount + "非" + userAccount + "好友");
+            return;
+        }
+        // 判断聊天室是否存在
+        if (!cs.chatroomHashMap.containsKey(chatroomID)) {
+            io.sendMsg("inviteFriendResponse/聊天室不存在");
+            System.out.println(chatroomID + "号聊天室不存在");
+            return;
+        }
+        // 判断好友是否已在聊天室中
+        ChatRoom thisChatroom = cs.chatroomHashMap.get(chatroomID);
+        if (thisChatroom.userHashMap.containsKey(userAccount)) {
+            io.sendMsg("inviteFriendResponse/好友已在聊天室中");
+            System.out.println(friendAccount + "用户已在" + chatroomID + "号聊天室中");
+            return;
+        }
+        // 成功加入，调用好友的joinChatroom方法
+        io.sendObject("inviteFriendResponse/success/", thisChatroom);
+        System.out.printf("%s成功添加%s为好友\n", userAccount, friendAccount);
+        ClientIO friendIO = cs.clientIOMap.get(friendAccount);
+        friendIO.sendMsg(String.format("inviteFriendRequest/%s/%s", friendAccount, chatroomID));
+
     }
 }

@@ -1,24 +1,24 @@
 package com.example.chatroom.model.backend.reponses;
 
-import com.example.chatroom.model.backend.User;
+import com.example.chatroom.model.backend.ChatRoom;
 
-public class AddFriendResponse implements IResponse{
+public class InviteFriendResponse implements IResponse{
     private boolean success = false;
     private String errorMessage = "";
     private String tmpMsg = "";
-    private final User user;
+    private final ChatRoom chatroom;
 
     //失败信息构造方法
-    public AddFriendResponse(String errorMessage) {
+    public InviteFriendResponse(String errorMessage) {
         this.success = false;
         this.errorMessage += errorMessage;
-        this.user = null;
+        this.chatroom = null;
     }
 
     //成功信息构造方法
-    public AddFriendResponse(User user) {
+    public InviteFriendResponse(ChatRoom chatroom) {
         this.success = true;
-        this.user = user;
+        this.chatroom = chatroom;
         this.errorMessage = null;
     }
     @Override
@@ -37,9 +37,5 @@ public class AddFriendResponse implements IResponse{
 
     public String getTmpMsg() {
         return tmpMsg;
-    }
-
-    public User getUser() {
-        return user;
     }
 }

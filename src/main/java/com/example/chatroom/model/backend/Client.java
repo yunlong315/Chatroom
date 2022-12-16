@@ -69,6 +69,9 @@ public class Client {
     private final AddFriendResponse addFriendResponse = new AddFriendResponse("");
     private byte[] addFriendResponseByteArr;
     private byte[] addFriendRequestByteArr;
+    private final InviteFriendResponse inviteFriendResponse = new InviteFriendResponse("");
+    private byte[] inviteFriendResponseByteArr;
+    private byte[] inviteFriendRequestByteArr;
     private String createChatroomRetMsg = "";
     private String chatRetMsg = "";
 
@@ -191,13 +194,10 @@ public class Client {
                                 chatResponse.notify();
                             }
                             break;
-                        case "chat":
-                            chatRetMsg = retMsg;
-                            break;
                         case "receiveChatMsg":
                             receiveChatMsg(retMsg);
                             break;
-                        case "addFriend":
+                        case "addFriendResponse":
                             synchronized (addFriendResponse) {
                                 addFriendResponse.setTmpMsg(retMsg);
                                 addFriendResponseByteArr = retByteArr;
@@ -207,6 +207,17 @@ public class Client {
                         case "addFriendRequest":
                             addFriendRequestByteArr = retByteArr;
                             addFriendRequest();
+                            break;
+                        case "inviteFriend":
+                            synchronized (inviteFriendResponse) {
+                                inviteFriendResponse.setTmpMsg(retMsg);
+                                inviteFriendResponseByteArr = retByteArr;
+                                inviteFriendResponse.notify();
+                            }
+                            break;
+                        case "inviteFriendRequest":
+                            inviteFriendRequestByteArr = retByteArr;
+                            inviteFriendRequest(retMsg);
                             break;
                     }
                 }
@@ -432,5 +443,47 @@ public class Client {
         int len = "addFriendRequest/success/".getBytes().length;
         user = (User) receiveObj(len, addFriendRequestByteArr);
         // TODO: 更新好友列表
+    }
+
+    private InviteFriendResponse inviteFriend(String userAccount, String friendAccount, String chatroomID) {
+        String str = String.format("inviteFriend/%s/%s/%s", userAccount, friendAccount, chatroomID);
+        sendMsg(str);
+        return getInviteFriendResponse();
+    }
+
+    private InviteFriendResponse getInviteFriendResponse() {
+        // args = ["inviteFriendResponse", "success"/errorMsg, (ChatRoom chatroom)]
+        synchronized (inviteFriendResponse) {
+            try {
+                inviteFriendResponse.wait(5000);
+                if (inviteFriendResponse.getTmpMsg().equals("")) {
+                    inviteFriendResponse.setTmpMsg("inviteFriendResponse/响应超时，请检查网络");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] args = inviteFriendResponse.getTmpMsg().split("/");
+        inviteFriendResponse.setTmpMsg("");
+        if (args[1].equals("success")) {
+            int len = "inviteFriendResponse/success/".getBytes().length;
+            ChatRoom chatroom = null;
+            chatroom = (ChatRoom) receiveObj(len, inviteFriendResponseByteArr);
+            if (chatroom == null) {
+                return new InviteFriendResponse("接收服务器发送对象失败");
+            }
+            return new InviteFriendResponse(chatroom);
+        } else {
+            return new InviteFriendResponse(args[1]);
+        }
+    }
+
+    private void inviteFriendRequest(String retMsg) {
+        // args = ["inviteFriendRequest", userAccount, chatroomID]
+        String[] args = retMsg.split("/");
+        String userAccount = args[1];
+        int chatroomID = Integer.parseInt(args[2]);
+        JoinChatroomResponse joinChatroomResponse1 = joinChatroom(userAccount, chatroomID);
+        // TODO: 使用joinChatroomResponse1更新chatroomList
     }
 }
