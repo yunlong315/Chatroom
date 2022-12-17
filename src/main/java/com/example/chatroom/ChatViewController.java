@@ -1,5 +1,4 @@
 package com.example.chatroom;
-
 import com.example.chatroom.model.ChatModel;
 import com.example.chatroom.model.Notifications;
 import com.example.chatroom.model.ReceiveObject;
@@ -23,7 +22,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

@@ -498,4 +498,14 @@ public class Client {
         JoinChatroomResponse joinChatroomResponse1 = joinChatroom(userAccount, chatroomID);
         chatModel.updateChatroom(joinChatroomResponse1.getChatroom());
     }
+
+    /**
+     * 设置用户头像
+     * @param imagePath-图片路径
+     */
+    public void setImage(String imagePath)
+    {
+         
+    }
+
 }
