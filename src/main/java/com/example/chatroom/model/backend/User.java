@@ -10,6 +10,7 @@ public class User implements Serializable {
     private String userAccount;
     private String userPassWord;
     private String userName;
+    private byte[] userImage;
     private List<ChatRoom> chatRoomList = Collections.synchronizedList(new ArrayList<>());
     private List<User> friendsList = Collections.synchronizedList(new ArrayList<>());
 
@@ -69,5 +70,13 @@ public class User implements Serializable {
 
     public void setChatRoomList(List<ChatRoom> chatRoomList) {
         this.chatRoomList = chatRoomList;
+    }
+
+    public byte[] getUserImage() {
+        return userImage;
+    }
+
+    public void setUserImage(byte[] userImage) {
+        this.userImage = userImage;
     }
 }

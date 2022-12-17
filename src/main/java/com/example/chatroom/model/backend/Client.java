@@ -7,6 +7,8 @@ import com.example.chatroom.model.backend.reponses.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class Client {
@@ -72,7 +74,7 @@ public class Client {
     private byte[] addFriendRequestByteArr;
     private final InviteFriendResponse inviteFriendResponse = new InviteFriendResponse("");
     private byte[] inviteFriendResponseByteArr;
-    private byte[] inviteFriendRequestByteArr;
+    private byte[] receiveImageChangedByteArr;
     private String createChatroomRetMsg = "";
     private String chatRetMsg = "";
 
@@ -105,6 +107,25 @@ public class Client {
     private int sendMsg(String str) {
         try {
             byte[] data = str.getBytes();
+            int len = data.length + 5;
+            dataOutputStream.writeInt(len);
+            dataOutputStream.write(data);
+            dataOutputStream.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+        return 0;
+    }
+
+    private int sendByteArr(String str, byte[] bytes) {
+        try {
+            byte[] strBytes = str.getBytes();
+            // 将以上两个byte[]合并成一个byte[]
+            byte[] data = new byte[strBytes.length + bytes.length];
+            System.arraycopy(strBytes, 0, data, 0, strBytes.length);
+            System.arraycopy(bytes, 0, data, strBytes.length, bytes.length);
+            // 输出给客户端
             int len = data.length + 5;
             dataOutputStream.writeInt(len);
             dataOutputStream.write(data);
@@ -221,8 +242,11 @@ public class Client {
                             }
                             break;
                         case "inviteFriendRequest":
-                            inviteFriendRequestByteArr = retByteArr;
                             inviteFriendRequest(retMsg);
+                            break;
+                        case "receiveImageChanged":
+                            receiveImageChangedByteArr = retByteArr;
+                            receiveImageChanged();
                             break;
                     }
                 }
@@ -501,11 +525,19 @@ public class Client {
 
     /**
      * 设置用户头像
+     * @param userAccount
      * @param imagePath-图片路径
+     * @throws IOException
      */
-    public void setImage(String imagePath)
-    {
-         
+    public void setImage(String userAccount, String imagePath) throws IOException {
+         byte[] image = Files.readAllBytes(Path.of(imagePath));
+         String str = String.format("setImage/%s/", userAccount);
+         sendByteArr(str, image);
     }
 
+    private void receiveImageChanged() {
+        int len = "receiveImageChanged/".getBytes().length;
+        User user = (User) receiveObj(len, receiveImageChangedByteArr);
+        // TODO: 更新头像
+    }
 }

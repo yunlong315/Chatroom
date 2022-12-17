@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class ClientThread extends Thread {
@@ -53,6 +54,10 @@ public class ClientThread extends Thread {
                     case "inviteFriend":
                         // cmd = ["inviteFriend", userAccount, friendAccount, chatroomID]
                         inviteFriend(cmd);
+                        break;
+                    case "setImage":
+                        // cmd = ["setImage", userAccount, byte[] img]
+                        setImage(data);
                         break;
                 }
             }
@@ -252,6 +257,21 @@ public class ClientThread extends Thread {
         System.out.printf("%s成功添加%s为好友\n", userAccount, friendAccount);
         ClientIO friendIO = cs.clientIOMap.get(friendAccount);
         friendIO.sendMsg(String.format("inviteFriendRequest/%s/%s", friendAccount, chatroomID));
+    }
 
+    private void setImage(byte[] data) {
+        String[] cmd = new String(data).split("/", 3);
+        String userAccount = cmd[1];
+        byte[] img = cmd[2].getBytes();
+        User user = cs.clientMap.get(userAccount);
+        user.setUserImage(img);
+        HashSet<String> sendSet = new HashSet<>();
+        for (ChatRoom chatRoom: user.getChatRoomList()) {
+            sendSet.addAll(chatRoom.getUserHashMap().keySet());
+        }
+        for (String member: sendSet) {
+            ClientIO memberIO = cs.clientIOMap.get(member);
+            memberIO.sendObject("receiveImageChanged/", user);
+        }
     }
 }
