@@ -33,6 +33,7 @@ public class ChatModel {
         AddFriendResponse response = client.addFriend(myAccount, friendAccount);
         ChatObject addFriendObject = new ChatObject(response);
         chatObject = Optional.of(addFriendObject);
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_FriendsList);
         return chatObject;
     }
 
@@ -96,5 +97,26 @@ public class ChatModel {
 
     public ReceiveObject getReceiveObject() {
         return receiveObject;
+    }
+
+    /**
+     * 更新chatroom
+     * @param chatroom-更新的chatroom
+     */
+    public void updateChatroom(ChatRoom chatroom) {
+        CachedData.addChatRoom(chatroom);
+        //TODO:是否需要刷新监视
+    }
+
+    /**
+     * 被其他user加为好友。在客户端加该user为好友。
+     * @param user-被该user加为好友
+     */
+    public void beAddedAsFriend(User user)
+    {
+        CachedData.addUser(user);
+        user = CachedData.getUser(user.getUserAccount());
+        this.user.addFriend(user);
+        //TODO:是否需要刷新监视
     }
 }

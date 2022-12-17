@@ -9,11 +9,48 @@ public class CachedData {
     private static HashMap<Integer, List<Message>> messageListHashMap = new HashMap<>();
     private static HashMap<String,User> userHashMap = new HashMap<>();
 
+    /**
+     * 增加房间，若已有相应聊天室则更新聊天室信息。
+     * @param chatRoom
+     */
     public static void addChatRoom(ChatRoom chatRoom)
     {
-        chatRoomHashMap.put(chatRoom.getID(),chatRoom);
+        if(chatRoomHashMap.containsKey(chatRoom.getID()))
+        {
+            ChatRoom oldRoom = chatRoomHashMap.get(chatRoom.getID());
+            oldRoom.setChatroomName(chatRoom.getChatroomName());
+            oldRoom.setUserHashMap(chatRoom.getUserHashMap());
+        }
+        else
+        {
+            chatRoomHashMap.put(chatRoom.getID(),chatRoom);
+        }
+        System.out.println("update chatroom"+chatRoom.getID());
+        for(User user:chatRoom.getUserHashMap().values())
+        {
+            System.out.println("update user"+user.getUserAccount());
+            addUser(user);
+        }
+
     }
-    public static void addMessage(String userAccount,int chatroomId,String message)
+
+    /**
+     * 根据id得到chatroom.
+     * @param id
+     * @return
+     */
+    public ChatRoom getChatroom(int id)
+    {
+        return chatRoomHashMap.get(id);
+    }
+
+    /**
+     * 储存房间中的消息。
+     * @param userAccount
+     * @param chatroomId
+     * @param message
+     */
+    public static void addMessage(String userAccount, int chatroomId, String message)
     {
         if(!messageListHashMap.containsKey(chatroomId))
         {

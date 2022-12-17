@@ -118,6 +118,7 @@ public class ChatViewController {
 
     private void initChatRoomList() {
         for (ChatRoom chatRoom : nowUser.getChatRoomList()) {
+            CachedData.addChatRoom(chatRoom);
             chatRoomsProperty.get().addAll(new ChatroomBox(chatRoom));
         }
     }
@@ -171,7 +172,6 @@ public class ChatViewController {
 
     /**
      * 更新聊天室列表。
-     *
      * @param event
      */
     public void updateChatList(String event) {
@@ -180,9 +180,7 @@ public class ChatViewController {
                     if (!chatObject.wasError()) {
                         chatRoomsProperty.get().addAll(new ChatroomBox(chatObject.getChatRoom()));
                         ChatRoom chatroom = chatObject.getChatRoom();
-                        for (User user : chatroom.getUserHashMap().values()) {
-                            CachedData.addUser(user);
-                        }
+                        CachedData.addChatRoom(chatroom);
                     } else {
                         AlertUtil.showAlert(chatObject.getErrorMessage());
                     }
@@ -191,8 +189,7 @@ public class ChatViewController {
     }
 
     /**
-     * 更新好友列表。
-     *
+     * 更新好友列表,从chatObject中获取新好友。
      * @param event
      */
     public void updateFriendsList(String event) {
@@ -221,8 +218,6 @@ public class ChatViewController {
      */
     public void updateMessageList(String event) {
         ReceiveObject receiveObject = chatModel.getReceiveObject();
-        //TODO:获取user,目前只能获得user的账号
-        //TODO:从本地缓存中获取聊天消息
         User user = CachedData.getUser(receiveObject.getSender());
         HBox messageBox = new NewMessageBox().left(user, receiveObject.getMessage());
         messagesProperty.get().addAll(messageBox);

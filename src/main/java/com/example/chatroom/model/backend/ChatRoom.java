@@ -32,6 +32,10 @@ public class ChatRoom implements Serializable {
         return userHashMap;
     }
 
+    public void setUserHashMap(Map<String, User> userHashMap) {
+        this.userHashMap = userHashMap;
+    }
+
     @Override
     public String toString() {
         return chatroomName;

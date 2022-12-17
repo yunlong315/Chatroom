@@ -404,7 +404,7 @@ public class Client {
         // args = ["joinChatroomRequest", (ChatRoom chatroom)
         int len = "joinChatroomRequest/".getBytes().length;
         ChatRoom chatroom = (ChatRoom) receiveObj(len, joinChatroomRequestByteArr);
-        // TODO: 更新CacheData
+        chatModel.updateChatroom(chatroom);
     }
 
     private void receiveChatMsg(String retMsg) {
@@ -453,7 +453,7 @@ public class Client {
         User user = null;
         int len = "addFriendRequest/success/".getBytes().length;
         user = (User) receiveObj(len, addFriendRequestByteArr);
-        // TODO: 更新好友列表
+        chatModel.beAddedAsFriend(user);
     }
 
     private InviteFriendResponse inviteFriend(String userAccount, String friendAccount, String chatroomID) {
@@ -496,6 +496,6 @@ public class Client {
         int chatroomID = Integer.parseInt(args[2]);
         // 调用joinChatroom()方法并获得JoinChatroomResponse
         JoinChatroomResponse joinChatroomResponse1 = joinChatroom(userAccount, chatroomID);
-        // TODO: 使用joinChatroomResponse1更新chatroomList
+        chatModel.updateChatroom(joinChatroomResponse1.getChatroom());
     }
 }
