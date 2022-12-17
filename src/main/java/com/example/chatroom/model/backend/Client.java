@@ -65,6 +65,7 @@ public class Client {
     private final CreateChatroomResponse createChatroomResponse = new CreateChatroomResponse("");
     private final JoinChatroomResponse joinChatroomResponse = new JoinChatroomResponse("");
     private byte[] joinChatroomResponseByteArr;
+    private byte[] joinChatroomRequestByteArr;
     private final ChatResponse chatResponse = new ChatResponse("");
     private final AddFriendResponse addFriendResponse = new AddFriendResponse("");
     private byte[] addFriendResponseByteArr;
@@ -187,6 +188,10 @@ public class Client {
                                 joinChatroomResponseByteArr = retByteArr;
                                 joinChatroomResponse.notify();
                             }
+                            break;
+                        case "joinChatroomRequest":
+                            joinChatroomRequestByteArr = retByteArr;
+                            joinChatroomRequest(retMsg);
                             break;
                         case "chatResponse":
                             synchronized (chatResponse) {
@@ -395,10 +400,16 @@ public class Client {
         }
     }
 
+    private void joinChatroomRequest(String retMsg) {
+        // args = ["joinChatroomRequest", (ChatRoom chatroom)
+        int len = "joinChatroomRequest/".getBytes().length;
+        ChatRoom chatroom = (ChatRoom) receiveObj(len, joinChatroomRequestByteArr);
+        // TODO: 更新CacheData
+    }
+
     private void receiveChatMsg(String retMsg) {
         // args = ["receiveChatMsg", sender, chatroomID, chatContents]
-        //TODO:改进解析方式
-        String[] args = retMsg.split("/");
+        String[] args = retMsg.split("/", 4);
         String sender = args[1];
         int chatroomID = Integer.parseInt(args[2]);
         String chatContents = args[3];
@@ -483,6 +494,7 @@ public class Client {
         String[] args = retMsg.split("/");
         String userAccount = args[1];
         int chatroomID = Integer.parseInt(args[2]);
+        // 调用joinChatroom()方法并获得JoinChatroomResponse
         JoinChatroomResponse joinChatroomResponse1 = joinChatroom(userAccount, chatroomID);
         // TODO: 使用joinChatroomResponse1更新chatroomList
     }

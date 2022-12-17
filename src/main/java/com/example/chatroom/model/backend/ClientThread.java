@@ -154,6 +154,7 @@ public class ClientThread extends Thread {
             if (clientIOHashMap.containsKey(user.getUserAccount()) && !user.getUserAccount().equals(userAccount)){
                 ClientIO io = cs.clientIOMap.get(user.getUserAccount());
                 io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
+                io.sendObject("joinChatroomRequest/", thisChatroom);
             }
         }
     }
@@ -208,9 +209,9 @@ public class ClientThread extends Thread {
         // 返回好友对应User类
         io.sendObject("addFriendResponse/success/", friend);
         System.out.printf("%s成功添加%s为好友\n", userAccount, friendAccount);
-        // TODO: 通知friend被添加好友
+        // 通知friend被添加好友
         ClientIO friendIO = cs.clientIOMap.get(friendAccount);
-        friendIO.sendObject("addFriendRequest/success/", friend);
+        friendIO.sendObject("addFriendRequest/success/", self);
     }
 
     private void inviteFriend(String[] cmd) {
