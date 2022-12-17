@@ -52,7 +52,7 @@
                         <Text fx:id="titleText" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="131.58301734924316" BorderPane.alignment="CENTER" />
                      </center>
                      <right>
-                        <Button fx:id="changeRoomNameButton" minWidth="30.0" mnemonicParsing="false" onAction="#onChangeRoomNameButtonClick" prefHeight="30.0" prefWidth="30.0" text="改名" BorderPane.alignment="CENTER">
+                        <Button fx:id="detailButton" minWidth="30.0" mnemonicParsing="false" onAction="#onDetailButtonClick" prefHeight="30.0" prefWidth="30.0" text="....." BorderPane.alignment="CENTER">
                            <BorderPane.margin>
                               <Insets right="20.0" />
                            </BorderPane.margin>

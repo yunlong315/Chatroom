@@ -7,6 +7,7 @@ import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
 import com.example.chatroom.uiComponent.ChatroomBox;
 import com.example.chatroom.uiComponent.FriendBox;
+import com.example.chatroom.uiComponent.MemberBox;
 import com.example.chatroom.uiComponent.NewMessageBox;
 import com.example.chatroom.util.AlertUtil;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -18,6 +19,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -25,6 +27,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ChatViewController {
@@ -41,6 +44,8 @@ public class ChatViewController {
     @FXML
     private Button sendOutButton;
     @FXML
+    private Button detailButton;
+    @FXML
     private TextField searchTextField;
     @FXML
     private Text titleText;
@@ -53,6 +58,12 @@ public class ChatViewController {
     @FXML
     private ImageView headImage;
 
+    @FXML
+    private GridPane headGrid;
+    @FXML
+    private TextField changeNameTextField;
+    @FXML
+    private TextField inviteFriendTextField;
     @FXML
     private ListView<HBox> chatListView;
 
@@ -98,6 +109,7 @@ public class ChatViewController {
     private void changeToOneChatroom(ChatRoom chatRoom) {
         titleText.setText(chatRoom.getChatroomName() + String.format("(ID:%d)", chatRoom.getID()));
         List<HBox> messageList = new NewMessageBox().getBoxList(nowUser, CachedData.getMessageList(chatRoom.getID()));
+
         messagesProperty.get().clear();
         messagesProperty.get().addAll(messageList);
     }
@@ -125,7 +137,7 @@ public class ChatViewController {
 
     private void initFriendList() {
         for (User user : nowUser.getFriendsList()) {
-            chatRoomsProperty.get().addAll(new FriendBox(user));
+            friendsProperty.get().addAll(new FriendBox(user));
         }
     }
 
@@ -172,6 +184,7 @@ public class ChatViewController {
 
     /**
      * 更新聊天室列表。
+     *
      * @param event
      */
     public void updateChatList(String event) {
@@ -190,6 +203,7 @@ public class ChatViewController {
 
     /**
      * 更新好友列表,从chatObject中获取新好友。
+     *
      * @param event
      */
     public void updateFriendsList(String event) {
@@ -348,6 +362,27 @@ public class ChatViewController {
             selectedChatRoomBox.setChatroomLabel();
             titleText.setText(String.format("%s(ID:%d)",
                     selectedChatRoom.getChatroomName(), selectedChatRoom.getID()));
+        }
+    }
+
+    private void initChatroomDetailView() {
+        Map<String, User> memberMap = selectedChatRoom.getUserHashMap();
+        List<MemberBox> memberBoxes = new ArrayList<>();
+        for(User user: memberMap.values()){
+            memberBoxes.add(new MemberBox(user));
+        }
+    }
+
+    @FXML
+    public void onDetailButtonClick() throws IOException {
+        if (selectedChatRoom != null) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatroomDetailView.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage settingsStage = new Stage();
+            settingsStage.setTitle("");
+            settingsStage.setScene(scene);
+            initChatroomDetailView();
+            settingsStage.showAndWait();
         }
     }
 }

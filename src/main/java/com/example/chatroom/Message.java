@@ -18,4 +18,8 @@ public class Message {
         this.message = message;
         this.userAccount = userAccount;
     }
+
+    public String getUserAccount() {
+        return userAccount;
+    }
 }

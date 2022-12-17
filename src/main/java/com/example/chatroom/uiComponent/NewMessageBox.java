@@ -89,6 +89,8 @@ public class NewMessageBox {
     public List<HBox> getBoxList(User master, List<Message> messages) {
         List<HBox> boxList = new ArrayList<>();
         for (Message message : messages) {
+            System.out.println(message.getMessage());
+            System.out.println(message.getUserAccount());
             if (message.getUser().equals(master)) {
                 boxList.add(right(message.getUser(), message.getMessage()));
             } else {

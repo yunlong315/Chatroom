@@ -24,13 +24,14 @@ public class FriendBox extends HBox {
         this.setPadding(new Insets(0, 0, 0, 10));
         this.setSpacing(10);
 
-        head.setFitHeight(45);
-        head.setFitWidth(45);
+//        head.setFitHeight(45);
+//        head.setFitWidth(45);
 
         friendLabel.setFont(new Font(14));
         friendLabel.setAlignment(Pos.CENTER);
 
-        this.getChildren().addAll(head, friendLabel);
+        //this.getChildren().addAll(head, friendLabel);
+        this.getChildren().addAll(friendLabel);
 
     }
 
