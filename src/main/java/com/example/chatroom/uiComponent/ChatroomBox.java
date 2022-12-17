@@ -1,9 +1,6 @@
 package com.example.chatroom.uiComponent;
 
 import com.example.chatroom.model.backend.ChatRoom;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -30,7 +27,12 @@ public class ChatroomBox extends HBox {
         return chatRoom;
     }
 
-    public void setChatroomLabel(){
+    public void setChatroomLabel() {
         chatroomLabel.setText(String.format("%s(ID:%d)", chatRoom.getChatroomName(), chatRoom.getID()));
+    }
+
+    public void update(ChatRoom chatRoom) {
+        this.chatRoom = chatRoom;
+        setChatroomLabel();
     }
 }

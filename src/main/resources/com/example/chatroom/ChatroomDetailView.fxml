@@ -30,13 +30,13 @@
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="217.0" spacing="20.0">
          <children>
             <TextField fx:id="changeNameTextField" />
-            <Button mnemonicParsing="false" text="改名" />
+            <Button mnemonicParsing="false" onAction="#onChangeRoomNameButtonClick" text="改名" />
          </children>
       </HBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
          <children>
             <TextField fx:id="inviteFriendTextField" />
-            <Button mnemonicParsing="false" text="邀请" />
+            <Button mnemonicParsing="false" onAction="#onInviteFriendButtonClick" text="邀请" />
          </children>
       </HBox>
    </children>

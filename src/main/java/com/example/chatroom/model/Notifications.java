@@ -12,20 +12,21 @@ public class Notifications {
 
     public final static String EVENT_MODEL_UPDATE = "modelUpdate";
     /**
-    以下情况发出该广播：
-    1.当前用户创建了聊天室
-    2.加入了某个聊天室
+     * 以下情况发出该广播：
+     * 1.当前用户创建了聊天室
+     * 2.加入了某个聊天室
      */
     public final static String EVENT_MODEL_UPDATE_ChatList = "chatListUpdate";
     /**
-    以下情况发出该广播：
-    1.添加别人为好友
-    2.别人添加自己为好友
+     * 以下情况发出该广播：
+     * 1.添加别人为好友
+     * 2.别人添加自己为好友
      */
     public final static String EVENT_MODEL_UPDATE_FriendsList = "friendsListUpdate";
     public final static String EVENT_MODEL_CREATE_ChatRoom = "createChatRoom";
     public final static String EVENT_MODEL_ADD_Friend = "addFriend";
     public final static String EVENT_MODEL_JOIN_ChatRoom = "joinChatroom";
+    public final static String EVENT_MODEL_UPDATE_ONECHATROOM = "updateOneChatroom";
     public final static String EVENT_MODEL_UPDATE_MESSAGE = "updateMessage";
     public final static String EVENT_MODEL_UPDATE_SENDED = "updateSended";
     private final Map<String, List<SubscriberObject>> subscribers = new LinkedHashMap<>();

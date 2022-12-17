@@ -23,8 +23,8 @@ public class User implements Serializable {
     public User(String userName) {
         this.userName = userName;
     }
-    public void addFriend(User user)
-    {
+
+    public void addFriend(User user) {
         friendsList.add(user);
     }
 

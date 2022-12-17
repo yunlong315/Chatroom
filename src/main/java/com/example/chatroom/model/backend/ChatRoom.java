@@ -40,4 +40,9 @@ public class ChatRoom implements Serializable {
     public String toString() {
         return chatroomName;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ID == ((ChatRoom) obj).getID();
+    }
 }
