@@ -25,13 +25,10 @@ public class CachedData {
         {
             chatRoomHashMap.put(chatRoom.getID(),chatRoom);
         }
-        System.out.println("update chatroom"+chatRoom.getID());
         for(User user:chatRoom.getUserHashMap().values())
         {
-            System.out.println("update user"+user.getUserAccount());
             addUser(user);
         }
-
     }
 
     /**

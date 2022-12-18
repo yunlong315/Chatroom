@@ -14,7 +14,7 @@ public class ChatModel {
     /**
      * 储存读线程中的信息。
      */
-    private ReceiveObject receiveObject = null;
+    private ReceiveObject receiveObject = new ReceiveObject();
     private final Client client;
     private User user;
 
@@ -86,11 +86,11 @@ public class ChatModel {
 
     /**
      * 此方法只在client的读线程被调用
-     *
-     * @param message
      */
     public void receiveMsg(String sender, int chatroomId, String message) {
-        receiveObject = new ReceiveObject(sender, chatroomId, message);
+        receiveObject.setMessage(message);
+        receiveObject.setSender(sender);
+        receiveObject.setChatroomID(chatroomId);
         CachedData.addMessage(sender, chatroomId, message);
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
     }
@@ -106,9 +106,8 @@ public class ChatModel {
      */
     public void updateChatroom(ChatRoom chatroom) {
         CachedData.addChatRoom(chatroom);
-        //TODO:是否需要刷新监视
-        ChatRoom chatRoom = CachedData.getChatroom(chatroom.getID());
-        receiveObject.setChatRoom(chatRoom);
+        chatroom = CachedData.getChatroom(chatroom.getID());
+        receiveObject.setChatRoom(chatroom);
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ONECHATROOM);
     }
 

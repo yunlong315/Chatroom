@@ -13,6 +13,21 @@ public class ReceiveObject {
         this.chatroomID = chatroomID;
         this.message = chatContents;
     }
+    ReceiveObject(){
+
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public void setChatroomID(int chatroomID) {
+        this.chatroomID = chatroomID;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public int getChatroomID() {
         return chatroomID;

@@ -17,11 +17,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -139,7 +141,11 @@ public class ChatViewController {
         addChatListViewListener();
         userNameText.setText(nowUser.getUserName());
         userAccountText.setText(nowUser.getUserAccount());
-
+        /**
+         * 测试图片显示
+         */
+        Image image = new Image("C:\\Users\\86155\\Desktop\\mkm.jpg");
+        headImage.setImage(image);
         initChatRoomList();
         initFriendList();
 

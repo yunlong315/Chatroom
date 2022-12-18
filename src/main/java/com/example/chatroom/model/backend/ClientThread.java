@@ -158,8 +158,8 @@ public class ClientThread extends Thread {
         for (User user : thisChatroom.userHashMap.values()) {
             if (clientIOHashMap.containsKey(user.getUserAccount()) && !user.getUserAccount().equals(userAccount)){
                 ClientIO io = cs.clientIOMap.get(user.getUserAccount());
-                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
                 io.sendObject("joinChatroomRequest/", thisChatroom);
+                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
             }
         }
     }
