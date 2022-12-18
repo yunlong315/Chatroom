@@ -480,8 +480,8 @@ public class Client {
         chatModel.beAddedAsFriend(user);
     }
 
-    private InviteFriendResponse inviteFriend(String userAccount, String friendAccount, String chatroomID) {
-        String str = String.format("inviteFriend/%s/%s/%s", userAccount, friendAccount, chatroomID);
+    public InviteFriendResponse inviteFriend(String userAccount, String friendAccount, int chatroomID) {
+        String str = String.format("inviteFriend/%s/%s/%d", userAccount, friendAccount, chatroomID);
         sendMsg(str);
         return getInviteFriendResponse();
     }

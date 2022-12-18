@@ -1,9 +1,12 @@
 package com.example.chatroom.model;
 
+import com.example.chatroom.model.backend.ChatRoom;
+
 public class ReceiveObject {
-    private final String sender;
-    private final int chatroomID;
-    private final String message;
+    private String sender;
+    private int chatroomID;
+    private String message;
+    private ChatRoom chatRoom;
 
     ReceiveObject(String sender, int chatroomID, String chatContents) {
         this.sender = sender;
@@ -21,5 +24,13 @@ public class ReceiveObject {
 
     public String getSender() {
         return sender;
+    }
+
+    public ChatRoom getChatRoom() {
+        return chatRoom;
+    }
+
+    public void setChatRoom(ChatRoom chatRoom) {
+        this.chatRoom = chatRoom;
     }
 }

@@ -107,7 +107,9 @@ public class ChatModel {
     public void updateChatroom(ChatRoom chatroom) {
         CachedData.addChatRoom(chatroom);
         //TODO:是否需要刷新监视
-
+        ChatRoom chatRoom = CachedData.getChatroom(chatroom.getID());
+        receiveObject.setChatRoom(chatRoom);
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_ONECHATROOM);
     }
 
     /**

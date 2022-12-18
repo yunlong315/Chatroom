@@ -39,7 +39,7 @@ public class CachedData {
      * @param id
      * @return
      */
-    public ChatRoom getChatroom(int id)
+    public static ChatRoom getChatroom(int id)
     {
         return chatRoomHashMap.get(id);
     }

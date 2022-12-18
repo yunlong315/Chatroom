@@ -7,8 +7,7 @@ import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
 import com.example.chatroom.uiComponent.ChatroomBox;
 import com.example.chatroom.uiComponent.FriendBox;
-import com.example.chatroom.uiComponent.MemberBox;
-import com.example.chatroom.uiComponent.NewMessageBox;
+import com.example.chatroom.uiComponent.MessageBox;
 import com.example.chatroom.util.AlertUtil;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -19,15 +18,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ChatViewController {
@@ -58,12 +54,6 @@ public class ChatViewController {
     @FXML
     private ImageView headImage;
 
-    @FXML
-    private GridPane headGrid;
-    @FXML
-    private TextField changeNameTextField;
-    @FXML
-    private TextField inviteFriendTextField;
     @FXML
     private ListView<HBox> chatListView;
 
@@ -108,7 +98,7 @@ public class ChatViewController {
      */
     private void changeToOneChatroom(ChatRoom chatRoom) {
         titleText.setText(chatRoom.getChatroomName() + String.format("(ID:%d)", chatRoom.getID()));
-        List<HBox> messageList = new NewMessageBox().getBoxList(nowUser, CachedData.getMessageList(chatRoom.getID()));
+        List<HBox> messageList = new MessageBox().getBoxList(nowUser, CachedData.getMessageList(chatRoom.getID()));
 
         messagesProperty.get().clear();
         messagesProperty.get().addAll(messageList);
@@ -167,19 +157,14 @@ public class ChatViewController {
     }
 
     public void updateOneChatroom(String event) {
-        chatModel.getChatObject().ifPresent(
-                (chatObject) -> {
-                    for (HBox box : chatRoomsProperty.get()) {
-                        ChatroomBox chatroomBox = (ChatroomBox) box;
-                        if (chatroomBox.getChatRoom().equals(chatObject.getChatRoom())) {
-                            chatroomBox.update(chatObject.getChatRoom());
-                            showFriendsTable();
-                            break;
-                        }
-                    }
-                }
-        );
-
+        ChatRoom chatRoom=chatModel.getReceiveObject().getChatRoom();
+        for (HBox box : chatRoomsProperty.get()) {
+            ChatroomBox chatroomBox = (ChatroomBox) box;
+            if (chatroomBox.getChatRoom().equals(chatRoom)) {
+                chatroomBox.update(chatRoom);
+                break;
+            }
+        }
     }
 
     /**
@@ -249,7 +234,7 @@ public class ChatViewController {
     public void updateMessageList(String event) {
         ReceiveObject receiveObject = chatModel.getReceiveObject();
         User user = CachedData.getUser(receiveObject.getSender());
-        HBox messageBox = new NewMessageBox().left(user, receiveObject.getMessage());
+        HBox messageBox = new MessageBox().left(user, receiveObject.getMessage());
         messagesProperty.get().addAll(messageBox);
     }
 
@@ -349,7 +334,7 @@ public class ChatViewController {
             if (!message.isEmpty()) {
                 //发送非空字符串
                 chatModel.sendMessage(message, selectedChatRoom.getID());
-                HBox myMessageBox = new NewMessageBox().right(nowUser, message);
+                HBox myMessageBox = new MessageBox().right(nowUser, message);
                 messagesProperty.get().addAll(myMessageBox);
             }
         }
@@ -381,50 +366,20 @@ public class ChatViewController {
         }
     }
 
-    private void showFriendsTable() {
-        Map<String, User> memberMap = selectedChatRoom.getUserHashMap();
-        List<MemberBox> memberBoxes = new ArrayList<>();
-        int rowIndex = 0;//行
-        int colIndex = 0;//列
-        for (User user : memberMap.values()) {
-            memberBoxes.add(new MemberBox(user));
-        }
-        for (MemberBox box : memberBoxes) {
-            headGrid.add(box, colIndex, rowIndex);
-            colIndex++;
-            rowIndex += colIndex / 3;
-            colIndex %= 3;
-        }
-    }
 
     @FXML
     public void onDetailButtonClick() throws IOException {
         if (selectedChatRoom != null) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatroomDetailView.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-            Stage stage = new Stage();
-            stage.setTitle("");
-            stage.setScene(scene);
-            stage.showAndWait();
-            showFriendsTable();
-        }
-    }
-
-    @FXML
-    public void onChangeRoomNameButtonClick() {
-        String newRoomName = changeNameTextField.getText();
-        if (!newRoomName.isEmpty()) {
-            chatModel.changeRoomName(newRoomName, selectedChatRoom.getID());
-            changeNameTextField.setText("");
-        }
-    }
-
-    @FXML
-    public void onInviteFriendButtonClick() {
-        String friendAccount = inviteFriendTextField.getText();
-        if (!friendAccount.isEmpty()) {
-            chatModel.inviteFriend(nowUser.getUserAccount(), friendAccount, selectedChatRoom.getID());
-            inviteFriendTextField.setText("");
+            RoomDetailViewController controller = fxmlLoader.getController();
+            controller.setNowUser(nowUser);
+            controller.setSelectedChatRoom(selectedChatRoom);
+            //todo
+            for(User user:selectedChatRoom.getUserHashMap().values()){
+                System.out.println(user);
+            }
+            controller.show(scene);
         }
     }
 }

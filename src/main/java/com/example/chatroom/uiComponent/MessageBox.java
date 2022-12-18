@@ -16,7 +16,7 @@ import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewMessageBox {
+public class MessageBox {
     private HBox mainBox;
     private AnchorPane anchorPane;
     private VBox vBox;
