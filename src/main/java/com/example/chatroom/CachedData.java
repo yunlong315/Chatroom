@@ -5,13 +5,13 @@ import com.example.chatroom.model.backend.User;
 import java.util.*;
 
 public class CachedData {
-    private static HashMap<Integer, ChatRoom> chatRoomHashMap = new HashMap<>();
-    private static HashMap<Integer, List<Message>> messageListHashMap = new HashMap<>();
-    private static HashMap<String,User> userHashMap = new HashMap<>();
+    private static Hashtable<Integer, ChatRoom> chatRoomHashMap = new Hashtable<>();
+    private static Hashtable<Integer, List<Message>> messageListHashMap = new Hashtable<>();
+    private static Hashtable<String,User> userHashMap = new Hashtable<>();
 
     /**
      * 增加房间，若已有相应聊天室则更新聊天室信息。
-     * @param chatRoom
+     * @param chatRoom-要更新的聊天室
      */
     public static void addChatRoom(ChatRoom chatRoom)
     {

@@ -6,6 +6,8 @@ import com.example.chatroom.model.backend.Client;
 import com.example.chatroom.model.backend.User;
 import com.example.chatroom.model.backend.reponses.*;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 public class ChatModel {
@@ -120,7 +122,8 @@ public class ChatModel {
         CachedData.addUser(user);
         user = CachedData.getUser(user.getUserAccount());
         this.user.addFriend(user);
-        //TODO:是否需要刷新监视
+        chatObject = Optional.of(new ChatObject(user));
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_FriendsList);
     }
 
     public void changeRoomName(String newName, int roomId) {

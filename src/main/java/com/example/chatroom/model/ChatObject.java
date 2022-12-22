@@ -8,11 +8,11 @@ import com.example.chatroom.model.backend.reponses.*;
  * 主动请求后收到的返回存于此处
  */
 public class ChatObject {
-    private final boolean wasError;
+    private boolean wasError;
     /**
      * 报错消息
      */
-    private final String errorMessage;
+    private String errorMessage;
     private ChatRoom chatRoom = null;
     private User user;
 
@@ -30,6 +30,11 @@ public class ChatObject {
             user = addFriendResponse.getUser();
         }
     }
+    public ChatObject(User user)
+    {
+        this.user = user;
+    }
+
 
     public User getUser() {
         return user;

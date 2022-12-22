@@ -474,9 +474,8 @@ public class Client {
     }
 
     private void addFriendRequest() {
-        User user = null;
         int len = "addFriendRequest/success/".getBytes().length;
-        user = (User) receiveObj(len, addFriendRequestByteArr);
+        User user = (User) receiveObj(len, addFriendRequestByteArr);
         chatModel.beAddedAsFriend(user);
     }
 
