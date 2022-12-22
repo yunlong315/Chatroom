@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+
 public class ChatModel {
     private Notifications notifications = new Notifications();
     private Optional<ChatObject> chatObject = Optional.empty();
@@ -70,7 +71,6 @@ public class ChatModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
     }
 
@@ -89,6 +89,12 @@ public class ChatModel {
     /**
      * 此方法只在client的读线程被调用
      */
+    /**
+     *
+     * @param sender-发送者账号
+     * @param chatroomId
+     * @param message
+     */
     public void receiveMsg(String sender, int chatroomId, String message) {
         receiveObject.setMessage(message);
         receiveObject.setSender(sender);
@@ -96,6 +102,7 @@ public class ChatModel {
         CachedData.addMessage(sender, chatroomId, message);
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
     }
+
 
     public ReceiveObject getReceiveObject() {
         return receiveObject;
@@ -107,7 +114,6 @@ public class ChatModel {
      * @param chatroom-更新的chatroom
      */
     public void updateChatroom(ChatRoom chatroom) {
-        CachedData.addChatRoom(chatroom);
         chatroom = CachedData.getChatroom(chatroom.getID());
         receiveObject.setChatRoom(chatroom);
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ONECHATROOM);
@@ -126,13 +132,39 @@ public class ChatModel {
     }
 
     public void changeRoomName(String newName, int roomId) {
-
+        IResponse changeRoomNameResponse = client.changeChatroomName(roomId,newName);
+        ChatObject changeRoomNameObject = new ChatObject(changeRoomNameResponse);
+        chatObject = Optional.of(changeRoomNameObject);
+        notifications.publish(Notifications.EVENT_MODEL_OPERATION_DONE);
     }
 
     public void inviteFriend(String userAccount, String friendAccount, int roomId) {
         IResponse inviteFriendResponse = client.inviteFriend(userAccount, friendAccount, roomId);
         ChatObject inviteFriendObject = new ChatObject(inviteFriendResponse);
         chatObject = Optional.of(inviteFriendObject);
+        if(chatObject.get().getChatRoom() == null)
+        {
+            System.out.println("拿到了一个空的chatroom");
+            System.out.println(inviteFriendResponse.getErrorMessage());
+        }
         updateChatroom(chatObject.get().getChatRoom());
     }
+
+    /**
+     * 更新一个user
+     * @param user-有更新的user
+     */
+    public void updateUser(User user) {
+        CachedData.addUser(user);
+        //通知视图层进行更新
+    }
+
+    public void beInvitedToRoom(ChatRoom chatroom) {
+        CachedData.addChatRoom(chatroom);
+        chatroom = CachedData.getChatroom(chatroom.getID());
+        ChatObject createChatroomObject = new ChatObject(chatroom);
+        chatObject = Optional.of(createChatroomObject);
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
+    }
+
 }

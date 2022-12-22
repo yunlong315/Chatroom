@@ -2,6 +2,7 @@ package com.example.chatroom;
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
 
+import java.io.*;
 import java.util.*;
 
 public class CachedData {
@@ -71,6 +72,29 @@ public class CachedData {
             oldUser.setUserName(user.getUserName());
             oldUser.setFriendsList(user.getFriendsList());
             oldUser.setChatRoomList(user.getChatRoomList());
+            oldUser.setUserImage(user.getUserImage());
+            byte[] image = oldUser.getUserImage();
+            if(image!=null)
+            {
+                //更新头像
+                String path = oldUser.getImagePath();
+                File trg = new File(path);
+                if(!trg.exists())
+                {
+                    trg.mkdirs();
+                }
+                try {
+                    OutputStream os= new FileOutputStream(trg);
+                    os.write(image,0, image.length);
+                    os.flush();
+                    os.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
         }
         else
         {

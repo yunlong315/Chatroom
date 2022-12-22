@@ -29,6 +29,10 @@ public class Notifications {
     public final static String EVENT_MODEL_UPDATE_ONECHATROOM = "updateOneChatroom";
     public final static String EVENT_MODEL_UPDATE_MESSAGE = "updateMessage";
     public final static String EVENT_MODEL_UPDATE_SENDED = "updateSended";
+    /**
+     * 完成了只返回成功与否的操作。
+     */
+    public final static String EVENT_MODEL_OPERATION_DONE = "operationDone";
     private final Map<String, List<SubscriberObject>> subscribers = new LinkedHashMap<>();
     private static Notifications instance = new Notifications();
 

@@ -537,6 +537,6 @@ public class Client {
     private void receiveImageChanged() {
         int len = "receiveImageChanged/".getBytes().length;
         User user = (User) receiveObj(len, receiveImageChangedByteArr);
-        // TODO: 更新头像
+        chatModel.updateUser(user);
     }
 }

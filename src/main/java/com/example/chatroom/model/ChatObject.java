@@ -28,11 +28,19 @@ public class ChatObject {
             //chatResponse只包含成功与否的信息
         } else if (response instanceof AddFriendResponse addFriendResponse) {
             user = addFriendResponse.getUser();
+        } else if(response instanceof InviteFriendResponse inviteFriendResponse) {
+            chatRoom = inviteFriendResponse.getChatroom();
+        }else if(response instanceof ChangeChatroomNameResponse chatroomNameResponse) {
+            //只包含成功与否
         }
     }
     public ChatObject(User user)
     {
         this.user = user;
+    }
+    public ChatObject(ChatRoom chatRoom)
+    {
+        this.chatRoom = chatRoom;
     }
 
 

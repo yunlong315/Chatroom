@@ -1,6 +1,7 @@
 package com.example.chatroom;
 
 import com.example.chatroom.model.ChatModel;
+import com.example.chatroom.model.ChatObject;
 import com.example.chatroom.model.Notifications;
 import com.example.chatroom.model.ReceiveObject;
 import com.example.chatroom.model.backend.ChatRoom;
@@ -160,10 +161,37 @@ public class ChatViewController {
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_SENDED, this, this::updateSended);
         notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONECHATROOM, this, this::updateOneChatroom);
+        notifications.subscribe(Notifications.EVENT_MODEL_OPERATION_DONE, this, this::checkStatus);
     }
 
+    /**
+     * 检查操作是否成功。不成功则弹窗。
+     *
+     * @param event
+     */
+    private void checkStatus(String event) {
+        ChatObject chatObject = chatModel.getChatObject().get();
+        if (chatObject.wasError()) {
+            String errorMessage = chatObject.getErrorMessage();
+            AlertUtil.showAlert(errorMessage);
+        }
+    }
+
+    /**
+     * 更新一个聊天室
+     *
+     * @param event
+     */
     public void updateOneChatroom(String event) {
-        ChatRoom chatRoom=chatModel.getReceiveObject().getChatRoom();
+        ChatRoom chatRoom = chatModel.getReceiveObject().getChatRoom();
+        //fixme:此处chatRoom会为空
+        if (chatRoom == null) {
+            System.out.println("传入chatroom为空");
+            return;
+        } else {
+            System.out.println(chatRoom.getID() + "号聊天室有更新");
+        }
+        CachedData.addChatRoom(chatRoom);
         for (HBox box : chatRoomsProperty.get()) {
             ChatroomBox chatroomBox = (ChatroomBox) box;
             if (chatroomBox.getChatRoom().equals(chatRoom)) {
@@ -226,7 +254,11 @@ public class ChatViewController {
                         for (User friend : friends) {
                             friendsProperty.get().add(new FriendBox(friend));
                         }
+                    } else {
+                        String errorMessage = chatObject.getErrorMessage();
+                        AlertUtil.showAlert(errorMessage);
                     }
+
                 }
         );
     }
@@ -250,6 +282,8 @@ public class ChatViewController {
     @FXML
     public void onChatButtonClick() {
         chatListView.itemsProperty().bind(chatRoomsProperty);
+        searchTextField.setDisable(true);
+        addButton.setText("创建新的聊天室");
         nowPage = Page.CHATPAGE;
     }
 
@@ -259,6 +293,8 @@ public class ChatViewController {
     @FXML
     public void onFriendsButtonClick() {
         chatListView.itemsProperty().bind(friendsProperty);
+        searchTextField.setDisable(false);
+        addButton.setText("添加好友");
         nowPage = Page.FRIENDSPAGE;
     }
 
