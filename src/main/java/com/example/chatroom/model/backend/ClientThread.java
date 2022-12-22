@@ -1,15 +1,17 @@
 package com.example.chatroom.model.backend;
 
-import java.io.*;
+import java.io.EOFException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+/**
+ * 服务端每监听到一个客户端连接，就新建一个线程
+ */
 public class ClientThread extends Thread {
-    private ClientIO io = null;
-    CenterServer cs = null;
+    private ClientIO io;
+    CenterServer cs;
     String userAccount = null;
 
     public ClientThread(Socket socket) {
@@ -17,11 +19,14 @@ public class ClientThread extends Thread {
         io = new ClientIO(socket);
     }
 
+    /**
+     * 线程启动方法，不断获取Client发送的数据
+     */
     @Override
     public void run() {
         try {
             while (true) {
-                // 获取Client发送的数据，格式为”数据类型+数据长度+数据“
+                // 获取Client发送的数据，格式为”数据长度+数据“
                 int len = io.dataInputStream.readInt();
                 byte[] data = new byte[len - 5];
                 io.dataInputStream.readFully(data);
@@ -64,7 +69,7 @@ public class ClientThread extends Thread {
                         changeChatroomName(cmd);
                         break;
                     default:
-                        System.out.println(cmd + " not found");
+                        System.out.println(cmd[0] + " not found");
                         break;
                 }
             }
@@ -77,6 +82,10 @@ public class ClientThread extends Thread {
         }
     }
 
+    /**
+     * 用户注册
+     * @param cmd cmd = ["register", userAccount, pwd, userName]
+     */
     private void register(String[] cmd) {
         // cmd = ["register", userAccount, pwd, userName]
         Map<String, User> clientMap = cs.clientMap;
@@ -94,6 +103,10 @@ public class ClientThread extends Thread {
         }
     }
 
+    /**
+     * 用户登录
+     * @param cmd cmd = ["login", userAccount, pwd]
+     */
     private void login(String[] cmd) {
         // cmd = ["login", userAccount, pwd]
         Map<String, User> clientMap = cs.clientMap;
@@ -116,8 +129,10 @@ public class ClientThread extends Thread {
         }
     }
 
-    //所有用户都可以创建chatroom，是非特定人所有的，即没有群主之分，群被创建即有一个特定id，所有人可以通过搜索id加入群聊
-    //userAccount应该要从前端获取传递参数到后端
+    /**
+     * 用户创建聊天室
+     * @param cmd cmd = ["createChatroom", userAccount]
+     */
     public void createChatroom(String[] cmd) {
         // cmd = ["createChatroom", userAccount]
         int chatroomID = ChatRoom.nextID++;
@@ -134,7 +149,7 @@ public class ClientThread extends Thread {
 
     /**
      * 将用户加入聊天室，并向所有聊天室中用户广播这个更新。
-     * cmd = ["addChatroom", userAccount, chatroomID]
+     * @param cmd cmd = ["addChatroom", userAccount, chatroomID]
      */
     public void joinChatroom(String[] cmd) {
         // cmd = ["addChatroom", userAccount, chatroomID]
@@ -173,8 +188,11 @@ public class ClientThread extends Thread {
         }
     }
 
-    //userAccount发送到chatroom
-    public void chat(String[] cmd) throws IOException {
+    /**
+     * 用户发送聊天信息
+     * @param cmd cmd = ["chat", userAccount, chatroomID, chatContents]
+     */
+    public void chat(String[] cmd) {
         // cmd = ["chat", userAccount, chatroomID, chatContents]
         String chatContents = cmd[3];
         String userAccount = cmd[1];
@@ -197,6 +215,9 @@ public class ClientThread extends Thread {
         System.out.println("用户成功发送消息");
     }
 
+    /**
+     * 用户登出
+     */
     private void logout() {
         if (userAccount != null) {
             // 删除clientIOMap中账号对应IO
@@ -204,6 +225,10 @@ public class ClientThread extends Thread {
         }
     }
 
+    /**
+     * 用户添加好友
+     * @param cmd cmd = ["addFriend", userAccount, friendAccount]
+     */
     private void addFriend(String[] cmd) {
         // cmd = ["addFriend", userAccount, friendAccount]
         String userAccount = cmd[1];
@@ -228,6 +253,10 @@ public class ClientThread extends Thread {
         friendIO.sendObject("addFriendRequest/success/", self);
     }
 
+    /**
+     * 用户邀请好友进入聊天室
+     * @param cmd cmd = ["inviteFriend", userAccount, friendAccount, chatroomID]
+     */
     private void inviteFriend(String[] cmd) {
         // cmd = ["inviteFriend", userAccount, friendAccount, chatroomID]
         String userAccount = cmd[1];
@@ -275,11 +304,15 @@ public class ClientThread extends Thread {
                 if (!user.getUserAccount().equals(userAccount)) {
                     io.sendObject("joinChatroomRequest/", thisChatroom);
                 }
-                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
+                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", friendAccount, chatroomID, String.format("我是%s，一起聊聊吧！", friendAccount)));
             }
         }
     }
 
+    /**
+     * 用户设置头像
+     * @param data 从客户端发送的原始数据
+     */
     private void setImage(byte[] data) {
         String[] cmd = new String(data).split("/", 3);
         String userAccount = cmd[1];
@@ -296,6 +329,10 @@ public class ClientThread extends Thread {
         }
     }
 
+    /**
+     * 更改聊天室名称
+     * @param cmd cmd = ["changeChatroomName", chatroomID, chatroomName]
+     */
     private void changeChatroomName(String[] cmd) {
         // cmd = ["changeChatroomName", chatroomID, chatroomName]
         int chatroomID = Integer.parseInt(cmd[1]);

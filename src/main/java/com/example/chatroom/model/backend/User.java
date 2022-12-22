@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 存储用户的各种属性的类
+ */
 public class User implements Serializable {
     private String userAccount;
     private String userPassWord;

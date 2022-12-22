@@ -12,10 +12,10 @@ public class HeadViewController {
     @FXML
     private Label nameLabel;
     
-    private 
-    public void init() {
-
-    }
+//    private
+//    public void init() {
+//
+//    }
 
     @FXML
     public void onChangeHeadButtonClick() {

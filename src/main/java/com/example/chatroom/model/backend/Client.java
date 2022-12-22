@@ -11,6 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+/**
+ * 客户端中用于与服务端进行信息传输的类
+ */
 public class Client {
     private static Client client;
     private ChatModel chatModel;
@@ -129,7 +132,7 @@ public class Client {
      * 向服务器发送byte数组（主要用于头像图片传输）
      * @param str “命令/参数1/参数2/……”
      * @param bytes 头像对应的byte数组
-     * @return
+     * @return 成功返回0，出错返回-1
      */
     private int sendByteArr(String str, byte[] bytes) {
         try {

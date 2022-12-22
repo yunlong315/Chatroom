@@ -3,12 +3,15 @@ package com.example.chatroom.model.backend;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * 用于存储用户的socket接口，方便不同用户间的信息交互
+ */
 public class ClientIO {
     OutputStream outputStream = null;
     DataOutputStream dataOutputStream = null;
     InputStream inputStream = null;
     DataInputStream dataInputStream = null;
-    Socket socket = null;
+    Socket socket;
 
     public ClientIO(Socket socket) {
         try {
@@ -21,6 +24,11 @@ public class ClientIO {
         }
         this.socket = socket;
     }
+
+    /**
+     * 发送普通信息
+     * @param str 待发送的字符串，格式为“命令/参数1/参数2/……”
+     */
     public void sendMsg(String str) {
         try {
             byte[] data = str.getBytes();
@@ -33,6 +41,11 @@ public class ClientIO {
         }
     }
 
+    /**
+     * 发送 命令 参数 一个对象
+     * @param str “命令/参数1/……”
+     * @param obj 待发送的对象
+     */
     public void sendObject(String str, Object obj) {
         try {
             // 将字符串和对象转换成byte[]
@@ -58,6 +71,12 @@ public class ClientIO {
         }
     }
 
+    /**
+     * 向服务器发送byte数组（主要用于头像图片传输）
+     * @param str “命令/参数1/参数2/……”
+     * @param bytes 头像对应的byte数组
+     * @return 成功返回0，出错返回-1
+     */
     public int sendByteArr(String str, byte[] bytes) {
         try {
             byte[] strBytes = str.getBytes();
