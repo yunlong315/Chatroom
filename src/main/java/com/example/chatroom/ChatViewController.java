@@ -24,7 +24,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -34,8 +33,6 @@ public class ChatViewController {
     private Button chatButton;
     @FXML
     private Button friendsButton;
-    @FXML
-    private Button settingsButton;
     @FXML
     private Button addButton;
     @FXML
@@ -55,8 +52,6 @@ public class ChatViewController {
     @FXML
     private TextArea messageTextArea;
     @FXML
-    private ImageView headImage;
-    @FXML
     private Button headButton;
 
     @FXML
@@ -75,6 +70,7 @@ public class ChatViewController {
 
     private MainApp mainApp;
     private User nowUser;
+
 
     private ChatRoom selectedChatRoom = null;
     private ChatroomBox selectedChatRoomBox = null;
@@ -136,6 +132,16 @@ public class ChatViewController {
         }
     }
 
+    public ChatViewController() {
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_FriendsList, this, this::updateFriendsList);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_SENDED, this, this::updateSended);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONE_CHATROOM, this, this::updateOneChatroom);
+        notifications.subscribe(Notifications.EVENT_MODEL_OPERATION_DONE, this, this::checkStatus);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONE_USER, this, this::updateOneUser);
+    }
+
     /**
      * 根据当前用户信息初始化界面
      */
@@ -144,26 +150,16 @@ public class ChatViewController {
         addChatListViewListener();
         userNameText.setText(nowUser.getUserName());
         userAccountText.setText(nowUser.getUserAccount());
-        /**
-         * 测试图片显示
-         */
-//        Image image = new Image("C:\\Users\\86155\\Desktop\\mkm.jpg");
-//        headImage.setImage(image);
+
         initChatRoomList();
         initFriendList();
+
+        //设置头像
+        headButton.setGraphic(new ImageView(new Image(nowUser.getImagePath())));
 
         nowPage = Page.CHATPAGE;
 
         chatListView.itemsProperty().bind(chatRoomsProperty);//打开聊天界面时，默认显示聊天列表
-    }
-
-    public ChatViewController() {
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_FriendsList, this, this::updateFriendsList);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_SENDED, this, this::updateSended);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONECHATROOM, this, this::updateOneChatroom);
-        notifications.subscribe(Notifications.EVENT_MODEL_OPERATION_DONE, this, this::checkStatus);
     }
 
     /**
@@ -199,6 +195,31 @@ public class ChatViewController {
             if (chatroomBox.getChatRoom().equals(chatRoom)) {
                 chatroomBox.update(chatRoom);
                 break;
+            }
+        }
+    }
+
+    /**
+     * 更新一个用户
+     *
+     * @param event
+     */
+    public void updateOneUser(String event) {
+        User user = chatModel.getReceiveObject().getUser();
+        if (user.equals(nowUser)) {
+            nowUser = user;
+            ImageView headImage = new ImageView(nowUser.getImagePath());
+            headImage.setFitWidth(50);
+            headImage.setFitWidth(50);
+            headButton.setGraphic(headImage);
+        } else {
+            //todo
+            for (HBox box : friendsProperty.get()) {
+                FriendBox friendBox = (FriendBox) box;
+                if (friendBox.getFriend().equals(user)) {
+                    friendBox.update(user);
+                    break;
+                }
             }
         }
     }
@@ -385,31 +406,6 @@ public class ChatViewController {
         messageTextArea.setText("");
     }
 
-    @FXML
-    public void oldonChangeRoomNameButtonClick() {
-        //todo:后续要通过后端操作
-        if (selectedChatRoom == null) {
-            return;
-        }
-        TextInputDialog textInputDialog = new TextInputDialog("");
-        textInputDialog.setTitle("修改聊天室名称");
-        textInputDialog.setHeaderText("请输入新的聊天室名称");
-        textInputDialog.setContentText("聊天室名称:");
-        textInputDialog.showAndWait();
-        String name;
-        try {
-            name = textInputDialog.getResult();
-        } catch (final NoSuchElementException ex) {
-            name = null;
-        }
-        if (name != null) {
-            selectedChatRoom.setChatroomName(name);
-            selectedChatRoomBox.setChatroomLabel();
-            titleText.setText(String.format("%s(ID:%d)",
-                    selectedChatRoom.getChatroomName(), selectedChatRoom.getID()));
-        }
-    }
-
 
     @FXML
     public void onDetailButtonClick() throws IOException {
@@ -432,6 +428,7 @@ public class ChatViewController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("HeadView.fxml"));
         Scene scene = new Scene(loader.load());
         HeadViewController controller = loader.getController();
-
+        controller.setNowUser(nowUser);
+        controller.show(scene);
     }
 }

@@ -26,8 +26,9 @@ public class Notifications {
     public final static String EVENT_MODEL_CREATE_ChatRoom = "createChatRoom";
     public final static String EVENT_MODEL_ADD_Friend = "addFriend";
     public final static String EVENT_MODEL_JOIN_ChatRoom = "joinChatroom";
-    public final static String EVENT_MODEL_UPDATE_ONECHATROOM = "updateOneChatroom";
+    public final static String EVENT_MODEL_UPDATE_ONE_CHATROOM = "updateOneChatroom";
     public final static String EVENT_MODEL_UPDATE_MESSAGE = "updateMessage";
+    public final static String EVENT_MODEL_UPDATE_ONE_USER = "updateOneUser";
     public final static String EVENT_MODEL_UPDATE_SENDED = "updateSended";
     /**
      * 完成了只返回成功与否的操作。

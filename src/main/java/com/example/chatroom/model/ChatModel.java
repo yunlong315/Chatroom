@@ -6,8 +6,7 @@ import com.example.chatroom.model.backend.Client;
 import com.example.chatroom.model.backend.User;
 import com.example.chatroom.model.backend.reponses.*;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.io.IOException;
 import java.util.Optional;
 
 
@@ -116,7 +115,7 @@ public class ChatModel {
     public void updateChatroom(ChatRoom chatroom) {
         chatroom = CachedData.getChatroom(chatroom.getID());
         receiveObject.setChatRoom(chatroom);
-        notifications.publish(Notifications.EVENT_MODEL_UPDATE_ONECHATROOM);
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_ONE_CHATROOM);
     }
 
     /**
@@ -156,6 +155,7 @@ public class ChatModel {
      */
     public void updateUser(User user) {
         CachedData.addUser(user);
+        notifications.publish(Notifications.EVENT_MODEL_UPDATE_ONE_USER);
         //通知视图层进行更新
     }
 
@@ -167,4 +167,7 @@ public class ChatModel {
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_ChatList);
     }
 
+    public void changeUserHead(String userAccount, String filePath) throws IOException {
+        client.setImage(userAccount, filePath);
+    }
 }

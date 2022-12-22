@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -90,7 +89,8 @@
          <top>
             <VBox alignment="CENTER" prefHeight="106.0" prefWidth="74.0" spacing="5.0" BorderPane.alignment="CENTER">
                <children>
-                  <ImageView fx:id="headImage" fitHeight="51.0" fitWidth="49.0" pickOnBounds="true" preserveRatio="true" />
+                  <Button fx:id="headButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                          minWidth="-Infinity" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0"/>
                   <Text fx:id="userNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="用户名" textAlignment="CENTER">
                      <VBox.margin>
                         <Insets />
@@ -103,9 +103,12 @@
          <center>
             <VBox alignment="CENTER" prefHeight="377.0" prefWidth="74.0" spacing="100.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="chatButton" mnemonicParsing="false" onAction="#onChatButtonClick" prefHeight="32.0" prefWidth="55.0" text="聊天" />
-                  <Button fx:id="joinButton" mnemonicParsing="false" onAction="#onJoinButtonClick" text="加入聊天" />
-                  <Button fx:id="friendsButton" mnemonicParsing="false" onAction="#onFriendsButtonClick" prefHeight="30.0" prefWidth="54.0" text="好友" />
+                  <Button fx:id="chatButton" mnemonicParsing="false" onAction="#onChatButtonClick" prefHeight="30.0"
+                          prefWidth="80.0" text="聊天"/>
+                  <Button fx:id="joinButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
+                          onAction="#onJoinButtonClick" prefHeight="30.0" prefWidth="100.0" text="加入聊天"/>
+                  <Button fx:id="friendsButton" mnemonicParsing="false" onAction="#onFriendsButtonClick"
+                          prefHeight="30.0" prefWidth="171.0" text="好友"/>
                </children>
                <opaqueInsets>
                   <Insets />
@@ -115,13 +118,6 @@
                </BorderPane.margin>
             </VBox>
          </center>
-         <bottom>
-            <VBox alignment="CENTER" prefHeight="112.0" prefWidth="74.0" BorderPane.alignment="CENTER">
-               <children>
-                  <Button fx:id="settingsButton" mnemonicParsing="false" onAction="#onSettingsButtonClick" text="设置" />
-               </children>
-            </VBox>
-         </bottom>
       </BorderPane>
    </left>
 </BorderPane>

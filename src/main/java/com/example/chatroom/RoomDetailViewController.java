@@ -30,7 +30,7 @@ public class RoomDetailViewController {
     private User nowUser;
 
     public RoomDetailViewController() {
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONECHATROOM, this, this::update);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONE_CHATROOM, this, this::update);
     }
 
     public void setSelectedChatRoom(ChatRoom selectedChatRoom) {

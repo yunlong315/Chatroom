@@ -3,7 +3,6 @@ package com.example.chatroom.uiComponent;
 import com.example.chatroom.model.backend.User;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
@@ -13,8 +12,7 @@ public class MemberBox extends VBox {
 
     public MemberBox(User user) {
         nameLabel = new Label(user.getUserName());
-        //todo:后续添加头像
-        //headImage=user.getHead();
+        headImage = new ImageView(user.getImagePath());
         this.setAlignment(Pos.CENTER);
         this.getChildren().addAll(nameLabel);
     }

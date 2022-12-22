@@ -1,19 +1,22 @@
 package com.example.chatroom.model;
 
 import com.example.chatroom.model.backend.ChatRoom;
+import com.example.chatroom.model.backend.User;
 
 public class ReceiveObject {
     private String sender;
     private int chatroomID;
     private String message;
     private ChatRoom chatRoom;
+    private User user;
 
     ReceiveObject(String sender, int chatroomID, String chatContents) {
         this.sender = sender;
         this.chatroomID = chatroomID;
         this.message = chatContents;
     }
-    ReceiveObject(){
+
+    ReceiveObject() {
 
     }
 
@@ -39,6 +42,10 @@ public class ReceiveObject {
 
     public String getSender() {
         return sender;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public ChatRoom getChatRoom() {

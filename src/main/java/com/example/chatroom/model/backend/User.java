@@ -82,9 +82,9 @@ public class User implements Serializable {
     public void setUserImage(byte[] userImage) {
         this.userImage = userImage;
     }
-    public String getImagePath()
-    {
-        return String.format("data/userImage/%s.jpg",userAccount);
+
+    public String getImagePath() {
+        return String.format("data/userImage/%s.jpg", userAccount);
     }
 
 }
