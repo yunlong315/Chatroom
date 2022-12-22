@@ -121,7 +121,6 @@ public class ChatModel {
     public void beAddedAsFriend(User user) {
         CachedData.addUser(user);
         user = CachedData.getUser(user.getUserAccount());
-        this.user.addFriend(user);
         chatObject = Optional.of(new ChatObject(user));
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_FriendsList);
     }

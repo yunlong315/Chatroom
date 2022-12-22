@@ -144,8 +144,8 @@ public class ChatViewController {
         /**
          * 测试图片显示
          */
-        Image image = new Image("C:\\Users\\86155\\Desktop\\mkm.jpg");
-        headImage.setImage(image);
+//        Image image = new Image("C:\\Users\\86155\\Desktop\\mkm.jpg");
+//        headImage.setImage(image);
         initChatRoomList();
         initFriendList();
 
