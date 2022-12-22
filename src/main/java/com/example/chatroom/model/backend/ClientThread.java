@@ -59,6 +59,13 @@ public class ClientThread extends Thread {
                         // cmd = ["setImage", userAccount, byte[] img]
                         setImage(data);
                         break;
+                    case "changeChatroomName":
+                        // cmd = ["changeChatroomName", chatroomID, chatroomName]
+                        changeChatroomName(cmd);
+                        break;
+                    default:
+                        System.out.println(cmd + " not found");
+                        break;
                 }
             }
         } catch (SocketException | EOFException e) {
@@ -156,9 +163,11 @@ public class ClientThread extends Thread {
         // 向该聊天室中其他成员广播新用户加入的信息
         Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
         for (User user : thisChatroom.userHashMap.values()) {
-            if (clientIOHashMap.containsKey(user.getUserAccount()) && !user.getUserAccount().equals(userAccount)){
+            if (clientIOHashMap.containsKey(user.getUserAccount())){
                 ClientIO io = cs.clientIOMap.get(user.getUserAccount());
-                io.sendObject("joinChatroomRequest/", thisChatroom);
+                if (!user.getUserAccount().equals(userAccount)) {
+                    io.sendObject("joinChatroomRequest/", thisChatroom);
+                }
                 io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
             }
         }
@@ -247,16 +256,28 @@ public class ClientThread extends Thread {
         }
         // 判断好友是否已在聊天室中
         ChatRoom thisChatroom = cs.chatroomHashMap.get(chatroomID);
-        if (thisChatroom.userHashMap.containsKey(userAccount)) {
+        if (thisChatroom.userHashMap.containsKey(friendAccount)) {
             io.sendMsg("inviteFriendResponse/好友已在聊天室中");
             System.out.println(friendAccount + "用户已在" + chatroomID + "号聊天室中");
             return;
         }
-        // 成功加入，调用好友的joinChatroom方法
+        // 成功加入，并通知好友
+        thisChatroom.userHashMap.put(friendAccount, cs.clientMap.get(friendAccount));
         io.sendObject("inviteFriendResponse/success/", thisChatroom);
-        System.out.printf("%s成功添加%s为好友\n", userAccount, friendAccount);
         ClientIO friendIO = cs.clientIOMap.get(friendAccount);
-        friendIO.sendMsg(String.format("inviteFriendRequest/%s/%s", friendAccount, chatroomID));
+        friendIO.sendObject("inviteFriendRequest/", thisChatroom);
+        System.out.printf("%s成功邀请%s进入%d号聊天室\n", userAccount, friendAccount, chatroomID);
+        // 广播加入的消息
+        Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
+        for (User user : thisChatroom.userHashMap.values()) {
+            if (clientIOHashMap.containsKey(user.getUserAccount())){
+                ClientIO io = cs.clientIOMap.get(user.getUserAccount());
+                if (!user.getUserAccount().equals(userAccount)) {
+                    io.sendObject("joinChatroomRequest/", thisChatroom);
+                }
+                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
+            }
+        }
     }
 
     private void setImage(byte[] data) {
@@ -272,6 +293,21 @@ public class ClientThread extends Thread {
         for (String member: sendSet) {
             ClientIO memberIO = cs.clientIOMap.get(member);
             memberIO.sendObject("receiveImageChanged/", user);
+        }
+    }
+
+    private void changeChatroomName(String[] cmd) {
+        // cmd = ["changeChatroomName", chatroomID, chatroomName]
+        int chatroomID = Integer.parseInt(cmd[1]);
+        String chatroomName = cmd[2];
+        ChatRoom chatRoom = cs.chatroomHashMap.get(chatroomID);
+        chatRoom.setChatroomName(chatroomName);
+        // 成功更改
+        io.sendMsg("changeChatroomNameResponse/success");
+        // 广播
+        for (User user: chatRoom.getUserHashMap().values()) {
+            ClientIO clientIO = cs.clientIOMap.get(user.getUserAccount());
+            clientIO.sendObject("changeChatroomNameRequest/", chatRoom);
         }
     }
 }

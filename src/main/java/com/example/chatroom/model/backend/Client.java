@@ -37,6 +37,9 @@ public class Client {
         this.chatModel = chatModel;
     }
 
+    /**
+     * 客户端关闭时调用该函数
+     */
     private void close() {
         try {
             System.out.println("client close");
@@ -74,10 +77,15 @@ public class Client {
     private byte[] addFriendRequestByteArr;
     private final InviteFriendResponse inviteFriendResponse = new InviteFriendResponse("");
     private byte[] inviteFriendResponseByteArr;
+    private byte[] inviteFriendRequestByteArr;
     private byte[] receiveImageChangedByteArr;
-    private String createChatroomRetMsg = "";
-    private String chatRetMsg = "";
+    private final ChangeChatroomNameResponse changeChatroomNameResponse = new ChangeChatroomNameResponse("");
+    private byte[] changeChatroomNameRequestByteArr;
 
+    /**
+     * 初始化客户端
+     * @return 成功返回0，失败返回-1
+     */
     public int init() {
         try {
             InetAddress serverIP = InetAddress.getByName("127.0.0.1");
@@ -99,10 +107,9 @@ public class Client {
     }
 
     /**
-     * 向服务器发送一个字符串。发送成功返回0，失败返回-1。
-     *
-     * @param str
-     * @return int
+     * 向服务器发送一个字符串
+     * @param str 待发送的字符串，格式为“命令/参数1/参数2/……”
+     * @return 发送成功返回0，失败返回-1
      */
     private int sendMsg(String str) {
         try {
@@ -118,6 +125,12 @@ public class Client {
         return 0;
     }
 
+    /**
+     * 向服务器发送byte数组（主要用于头像图片传输）
+     * @param str “命令/参数1/参数2/……”
+     * @param bytes 头像对应的byte数组
+     * @return
+     */
     private int sendByteArr(String str, byte[] bytes) {
         try {
             byte[] strBytes = str.getBytes();
@@ -137,6 +150,10 @@ public class Client {
         return 0;
     }
 
+    /**
+     * 接收服务器发送的数据
+     * @return 成功返回0，失败返回-1
+     */
     private int receiveMsg() {
         try {
             // 先读取一个整数表示数据长度，再读取该长度的数据，保证不粘包丢包
@@ -151,6 +168,12 @@ public class Client {
         }
     }
 
+    /**
+     * 提取服务器发送的对象
+     * @param len 前置命令+参数的长度
+     * @param addFriendResponseByteArr 服务器发送的数据
+     * @return
+     */
     private Object receiveObj(int len, byte[] addFriendResponseByteArr) {
         byte[] objByte = new byte[addFriendResponseByteArr.length - len];
         System.arraycopy(addFriendResponseByteArr, len, objByte, 0, objByte.length);
@@ -212,7 +235,7 @@ public class Client {
                             break;
                         case "joinChatroomRequest":
                             joinChatroomRequestByteArr = retByteArr;
-                            joinChatroomRequest(retMsg);
+                            joinChatroomRequest();
                             break;
                         case "chatResponse":
                             synchronized (chatResponse) {
@@ -234,7 +257,7 @@ public class Client {
                             addFriendRequestByteArr = retByteArr;
                             addFriendRequest();
                             break;
-                        case "inviteFriend":
+                        case "inviteFriendResponse":
                             synchronized (inviteFriendResponse) {
                                 inviteFriendResponse.setTmpMsg(retMsg);
                                 inviteFriendResponseByteArr = retByteArr;
@@ -242,11 +265,25 @@ public class Client {
                             }
                             break;
                         case "inviteFriendRequest":
-                            inviteFriendRequest(retMsg);
+                            inviteFriendRequestByteArr = retByteArr;
+                            inviteFriendRequest();
                             break;
                         case "receiveImageChanged":
                             receiveImageChangedByteArr = retByteArr;
                             receiveImageChanged();
+                            break;
+                        case "changeChatroomNameResponse":
+                            synchronized (changeChatroomNameResponse) {
+                                changeChatroomNameResponse.setTmpMsg(retMsg);
+                                changeChatroomNameResponse.notify();
+                            }
+                            break;
+                        case "changeChatroomNameRequest":
+                            changeChatroomNameRequestByteArr = retByteArr;
+                            changeChatroomNameRequest();
+                            break;
+                        default:
+                            System.out.println(cmd + " not found");
                             break;
                     }
                 }
@@ -255,6 +292,13 @@ public class Client {
         readThread.start();
     }
 
+    /**
+     * 用户注册方法（客户端用）
+     * @param userAccount 用户账号
+     * @param userPassWord 用户密码
+     * @param userName 用户名称
+     * @return RegisterResponse
+     */
     public RegisterResponse register(String userAccount, String userPassWord, String userName) {
         String str = "register/" + userAccount + "/" + userPassWord + "/" + userName;
         // 向服务器发送注册数据，失败处理交给getRegisterResponse()方法
@@ -283,6 +327,12 @@ public class Client {
         }
     }
 
+    /**
+     * 用户登录方法（客户端用）
+     * @param userAccount 用户账户
+     * @param userPassWord 用户密码
+     * @return LoginResponse
+     */
     public LoginResponse login(String userAccount, String userPassWord) {
         String str = "login/" + userAccount + "/" + userPassWord;
         // 向服务器发送注册数据
@@ -323,6 +373,11 @@ public class Client {
         }
     }
 
+    /**
+     * 创建聊天室方法（客户端用）
+     * @param user 用户本身
+     * @return CreateChatroomResponse
+     */
     public CreateChatroomResponse createChatroom(User user) {
         String str = "createChatroom/" + user.getUserAccount();
         // 向服务器发送注册数据
@@ -356,7 +411,11 @@ public class Client {
     }
 
     /**
-     * 向服务器发送聊天信息。
+     * 用户发消息方法（客户端用）
+     * @param message 聊天内容
+     * @param userAccount 用户账号
+     * @param chatroomID 聊天室ID
+     * @return ChatResponse
      */
     public ChatResponse chat(String message, String userAccount, int chatroomID) {
         String str = String.format("chat/%s/%d/%s", userAccount, chatroomID, message);
@@ -390,6 +449,25 @@ public class Client {
         }
     }
 
+    /**
+     * 用户接收聊天室消息方法（服务端用）
+     * @param retMsg 服务器返回数据
+     */
+    private void receiveChatMsg(String retMsg) {
+        // args = ["receiveChatMsg", sender, chatroomID, chatContents]
+        String[] args = retMsg.split("/", 4);
+        String sender = args[1];
+        int chatroomID = Integer.parseInt(args[2]);
+        String chatContents = args[3];
+        chatModel.receiveMsg(sender,chatroomID,chatContents);
+    }
+
+    /**
+     * 用户加入聊天室方法（客户端用）
+     * @param userAccount 用户账号
+     * @param chatroomID 聊天室ID
+     * @return JoinChatroomResponse
+     */
     public JoinChatroomResponse joinChatroom(String userAccount, int chatroomID) {
         String str = String.format("joinChatroom/%s/%d", userAccount, chatroomID);
         // 向服务器发送加入聊天室数据
@@ -424,22 +502,22 @@ public class Client {
         }
     }
 
-    private void joinChatroomRequest(String retMsg) {
+    /**
+     * 某用户加入聊天室后其他用户收到更新通知
+     */
+    private void joinChatroomRequest() {
         // args = ["joinChatroomRequest", (ChatRoom chatroom)
         int len = "joinChatroomRequest/".getBytes().length;
         ChatRoom chatroom = (ChatRoom) receiveObj(len, joinChatroomRequestByteArr);
         chatModel.updateChatroom(chatroom);
     }
 
-    private void receiveChatMsg(String retMsg) {
-        // args = ["receiveChatMsg", sender, chatroomID, chatContents]
-        String[] args = retMsg.split("/", 4);
-        String sender = args[1];
-        int chatroomID = Integer.parseInt(args[2]);
-        String chatContents = args[3];
-        chatModel.receiveMsg(sender,chatroomID,chatContents);
-    }
-
+    /**
+     * 用户添加好友方法（客户端用）
+     * @param userAccount 用户账号
+     * @param friendAccount 申请好友的账号
+     * @return AddFriendResponse
+     */
     public AddFriendResponse addFriend(String userAccount, String friendAccount) {
         String str = "addFriend/" + userAccount + "/" + friendAccount;
         sendMsg(str);
@@ -473,12 +551,22 @@ public class Client {
         }
     }
 
+    /**
+     * 用户收到添加好友请求（服务端用）
+     */
     private void addFriendRequest() {
         int len = "addFriendRequest/success/".getBytes().length;
         User user = (User) receiveObj(len, addFriendRequestByteArr);
         chatModel.beAddedAsFriend(user);
     }
 
+    /**
+     * 邀请好友进入聊天室方法（客户端用）
+     * @param userAccount 用户账号
+     * @param friendAccount 好友账号
+     * @param chatroomID 聊天室ID
+     * @return InviteFriendResponse
+     */
     public InviteFriendResponse inviteFriend(String userAccount, String friendAccount, int chatroomID) {
         String str = String.format("inviteFriend/%s/%s/%d", userAccount, friendAccount, chatroomID);
         sendMsg(str);
@@ -512,21 +600,21 @@ public class Client {
         }
     }
 
-    private void inviteFriendRequest(String retMsg) {
-        // args = ["inviteFriendRequest", userAccount, chatroomID]
-        String[] args = retMsg.split("/");
-        String userAccount = args[1];
-        int chatroomID = Integer.parseInt(args[2]);
-        // 调用joinChatroom()方法并获得JoinChatroomResponse
-        JoinChatroomResponse joinChatroomResponse1 = joinChatroom(userAccount, chatroomID);
-        chatModel.updateChatroom(joinChatroomResponse1.getChatroom());
+    /**
+     * 用户收到邀请进聊天室的请求（服务端用）
+     */
+    private void inviteFriendRequest() {
+        // args = ["inviteFriendRequest", (ChatRoom chatRoom)]
+        int len = "inviteFriendRequest/".getBytes().length;
+        ChatRoom chatRoom = (ChatRoom) receiveObj(len, inviteFriendRequestByteArr);
+        chatModel.beInvitedToRoom(chatRoom);
     }
 
     /**
      * 设置用户头像
-     * @param userAccount
-     * @param imagePath-图片路径
-     * @throws IOException
+     * @param userAccount 用户账号
+     * @param imagePath 图片路径
+     * @throws IOException 文件操作失败
      */
     public void setImage(String userAccount, String imagePath) throws IOException {
          byte[] image = Files.readAllBytes(Path.of(imagePath));
@@ -534,9 +622,54 @@ public class Client {
          sendByteArr(str, image);
     }
 
+    /**
+     * 其他用户接受某用户头像更改并及时更新（服务端用）
+     */
     private void receiveImageChanged() {
         int len = "receiveImageChanged/".getBytes().length;
         User user = (User) receiveObj(len, receiveImageChangedByteArr);
         chatModel.updateUser(user);
+    }
+
+    /**
+     * 更改聊天室名称（客户端用）
+     * @param chatroomID 聊天室ID
+     * @param chatroomName 新的聊天室名称
+     * @return ChangeChatroomNameResponse
+     */
+    public ChangeChatroomNameResponse changeChatroomName(int chatroomID, String chatroomName) {
+        String str = String.format("changeChatroomName/%d/%s", chatroomID, chatroomName);
+        sendMsg(str);
+        return getChangeChatroomNameResponse();
+    }
+
+    private ChangeChatroomNameResponse getChangeChatroomNameResponse() {
+        // args = ["changeChatroomNameResponse", "success"/errorMsg]
+        synchronized (changeChatroomNameResponse) {
+            try {
+                changeChatroomNameResponse.wait(5000);
+                if (changeChatroomNameResponse.getTmpMsg().equals("")) {
+                    changeChatroomNameResponse.setTmpMsg("changeChatroomNameResponse/响应超时，请检查网络");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] args = changeChatroomNameResponse.getTmpMsg().split("/");
+        changeChatroomNameResponse.setTmpMsg("");
+        if (args[1].equals("success")) {
+            return new ChangeChatroomNameResponse(true);
+        } else {
+            return new ChangeChatroomNameResponse(args[1]);
+        }
+    }
+
+    /**
+     * 用户接收到聊天室名称更改并及时更新（服务端用）
+     */
+    private void changeChatroomNameRequest() {
+        int len = "changeChatroomNameRequest/".getBytes().length;
+        ChatRoom chatRoom = (ChatRoom) receiveObj(len, changeChatroomNameRequestByteArr);
+        chatModel.updateChatroom(chatRoom);
     }
 }
