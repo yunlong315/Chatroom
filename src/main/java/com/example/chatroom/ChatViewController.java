@@ -56,6 +56,8 @@ public class ChatViewController {
     private TextArea messageTextArea;
     @FXML
     private ImageView headImage;
+    @FXML
+    private Button headButton;
 
     @FXML
     private ListView<HBox> chatListView;
@@ -418,10 +420,18 @@ public class ChatViewController {
             controller.setNowUser(nowUser);
             controller.setSelectedChatRoom(selectedChatRoom);
             //todo
-            for(User user:selectedChatRoom.getUserHashMap().values()){
+            for (User user : selectedChatRoom.getUserHashMap().values()) {
                 System.out.println(user);
             }
             controller.show(scene);
         }
+    }
+
+    @FXML
+    public void onHeadButtonClick() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("HeadView.fxml"));
+        Scene scene = new Scene(loader.load());
+        HeadViewController controller = loader.getController();
+
     }
 }
