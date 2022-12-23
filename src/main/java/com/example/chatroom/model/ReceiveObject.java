@@ -3,6 +3,9 @@ package com.example.chatroom.model;
 import com.example.chatroom.model.backend.ChatRoom;
 import com.example.chatroom.model.backend.User;
 
+/**
+ * 从服务器被动接收的信息。
+ */
 public class ReceiveObject {
     private String sender;
     private int chatroomID;

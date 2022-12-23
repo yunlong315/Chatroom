@@ -105,20 +105,18 @@ public class ChatModel {
         receiveObject.setMessage(message);
         receiveObject.setSender(sender);
         receiveObject.setChatroomID(chatroomId);
+        ChatRoom chatRoom = CachedData.getChatroom(chatroomId);
+        if (chatRoom == null) {
+            System.out.println("聊天室为空");
+        }
+        receiveObject.setChatRoom(chatRoom);
         CachedData.addMessage(sender, chatroomId, message);
         notifications.publish(Notifications.EVENT_MODEL_UPDATE_MESSAGE);
     }
 
-
     public ReceiveObject getReceiveObject() {
         return receiveObject;
     }
-
-
-
-
-
-
 
     /**
      * 更新chatroom。

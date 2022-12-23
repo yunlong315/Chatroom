@@ -13,6 +13,9 @@ import javafx.scene.control.TextField;
 
 import java.io.IOException;
 
+/**
+ * 用户注册与登录的view层。
+ */
 public class LoginRegisterViewController {
     @FXML
     private TextField loginAccountField;
@@ -74,6 +77,9 @@ public class LoginRegisterViewController {
         );
     }
 
+    /**
+     * 绑定“登录”按钮，用户登录。
+     */
     @FXML
     private void handleLogin() {
         if (isLoginInputValid()) {
@@ -83,16 +89,24 @@ public class LoginRegisterViewController {
         }
     }
 
+    /**
+     * 绑定“注册”按钮，用户注册。
+     */
     @FXML
     private void handleRegister() {
         if (isRegisterInputValid()) {
             String userAccount = registerAccountField.getText();
             String passWord = registerPasswordField.getText();
             String userName = registerNameField.getText();
-            loginRegisterModel.register(userAccount, passWord,userName);
+            loginRegisterModel.register(userAccount, passWord, userName);
         }
     }
 
+    /**
+     * 检查登录输入是否合法。
+     *
+     * @return 合法返回true, 不合法返回false。
+     */
     private boolean isLoginInputValid() {
         String errorMessage = "";
         if (!loginAccountField.getText().matches(PatternUtil.getUserAccountPattern())) {
@@ -110,6 +124,11 @@ public class LoginRegisterViewController {
         }
     }
 
+    /**
+     * 检查登录输入是否合法。
+     *
+     * @return 合法返回true, 不合法返回false。
+     */
     private boolean isRegisterInputValid() {
         String errorMessage = "";
         if (!registerAccountField.getText().matches(PatternUtil.getUserAccountPattern())) {
@@ -132,6 +151,7 @@ public class LoginRegisterViewController {
             return false;
         }
     }
+
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
     }

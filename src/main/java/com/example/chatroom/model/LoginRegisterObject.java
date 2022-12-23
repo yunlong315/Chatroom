@@ -5,6 +5,9 @@ import com.example.chatroom.model.backend.reponses.LoginResponse;
 import com.example.chatroom.model.backend.reponses.RegisterResponse;
 import com.example.chatroom.model.backend.User;
 
+/**
+ * 用户登录和注册请求的返回信息。
+ */
 public class LoginRegisterObject {
     private final Boolean wasError;
     private final String errorMessage;
@@ -22,13 +25,10 @@ public class LoginRegisterObject {
         if (response instanceof RegisterResponse) {
             requestType = Mode.REGISTER;
             user = null;
-        }
-        else if (response instanceof LoginResponse loginResponse) {
+        } else if (response instanceof LoginResponse loginResponse) {
             requestType = Mode.LOGIN;
             user = loginResponse.getUser();
-        }
-        else
-        {
+        } else {
             user = null;
             requestType = null;
         }
@@ -41,12 +41,12 @@ public class LoginRegisterObject {
     public String getErrorMessage() {
         return errorMessage;
     }
-    public Boolean isLogin()
-    {
+
+    public Boolean isLogin() {
         return requestType == Mode.LOGIN;
     }
-    public Boolean isRegister()
-    {
+
+    public Boolean isRegister() {
         return requestType == Mode.REGISTER;
     }
 

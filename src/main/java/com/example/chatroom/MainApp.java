@@ -20,14 +20,20 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         this.primaryStage = stage;
         this.primaryStage.setTitle("Chatroom");
-        this.primaryStage.setOnCloseRequest((e)->closeClient());
+        this.primaryStage.setOnCloseRequest((e) -> closeClient());
         showLoginRegisterView();
     }
 
+    /**
+     * 关闭客户端。
+     */
     private void closeClient() {
         Client.closeClient();
     }
 
+    /**
+     * 显示登录注册界面。
+     */
     public void showLoginRegisterView() {
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -44,6 +50,12 @@ public class MainApp extends Application {
         }
     }
 
+    /**
+     * 显示聊天界面。
+     *
+     * @param user-当前用户
+     * @throws IOException-加载fxml时发生IO异常
+     */
     public void showChatView(User user) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource("ChatView.fxml"));

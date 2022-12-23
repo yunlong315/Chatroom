@@ -23,12 +23,25 @@ public class Notifications {
      * 2.别人添加自己为好友
      */
     public final static String EVENT_MODEL_UPDATE_FriendsList = "friendsListUpdate";
-    public final static String EVENT_MODEL_CREATE_ChatRoom = "createChatRoom";
-    public final static String EVENT_MODEL_ADD_Friend = "addFriend";
-    public final static String EVENT_MODEL_JOIN_ChatRoom = "joinChatroom";
+    /**
+     * 以下情况发出该广播：
+     * 已有的某个聊天室更新。
+     */
     public final static String EVENT_MODEL_UPDATE_ONE_CHATROOM = "updateOneChatroom";
+    /**
+     * 以下情况发出该广播：
+     * 收到新的消息。
+     */
     public final static String EVENT_MODEL_UPDATE_MESSAGE = "updateMessage";
+    /**
+     * 以下情况发出该广播：
+     * 已有的某个用户更新。
+     */
     public final static String EVENT_MODEL_UPDATE_ONE_USER = "updateOneUser";
+    /**
+     * 以下情况发出该广播：
+     * 发送消息后收到反馈。
+     */
     public final static String EVENT_MODEL_UPDATE_SENDED = "updateSended";
     /**
      * 完成了只返回成功与否的操作。
@@ -37,6 +50,11 @@ public class Notifications {
     private final Map<String, List<SubscriberObject>> subscribers = new LinkedHashMap<>();
     private static Notifications instance = new Notifications();
 
+    /**
+     * 发布事件。
+     *
+     * @param event-事件
+     */
     public void publish(String event) {
         Platform.runLater(() -> {
             List<SubscriberObject> subscriberList = instance.subscribers.get(event);
@@ -49,6 +67,13 @@ public class Notifications {
         });
     }
 
+    /**
+     * 订阅。
+     *
+     * @param event-事件
+     * @param subscriber-订阅者
+     * @param cb-处理事件的方法
+     */
     public void subscribe(String event, Object subscriber, Consumer<String> cb) {
 
         if (!instance.subscribers.containsKey(event)) {
@@ -61,6 +86,12 @@ public class Notifications {
         subscriberList.add(new SubscriberObject(subscriber, cb));
     }
 
+    /**
+     * 取消订阅。
+     *
+     * @param event-事件
+     * @param subscriber-订阅者
+     */
     public void unsubscribe(String event, Object subscriber) {
 
         List<SubscriberObject> subscriberList = instance.subscribers.get(event);
@@ -70,6 +101,9 @@ public class Notifications {
         }
     }
 
+    /**
+     * 订阅者类。
+     */
     static class SubscriberObject {
 
         private final Object subscriber;

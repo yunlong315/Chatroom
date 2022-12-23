@@ -2,6 +2,9 @@ package com.example.chatroom;
 
 import com.example.chatroom.model.backend.User;
 
+/**
+ * 聊天消息类。
+ */
 public class Message {
     private String message;
     private String userAccount;

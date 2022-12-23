@@ -5,6 +5,9 @@ import com.example.chatroom.model.backend.User;
 import java.io.*;
 import java.util.*;
 
+/**
+ * 储存前端数据。
+ */
 public class CachedData {
     private static Hashtable<Integer, ChatRoom> chatRoomHashMap = new Hashtable<>();
     private static Hashtable<Integer, List<Message>> messageListHashMap = new Hashtable<>();
@@ -14,55 +17,53 @@ public class CachedData {
      * 增加房间，若已有相应聊天室则更新聊天室信息。
      * @param chatRoom-要更新的聊天室
      */
-    public static void addChatRoom(ChatRoom chatRoom)
-    {
-        if(chatRoomHashMap.containsKey(chatRoom.getID()))
-        {
+    public static void addChatRoom(ChatRoom chatRoom) {
+        if(chatRoomHashMap.containsKey(chatRoom.getID())) {
             ChatRoom oldRoom = chatRoomHashMap.get(chatRoom.getID());
             oldRoom.setChatroomName(chatRoom.getChatroomName());
             oldRoom.setUserHashMap(chatRoom.getUserHashMap());
-        }
-        else
-        {
+        } else {
             chatRoomHashMap.put(chatRoom.getID(),chatRoom);
         }
-        for(User user:chatRoom.getUserHashMap().values())
-        {
+        for(User user:chatRoom.getUserHashMap().values()) {
             addUser(user);
         }
     }
 
     /**
-     * 根据id得到chatroom.
-     * @param id
+     * 根据房间号得到聊天室.
+     *
+     * @param id-房间号
      * @return
      */
-    public static ChatRoom getChatroom(int id)
-    {
+    public static ChatRoom getChatroom(int id) {
         return chatRoomHashMap.get(id);
     }
 
     /**
      * 储存房间中的消息。
-     * @param userAccount
-     * @param chatroomId
-     * @param message
+     * @param userAccount-用户账号
+     * @param chatroomId-房间号
+     * @param message-消息内容
      */
-    public static void addMessage(String userAccount, int chatroomId, String message)
-    {
-        if(!messageListHashMap.containsKey(chatroomId))
-        {
+    public static void addMessage(String userAccount, int chatroomId, String message) {
+        if(!messageListHashMap.containsKey(chatroomId)) {
             List<Message> messageList = new ArrayList<>();
             messageListHashMap.put(chatroomId, messageList);
         }
         List<Message> messageList = messageListHashMap.get(chatroomId);
-        messageList.add(new Message(message,userAccount));
+        messageList.add(new Message(message, userAccount));
     }
-    public static User getUser(String userAccount)
-    {
+
+    public static User getUser(String userAccount) {
         return userHashMap.get(userAccount);
     }
 
+    /**
+     * 更新用户信息。
+     *
+     * @param user-目标用户
+     */
     public static void addUser(User user) {
         if (userHashMap.containsKey(user.getUserAccount())) {
             //根据新user更新旧user
@@ -72,22 +73,23 @@ public class CachedData {
             oldUser.setChatRoomList(user.getChatRoomList());
             oldUser.setUserImage(user.getUserImage());
             saveImage(oldUser);
-        }
-        else
-        {
-            userHashMap.put(user.getUserAccount(),user);
+        } else {
+            userHashMap.put(user.getUserAccount(), user);
         }
     }
 
-    private static void saveImage(User user)
-    {
+    /**
+     * 在本地存放用户头像。
+     *
+     * @param user-目标用户
+     */
+    private static void saveImage(User user) {
         byte[] image = user.getUserImage();
-        if (user.isHasImage() && image!=null)
-        {
+        if (user.isHasImage() && image != null) {
             //更新头像
-            String path = user.getImagePath();
+            String path = String.format("src/main/java/data/userImage/%s", user.getUserAccount());
             File trg = new File(path);
-            if(!trg.exists()) {
+            if (!trg.exists()) {
                 trg.getParentFile().mkdirs();
                 try {
                     trg.createNewFile();
@@ -108,16 +110,13 @@ public class CachedData {
     }
 
 
-
     /**
      * 获取聊天室编号对应的消息列表。
      * @param chatroomId-聊天室编号
      * @return 聊天室编号对应的消息列表。聊天室没有消息时返回空列表。
      */
-    public static List<Message> getMessageList(int chatroomId)
-    {
-        if(!messageListHashMap.containsKey(chatroomId))
-        {
+    public static List<Message> getMessageList(int chatroomId) {
+        if(!messageListHashMap.containsKey(chatroomId)) {
             return new ArrayList<>();
         }
         return messageListHashMap.get(chatroomId);

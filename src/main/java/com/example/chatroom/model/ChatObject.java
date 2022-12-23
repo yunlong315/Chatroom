@@ -5,7 +5,7 @@ import com.example.chatroom.model.backend.User;
 import com.example.chatroom.model.backend.reponses.*;
 
 /**
- * 主动请求后收到的返回存于此处
+ * 聊天界面主动请求后收到的返回存于此处
  */
 public class ChatObject {
     private boolean wasError;

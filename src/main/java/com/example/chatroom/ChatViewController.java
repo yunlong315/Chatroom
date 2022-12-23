@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * 聊天界面的view层。
+ * 聊天界面的view层，控制聊天界面的显示。通过订阅接受model层的发布。
  */
 public class ChatViewController {
     @FXML
@@ -88,18 +88,31 @@ public class ChatViewController {
     private ReadOnlyObjectProperty<ObservableList<HBox>> messagesProperty =
             new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
+    /**
+     * 传入主程序类。
+     *
+     * @param mainApp-主程序
+     */
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
     }
 
+    /**
+     * 传入当前用户。
+     *
+     * @param nowUser-当前用户
+     */
     public void setNowUser(User nowUser) {
         CachedData.addUser(nowUser);
         this.nowUser = nowUser;
         chatModel.setUser(nowUser);
     }
 
+
     /**
-     * 实现根据选定的聊天室切换聊天界面
+     * 切换到选中聊天室的聊天界面。
+     *
+     * @param chatRoom-选中的聊天室。
      */
     private void changeToOneChatroom(ChatRoom chatRoom) {
         titleText.setText(chatRoom.getChatroomName() + String.format("(ID:%d)", chatRoom.getID()));
@@ -121,7 +134,9 @@ public class ChatViewController {
         );
     }
 
-
+    /**
+     * 初始化聊天室列表。
+     */
     private void initChatRoomList() {
         for (ChatRoom chatRoom : nowUser.getChatRoomList()) {
             CachedData.addChatRoom(chatRoom);
@@ -129,6 +144,9 @@ public class ChatViewController {
         }
     }
 
+    /**
+     * 初始化好友列表。
+     */
     private void initFriendList() {
         for (User user : nowUser.getFriendsList()) {
             friendsProperty.get().addAll(new FriendBox(user));
@@ -146,7 +164,7 @@ public class ChatViewController {
     }
 
     /**
-     * 根据当前用户信息初始化界面
+     * 初始化界面。
      */
     public void init() {
         messageListView.itemsProperty().bind(messagesProperty);
@@ -182,9 +200,9 @@ public class ChatViewController {
     }
 
     /**
-     * 更新一个聊天室
+     * 更新一个聊天室信息，刷新该聊天室在界面中的所有相关显示。
      *
-     * @param event
+     * @param event-该方法订阅的事件。
      */
     public void updateOneChatroom(String event) {
         ChatRoom chatRoom = chatModel.getReceiveObject().getChatRoom();
@@ -208,8 +226,9 @@ public class ChatViewController {
     }
 
     /**
-     * 更新一个用户的信息。
-     * @param event
+     * 更新一个用户的信息，刷新该用户在界面中的所有相关显示。
+     *
+     * @param event-该方法订阅的事件。
      */
     public void updateOneUser(String event) {
         User user = chatModel.getReceiveObject().getUser();
@@ -231,11 +250,11 @@ public class ChatViewController {
     }
 
     /**
-     * 更新发送信息的状态。
-     * @param event
+     * 更新发送信息的状态。如发送失败则显示失败信息，发送成功则无需操作。
+     *
+     * @param event-该方法订阅的事件
      */
     private void updateSended(String event) {
-        //如发送失败则显示失败信息，发送成功则无需操作。
         chatModel.getChatObject().ifPresent(
                 (chatObject) -> {
                     if (chatObject.wasError()) {
@@ -247,7 +266,8 @@ public class ChatViewController {
 
     /**
      * 新增聊天室，更新聊天室列表。
-     * @param event
+     *
+     * @param event-该方法订阅的事件
      */
     public void updateChatList(String event) {
         chatModel.getChatObject().ifPresent(
@@ -265,7 +285,8 @@ public class ChatViewController {
 
     /**
      * 更新好友列表。
-     * @param event
+     *
+     * @param event-该方法订阅的事件。
      */
     public void updateFriendsList(String event) {
         chatModel.getChatObject().ifPresent(
@@ -293,7 +314,7 @@ public class ChatViewController {
     /**
      * 更新消息列表。
      *
-     * @param event
+     * @param event-该方法事件。
      */
     public void updateMessageList(String event) {
         ReceiveObject receiveObject = chatModel.getReceiveObject();
@@ -322,8 +343,8 @@ public class ChatViewController {
     }
 
     /**
-     * 绑定“好友”按钮，切换listview的内容为好友信息。
-     */
+     * 绑定“好友”按钮，切换l列表内容为好友。
+     **/
     @FXML
     public void onFriendsButtonClick() {
         chatListView.itemsProperty().bind(friendsProperty);
@@ -382,7 +403,9 @@ public class ChatViewController {
     }
 
 
-    //发送消息
+    /**
+     * 绑定“发送”按钮，发送消息。
+     */
     @FXML
     public void onSendOutButtonClick() {
         if (selectedChatRoom == null) {
@@ -413,6 +436,11 @@ public class ChatViewController {
         }
     }
 
+    /**
+     * 绑定当前用户头像。显示用户详细信息。
+     *
+     * @throws IOException
+     */
     @FXML
     public void onHeadButtonClick() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("HeadView.fxml"));

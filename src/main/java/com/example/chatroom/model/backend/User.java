@@ -1,5 +1,6 @@
 package com.example.chatroom.model.backend;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
