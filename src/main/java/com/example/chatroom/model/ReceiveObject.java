@@ -55,4 +55,8 @@ public class ReceiveObject {
     public void setChatRoom(ChatRoom chatRoom) {
         this.chatRoom = chatRoom;
     }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

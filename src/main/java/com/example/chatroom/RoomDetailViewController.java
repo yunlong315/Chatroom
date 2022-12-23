@@ -24,7 +24,7 @@ public class RoomDetailViewController {
     private TextField inviteFriendTextField;
     private Stage stage;
 
-    private final ChatModel chatModel = new ChatModel();
+    private ChatModel chatModel;
     private final Notifications notifications = new Notifications();
     private ChatRoom selectedChatRoom;
     private User nowUser;
@@ -41,6 +41,10 @@ public class RoomDetailViewController {
         this.nowUser = nowUser;
     }
 
+    public void setChatModel(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
+
     public void show(Scene scene) {
         stage = new Stage();
         stage.setTitle(String.format("%s(ID:%d)", selectedChatRoom.getChatroomName(), selectedChatRoom.getID()));
@@ -51,6 +55,7 @@ public class RoomDetailViewController {
     }
 
     public void update(String event) {
+
         ChatRoom chatRoom = chatModel.getReceiveObject().getChatRoom();
         if (chatRoom.equals(selectedChatRoom)) {
             selectedChatRoom = chatModel.getReceiveObject().getChatRoom();

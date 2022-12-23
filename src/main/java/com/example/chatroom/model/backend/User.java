@@ -13,7 +13,8 @@ public class User implements Serializable {
     private String userAccount;
     private String userPassWord;
     private String userName;
-    private byte[] userImage;
+    private byte[] userImage=null;
+    private boolean hasImage = false;
     private List<ChatRoom> chatRoomList = Collections.synchronizedList(new ArrayList<>());
     private List<User> friendsList = Collections.synchronizedList(new ArrayList<>());
 
@@ -80,12 +81,28 @@ public class User implements Serializable {
     }
 
     public void setUserImage(byte[] userImage) {
+
         this.userImage = userImage;
+        hasImage = true;
     }
 
+    /**
+     * 获得用户头像在本地的路径。
+     * @return 用户头像的路径。
+     */
     public String getImagePath() {
-        return "src/main/java/data/userImage/defaultImg";
-        //return String.format("data/userImage/%s",userAccount);
+        if(!hasImage)
+        {
+            return "src/main/java/data/userImage/defaultImg";
+        }
+        return String.format("src/main/java/data/userImage/%s",userAccount);
     }
 
+    /**
+     * 用户是否上传过头像。
+     * @return true上传过。false没有上传过。
+     */
+    public boolean isHasImage() {
+        return hasImage;
+    }
 }

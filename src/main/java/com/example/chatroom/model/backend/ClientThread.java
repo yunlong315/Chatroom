@@ -183,7 +183,7 @@ public class ClientThread extends Thread {
                 if (!user.getUserAccount().equals(userAccount)) {
                     io.sendObject("joinChatroomRequest/", thisChatroom);
                 }
-                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", userAccount)));
+                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", thisUser.getUserName())));
             }
         }
     }
@@ -292,6 +292,7 @@ public class ClientThread extends Thread {
         }
         // 成功加入，并通知好友
         thisChatroom.userHashMap.put(friendAccount, cs.clientMap.get(friendAccount));
+        String friendName = cs.clientMap.get(friendAccount).getUserName();
         io.sendObject("inviteFriendResponse/success/", thisChatroom);
         ClientIO friendIO = cs.clientIOMap.get(friendAccount);
         friendIO.sendObject("inviteFriendRequest/", thisChatroom);
@@ -304,9 +305,10 @@ public class ClientThread extends Thread {
                 if (!user.getUserAccount().equals(userAccount) && !user.getUserAccount().equals(friendAccount)) {
                     io.sendObject("joinChatroomRequest/", thisChatroom);
                 }
-                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", friendAccount, chatroomID, String.format("我是%s，一起聊聊吧！", friendAccount)));
+                io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", friendAccount, chatroomID, String.format("我是%s，一起聊聊吧！", friendName)));
             }
         }
+
     }
 
     /**
@@ -316,6 +318,7 @@ public class ClientThread extends Thread {
     private void setImage(byte[] data) {
         String[] cmd = new String(data).split("/", 3);
         String userAccount = cmd[1];
+        System.out.printf("服务器收到%s的新头像\n",userAccount);
         byte[] img = cmd[2].getBytes();
         User user = cs.clientMap.get(userAccount);
         user.setUserImage(img);

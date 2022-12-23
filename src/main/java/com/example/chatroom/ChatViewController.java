@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * 聊天界面的view层。
+ */
 public class ChatViewController {
     @FXML
     private Button chatButton;
@@ -100,7 +103,6 @@ public class ChatViewController {
     private void changeToOneChatroom(ChatRoom chatRoom) {
         titleText.setText(chatRoom.getChatroomName() + String.format("(ID:%d)", chatRoom.getID()));
         List<HBox> messageList = new MessageBox().getBoxList(nowUser, CachedData.getMessageList(chatRoom.getID()));
-
         messagesProperty.get().clear();
         messagesProperty.get().addAll(messageList);
     }
@@ -185,14 +187,12 @@ public class ChatViewController {
      */
     public void updateOneChatroom(String event) {
         ChatRoom chatRoom = chatModel.getReceiveObject().getChatRoom();
-        //fixme:此处chatRoom会为空
         if (chatRoom == null) {
-            System.out.println("传入chatroom为空");
+            System.out.println("view层接收到chatroom为空");
             return;
         } else {
-            System.out.println(chatRoom.getID() + "号聊天室有更新");
+            System.out.println("view层接收到"+chatRoom.getID() + "号聊天室有更新");
         }
-        CachedData.addChatRoom(chatRoom);
         for (HBox box : chatRoomsProperty.get()) {
             ChatroomBox chatroomBox = (ChatroomBox) box;
             if (chatroomBox.getChatRoom().equals(chatRoom)) {
@@ -203,8 +203,7 @@ public class ChatViewController {
     }
 
     /**
-     * 更新一个用户
-     *
+     * 更新一个用户的信息。
      * @param event
      */
     public void updateOneUser(String event) {
@@ -228,8 +227,7 @@ public class ChatViewController {
     }
 
     /**
-     * 更新发送信息的状态
-     *
+     * 更新发送信息的状态。
      * @param event
      */
     private void updateSended(String event) {
@@ -244,8 +242,7 @@ public class ChatViewController {
     }
 
     /**
-     * 更新聊天室列表。
-     *
+     * 新增聊天室，更新聊天室列表。
      * @param event
      */
     public void updateChatList(String event) {
@@ -263,8 +260,7 @@ public class ChatViewController {
     }
 
     /**
-     * 更新好友列表,从chatObject中获取新好友。
-     *
+     * 更新好友列表。
      * @param event
      */
     public void updateFriendsList(String event) {
@@ -418,6 +414,7 @@ public class ChatViewController {
             RoomDetailViewController controller = fxmlLoader.getController();
             controller.setNowUser(nowUser);
             controller.setSelectedChatRoom(selectedChatRoom);
+            controller.setChatModel(chatModel);
             //todo
             for (User user : selectedChatRoom.getUserHashMap().values()) {
                 System.out.println(user);
@@ -431,6 +428,7 @@ public class ChatViewController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("HeadView.fxml"));
         Scene scene = new Scene(loader.load());
         HeadViewController controller = loader.getController();
+        controller.setChatModel(chatModel);
         controller.setNowUser(nowUser);
         controller.show(scene);
     }

@@ -10,7 +10,6 @@ public class PatternUtil {
     public static String getUserPasswordPattern() {
         return UserPasswordPattern;
     }
-
     public static String getUserNamePattern() {
         return UserNamePattern;
     }

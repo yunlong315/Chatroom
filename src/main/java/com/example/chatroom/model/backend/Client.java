@@ -631,6 +631,7 @@ public class Client {
     private void receiveImageChanged() {
         int len = "receiveImageChanged/".getBytes().length;
         User user = (User) receiveObj(len, receiveImageChangedByteArr);
+        System.out.printf("客户端接收到%s的头像更新\n",user.getUserName());
         chatModel.updateUser(user);
     }
 

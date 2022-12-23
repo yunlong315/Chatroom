@@ -71,29 +71,7 @@ public class CachedData {
             oldUser.setFriendsList(user.getFriendsList());
             oldUser.setChatRoomList(user.getChatRoomList());
             oldUser.setUserImage(user.getUserImage());
-            byte[] image = oldUser.getUserImage();
-            if (image != null)
-            {
-                //更新头像
-                String path = oldUser.getImagePath();
-                File trg = new File(path);
-                if(!trg.exists()) {
-                    trg.getParentFile().mkdirs();
-                    try {
-                        trg.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                try {
-                    OutputStream os = new FileOutputStream(trg);
-                    os.write(image, 0, image.length);
-                    os.flush();
-                    os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            saveImage(oldUser);
         }
         else
         {
@@ -101,11 +79,40 @@ public class CachedData {
         }
     }
 
+    private static void saveImage(User user)
+    {
+        byte[] image = user.getUserImage();
+        if (user.isHasImage() && image!=null)
+        {
+            //更新头像
+            String path = user.getImagePath();
+            File trg = new File(path);
+            if(!trg.exists()) {
+                trg.getParentFile().mkdirs();
+                try {
+                    trg.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                OutputStream os = new FileOutputStream(trg);
+                os.write(image, 0, image.length);
+                os.flush();
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.printf("%s的头像已存于本地\n",user.getUserName());
+        }
+    }
+
+
 
     /**
      * 获取聊天室编号对应的消息列表。
      * @param chatroomId-聊天室编号
-     * @return 聊天室编号对应的消息列表。
+     * @return 聊天室编号对应的消息列表。聊天室没有消息时返回空列表。
      */
     public static List<Message> getMessageList(int chatroomId)
     {

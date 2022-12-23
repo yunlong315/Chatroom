@@ -19,7 +19,7 @@ public class HeadViewController {
     private ImageView headImage;
     @FXML
     private Label nameLabel;
-    private final ChatModel chatModel = new ChatModel();
+    private ChatModel chatModel;
     private final Notifications notifications = new Notifications();
     private Stage stage = new Stage();
     private User nowUser;
@@ -35,6 +35,10 @@ public class HeadViewController {
 
     public void setNowUser(User nowUser) {
         this.nowUser = nowUser;
+    }
+
+    public void setChatModel(ChatModel chatModel) {
+        this.chatModel = chatModel;
     }
 
     public void update(String event) {
