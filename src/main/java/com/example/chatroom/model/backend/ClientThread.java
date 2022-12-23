@@ -3,6 +3,7 @@ package com.example.chatroom.model.backend;
 import java.io.EOFException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -319,7 +320,12 @@ public class ClientThread extends Thread {
         String[] cmd = new String(data).split("/", 3);
         String userAccount = cmd[1];
         System.out.printf("服务器收到%s的新头像\n",userAccount);
-        byte[] img = cmd[2].getBytes();
+        // 获取img
+        byte[] tmp = (cmd[0] + "/" + cmd[1] + "/").getBytes();
+        byte[] img = new byte[data.length - tmp.length];
+        System.arraycopy(data, tmp.length, img, 0, img.length);
+        // System.out.println(Arrays.toString(img));
+        // 设置新头像
         User user = cs.clientMap.get(userAccount);
         user.setUserImage(img);
         // 获取聊天室列表中的所有成员

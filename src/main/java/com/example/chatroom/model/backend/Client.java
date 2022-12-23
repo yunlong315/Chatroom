@@ -174,12 +174,12 @@ public class Client {
     /**
      * 提取服务器发送的对象
      * @param len 前置命令+参数的长度
-     * @param addFriendResponseByteArr 服务器发送的数据
+     * @param byteArr 服务器发送的数据
      * @return
      */
-    private Object receiveObj(int len, byte[] addFriendResponseByteArr) {
-        byte[] objByte = new byte[addFriendResponseByteArr.length - len];
-        System.arraycopy(addFriendResponseByteArr, len, objByte, 0, objByte.length);
+    private Object receiveObj(int len, byte[] byteArr) {
+        byte[] objByte = new byte[byteArr.length - len];
+        System.arraycopy(byteArr, len, objByte, 0, objByte.length);
         Object obj = null;
         try {
             //bytearray to object
@@ -206,7 +206,7 @@ public class Client {
                     if (receiveMsg() == -1) {
                         continue;
                     }
-                    System.out.println("receive: " + retMsg);
+                    System.out.println(("receive: " + retMsg).substring(0, Math.min(50, retMsg.length())));
                     String cmd = retMsg.substring(0, retMsg.indexOf('/'));
                     switch (cmd) {
                         case "registerResponse":
@@ -621,6 +621,7 @@ public class Client {
      */
     public void setImage(String userAccount, String imagePath) throws IOException {
          byte[] image = Files.readAllBytes(Path.of(imagePath));
+         // System.out.println(Arrays.toString(image));
          String str = String.format("setImage/%s/", userAccount);
          sendByteArr(str, image);
     }
@@ -632,6 +633,7 @@ public class Client {
         int len = "receiveImageChanged/".getBytes().length;
         User user = (User) receiveObj(len, receiveImageChangedByteArr);
         System.out.printf("客户端接收到%s的头像更新\n",user.getUserName());
+        // System.out.println(Arrays.toString(user.getUserImage()));
         chatModel.updateUser(user);
     }
 
