@@ -20,9 +20,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,8 +38,6 @@ public class ChatViewController {
     private Button friendsButton;
     @FXML
     private Button addButton;
-    @FXML
-    private Button emotionButton;
     @FXML
     private Button sendOutButton;
     @FXML
@@ -62,6 +60,9 @@ public class ChatViewController {
 
     @FXML
     private ListView<HBox> messageListView;
+
+    @FXML
+    private BorderPane chatBorderPane;
 
     //当前所在界面
     private Page nowPage;
@@ -156,10 +157,10 @@ public class ChatViewController {
         initChatRoomList();
         initFriendList();
 
+        //设置头像
         ImageView imageView = new ImageView(new Image("file:" + nowUser.getImagePath()));
         imageView.setFitWidth(50);
         imageView.setFitHeight(50);
-        //设置头像
         headButton.setGraphic(imageView);
 
         nowPage = Page.CHATPAGE;
@@ -191,12 +192,16 @@ public class ChatViewController {
             System.out.println("view层接收到chatroom为空");
             return;
         } else {
-            System.out.println("view层接收到"+chatRoom.getID() + "号聊天室有更新");
+            System.out.println("view层接收到" + chatRoom.getID() + "号聊天室有更新");
         }
         for (HBox box : chatRoomsProperty.get()) {
             ChatroomBox chatroomBox = (ChatroomBox) box;
             if (chatroomBox.getChatRoom().equals(chatRoom)) {
                 chatroomBox.update(chatRoom);
+                if (selectedChatRoom != null && selectedChatRoom.equals(chatRoom)) {
+                    selectedChatRoom = chatRoom;
+                    changeToOneChatroom(chatRoom);
+                }
                 break;
             }
         }
@@ -212,10 +217,9 @@ public class ChatViewController {
             nowUser = user;
             ImageView headImage = new ImageView("file:" + nowUser.getImagePath());
             headImage.setFitWidth(50);
-            headImage.setFitWidth(50);
+            headImage.setFitHeight(50);
             headButton.setGraphic(headImage);
         } else {
-            //todo
             for (HBox box : friendsProperty.get()) {
                 FriendBox friendBox = (FriendBox) box;
                 if (friendBox.getFriend().equals(user)) {
@@ -294,8 +298,15 @@ public class ChatViewController {
     public void updateMessageList(String event) {
         ReceiveObject receiveObject = chatModel.getReceiveObject();
         User user = CachedData.getUser(receiveObject.getSender());
-        HBox messageBox = new MessageBox().left(user, receiveObject.getMessage());
-        messagesProperty.get().addAll(messageBox);
+        HBox messageBox;
+        if (selectedChatRoom != null && selectedChatRoom.equals(receiveObject.getChatRoom())) {
+            if (user.equals(nowUser)) {
+                messageBox = new MessageBox().right(user, receiveObject.getMessage());
+            } else {
+                messageBox = new MessageBox().left(user, receiveObject.getMessage());
+            }
+            messagesProperty.get().addAll(messageBox);
+        }
     }
 
     /**
@@ -304,8 +315,9 @@ public class ChatViewController {
     @FXML
     public void onChatButtonClick() {
         chatListView.itemsProperty().bind(chatRoomsProperty);
-        searchTextField.setDisable(true);
-        addButton.setText("创建新的聊天室");
+        searchTextField.setVisible(false);
+        chatBorderPane.setVisible(true);
+        addButton.setText("创建聊天室");
         nowPage = Page.CHATPAGE;
     }
 
@@ -315,24 +327,10 @@ public class ChatViewController {
     @FXML
     public void onFriendsButtonClick() {
         chatListView.itemsProperty().bind(friendsProperty);
-        searchTextField.setDisable(false);
+        searchTextField.setVisible(true);
+        chatBorderPane.setVisible(false);
         addButton.setText("添加好友");
         nowPage = Page.FRIENDSPAGE;
-    }
-
-    /**
-     * 绑定“设置”按钮，弹出设置对话框。
-     *
-     * @throws IOException
-     */
-    @FXML
-    public void onSettingsButtonClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SettingsView.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage settingsStage = new Stage();
-        settingsStage.setTitle("设置");
-        settingsStage.setScene(scene);
-        settingsStage.showAndWait();
     }
 
     /**
@@ -351,6 +349,7 @@ public class ChatViewController {
             case FRIENDSPAGE:
                 if (!content.isEmpty())
                     chatModel.addFriend(nowUser.getUserAccount(), content);
+                searchTextField.setText("");
                 break;
         }
     }
@@ -382,11 +381,6 @@ public class ChatViewController {
         }
     }
 
-    //弹出表情窗口
-    @FXML
-    public void onEmotionButtonClick() {
-
-    }
 
     //发送消息
     @FXML
@@ -415,10 +409,6 @@ public class ChatViewController {
             controller.setNowUser(nowUser);
             controller.setSelectedChatRoom(selectedChatRoom);
             controller.setChatModel(chatModel);
-            //todo
-            for (User user : selectedChatRoom.getUserHashMap().values()) {
-                System.out.println(user);
-            }
             controller.show(scene);
         }
     }
@@ -431,5 +421,7 @@ public class ChatViewController {
         controller.setChatModel(chatModel);
         controller.setNowUser(nowUser);
         controller.show(scene);
+        System.out.println(nowUser.getImagePath());
+        System.out.println(nowUser.isHasImage());
     }
 }

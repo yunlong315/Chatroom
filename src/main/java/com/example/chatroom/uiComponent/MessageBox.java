@@ -29,13 +29,13 @@ public class MessageBox {
         anchorPane = new AnchorPane();
         vBox = new VBox();
         name = new Label(user.getUserName());
-        head = new ImageView();
+        head = new ImageView("file:" + user.getImagePath());
         messageText = new TextArea(message);
 
         double autoWidth = AutoSizeUtil.getWidth(message);
         double autoHeight = AutoSizeUtil.getHeight(message);
 
-        mainBox.setPrefSize(500, 60);
+        mainBox.setPrefSize(450, 60);
         vBox.setPrefSize(80, 60);
         anchorPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
         head.setFitWidth(40);
@@ -50,6 +50,7 @@ public class MessageBox {
 
         vBox.getChildren().addAll(name, head);
         anchorPane.getChildren().addAll(messageText);
+        messageText.setLayoutY(10);
         mainBox.getChildren().addAll(vBox, anchorPane);
 
         return mainBox;
@@ -60,13 +61,13 @@ public class MessageBox {
         anchorPane = new AnchorPane();
         vBox = new VBox();
         name = new Label(user.getUserName());
-        head = new ImageView();
+        head = new ImageView("file:" + user.getImagePath());
         messageText = new TextArea(message);
 
         double autoWidth = AutoSizeUtil.getWidth(message);
         double autoHeight = AutoSizeUtil.getHeight(message);
 
-        mainBox.setPrefSize(500, 60);
+        mainBox.setPrefSize(450, 60);
         vBox.setPrefSize(80, 60);
         anchorPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
         head.setFitWidth(40);
@@ -81,6 +82,7 @@ public class MessageBox {
 
         vBox.getChildren().addAll(name, head);
         anchorPane.getChildren().addAll(messageText);
+        messageText.setLayoutY(10);
         mainBox.getChildren().addAll(anchorPane, vBox);
 
         return mainBox;

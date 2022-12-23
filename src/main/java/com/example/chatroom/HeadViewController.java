@@ -56,7 +56,9 @@ public class HeadViewController {
                 new FileChooser.ExtensionFilter("PNG", "*.png")
         );
         File headFile = fileChooser.showOpenDialog(stage);
-        chatModel.changeUserHead(nowUser.getUserAccount(), headFile.getPath());
+        if (headFile != null) {
+            chatModel.changeUserHead(nowUser.getUserAccount(), headFile.getPath());
+        }
     }
 
     public void show(Scene scene) {

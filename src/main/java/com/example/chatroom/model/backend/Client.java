@@ -173,9 +173,10 @@ public class Client {
 
     /**
      * 提取服务器发送的对象
-     * @param len 前置命令+参数的长度
+     *
+     * @param len     前置命令+参数的长度
      * @param byteArr 服务器发送的数据
-     * @return
+     * @return 接收到的对象
      */
     private Object receiveObj(int len, byte[] byteArr) {
         byte[] objByte = new byte[byteArr.length - len];

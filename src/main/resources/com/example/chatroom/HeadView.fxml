@@ -19,13 +19,13 @@
                     <children>
                         <Label text="I'm">
                             <font>
-                                <Font size="25.0"/>
+                                <Font size="22.0"/>
                             </font>
                         </Label>
                         <Label fx:id="nameLabel" alignment="CENTER" prefHeight="34.0" prefWidth="95.0" text="xxx"
                                textAlignment="CENTER">
                             <font>
-                                <Font size="25.0"/>
+                                <Font size="22.0"/>
                             </font>
                         </Label>
                     </children>
