@@ -90,7 +90,8 @@
             <VBox alignment="CENTER" prefHeight="106.0" prefWidth="74.0" spacing="5.0" BorderPane.alignment="CENTER">
                <children>
                   <Button fx:id="headButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                          minWidth="-Infinity" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0"/>
+                          minWidth="-Infinity" mnemonicParsing="false" onAction="#onHeadButtonClick" prefHeight="50.0"
+                          prefWidth="50.0"/>
                   <Text fx:id="userNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="用户名" textAlignment="CENTER">
                      <VBox.margin>
                         <Insets />

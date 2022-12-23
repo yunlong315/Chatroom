@@ -154,6 +154,9 @@ public class ChatViewController {
         initChatRoomList();
         initFriendList();
 
+        ImageView imageView = new ImageView(new Image("file:" + nowUser.getImagePath()));
+        imageView.setFitWidth(50);
+        imageView.setFitHeight(50);
         //设置头像
         headButton.setGraphic(new ImageView(new Image(nowUser.getImagePath())));
 
@@ -208,7 +211,7 @@ public class ChatViewController {
         User user = chatModel.getReceiveObject().getUser();
         if (user.equals(nowUser)) {
             nowUser = user;
-            ImageView headImage = new ImageView(nowUser.getImagePath());
+            ImageView headImage = new ImageView("file:" + nowUser.getImagePath());
             headImage.setFitWidth(50);
             headImage.setFitWidth(50);
             headButton.setGraphic(headImage);

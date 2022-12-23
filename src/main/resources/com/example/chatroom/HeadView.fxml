@@ -22,7 +22,8 @@
                                 <Font size="25.0"/>
                             </font>
                         </Label>
-                        <Label fx:id="nameLabel" text="xxx">
+                        <Label fx:id="nameLabel" alignment="CENTER" prefHeight="34.0" prefWidth="95.0" text="xxx"
+                               textAlignment="CENTER">
                             <font>
                                 <Font size="25.0"/>
                             </font>
@@ -31,6 +32,7 @@
                 </VBox>
             </children>
         </HBox>
-        <Button fx:id="changeHeadButton" layoutX="84.0" layoutY="151.0" mnemonicParsing="false" text="换头像"/>
+        <Button fx:id="changeHeadButton" layoutX="84.0" layoutY="151.0" mnemonicParsing="false"
+                onAction="#onChangeHeadButtonClick" text="换头像"/>
     </children>
 </AnchorPane>

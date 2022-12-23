@@ -16,7 +16,7 @@ public class FriendBox extends HBox {
 
     public FriendBox(User friend) {
         friendLabel = new Label(String.format("%s(ID:%s)", friend.getUserName(), friend.getUserAccount()));
-        head = new ImageView(friend.getImagePath());
+        head = new ImageView("file:" + friend.getImagePath());
         this.friend = friend;
 
         this.setPrefSize(240, 50);
@@ -41,6 +41,6 @@ public class FriendBox extends HBox {
     public void update(User user) {
         friend = user;
         friendLabel.setText(String.format("%s(ID:%s)", friend.getUserName(), friend.getUserAccount()));
-        head.setImage(new Image(friend.getImagePath()));
+        head.setImage(new Image("file:" + friend.getImagePath()));
     }
 }

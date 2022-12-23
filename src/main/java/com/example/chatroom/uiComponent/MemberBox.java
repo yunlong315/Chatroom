@@ -12,7 +12,7 @@ public class MemberBox extends VBox {
 
     public MemberBox(User user) {
         nameLabel = new Label(user.getUserName());
-        headImage = new ImageView(user.getImagePath());
+        headImage = new ImageView("file:" + user.getImagePath());
         this.setAlignment(Pos.CENTER);
         this.getChildren().addAll(nameLabel);
     }

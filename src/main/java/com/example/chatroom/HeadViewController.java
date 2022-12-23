@@ -29,7 +29,7 @@ public class HeadViewController {
     }
 
     public void init() {
-        headImage.setImage(new Image(nowUser.getImagePath()));
+        headImage.setImage(new Image("file:" + nowUser.getImagePath()));
         nameLabel.setText(nowUser.getUserName());
     }
 
@@ -39,7 +39,7 @@ public class HeadViewController {
 
     public void update(String event) {
         User user = chatModel.getReceiveObject().getUser();
-        headImage.setImage(new Image(user.getImagePath()));
+        headImage.setImage(new Image("file:" + user.getImagePath()));
     }
 
     @FXML
@@ -58,6 +58,6 @@ public class HeadViewController {
     public void show(Scene scene) {
         stage.setScene(scene);
         init();
-        stage.showAndWait();
+        stage.show();
     }
 }
