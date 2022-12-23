@@ -322,10 +322,15 @@ public class ClientThread extends Thread {
         byte[] img = cmd[2].getBytes();
         User user = cs.clientMap.get(userAccount);
         user.setUserImage(img);
+        // 获取聊天室列表中的所有成员
         HashSet<String> sendSet = new HashSet<>();
         for (ChatRoom chatRoom: user.getChatRoomList()) {
             sendSet.addAll(chatRoom.getUserHashMap().keySet());
         }
+        sendSet.remove(userAccount);
+        // 给自己发送头像更改通知
+        io.sendObject("receiveImageChanged/", user);
+        // 给其他成员发送头像更改通知
         for (String member: sendSet) {
             ClientIO memberIO = cs.clientIOMap.get(member);
             memberIO.sendObject("receiveImageChanged/", user);
