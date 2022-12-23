@@ -84,7 +84,8 @@ public class User implements Serializable {
     }
 
     public String getImagePath() {
-        return String.format("data/userImage/%s.jpg", userAccount);
+        return "src/main/java/data/userImage/defaultImg";
+        //return String.format("data/userImage/%s",userAccount);
     }
 
 }

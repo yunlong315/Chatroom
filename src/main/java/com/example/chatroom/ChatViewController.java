@@ -158,7 +158,7 @@ public class ChatViewController {
         imageView.setFitWidth(50);
         imageView.setFitHeight(50);
         //设置头像
-        headButton.setGraphic(new ImageView(new Image(nowUser.getImagePath())));
+        headButton.setGraphic(imageView);
 
         nowPage = Page.CHATPAGE;
 

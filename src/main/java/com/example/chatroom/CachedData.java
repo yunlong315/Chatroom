@@ -63,10 +63,8 @@ public class CachedData {
         return userHashMap.get(userAccount);
     }
 
-    public static void addUser(User user)
-    {
-        if(userHashMap.containsKey(user.getUserAccount()))
-        {
+    public static void addUser(User user) {
+        if (userHashMap.containsKey(user.getUserAccount())) {
             //根据新user更新旧user
             User oldUser = userHashMap.get(user.getUserAccount());
             oldUser.setUserName(user.getUserName());
@@ -74,24 +72,25 @@ public class CachedData {
             oldUser.setChatRoomList(user.getChatRoomList());
             oldUser.setUserImage(user.getUserImage());
             byte[] image = oldUser.getUserImage();
-            if(image!=null)
+            if (image != null)
             {
                 //更新头像
                 String path = oldUser.getImagePath();
                 File trg = new File(path);
-                if(!trg.exists())
-                {
-                    trg.mkdirs();
+                if(!trg.exists()) {
+                    trg.getParentFile().mkdirs();
+                    try {
+                        trg.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 try {
-                    OutputStream os= new FileOutputStream(trg);
-                    os.write(image,0, image.length);
+                    OutputStream os = new FileOutputStream(trg);
+                    os.write(image, 0, image.length);
                     os.flush();
                     os.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
