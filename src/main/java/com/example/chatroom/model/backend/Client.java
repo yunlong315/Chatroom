@@ -207,7 +207,7 @@ public class Client {
                     if (receiveMsg() == -1) {
                         continue;
                     }
-                    System.out.println(("receive: " + retMsg).substring(0, Math.min(50, retMsg.length())));
+                    System.out.println("receive: " + retMsg.substring(0, Math.min(30, retMsg.length())));
                     String cmd = retMsg.substring(0, retMsg.indexOf('/'));
                     switch (cmd) {
                         case "registerResponse":
