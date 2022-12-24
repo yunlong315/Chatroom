@@ -1,6 +1,15 @@
 package com.example.chatroom.util;
 
+/**
+ * 用于调整消息组件大小的工具类
+ */
 public class AutoSizeUtil {
+    /**
+     * 根据消息字符串返回适宜的消息组件宽度
+     *
+     * @param msg 消息字符串
+     * @return 适宜的宽度
+     */
     public static double getWidth(String msg) {
         int len = msg.length();
         double width = 0;
@@ -18,6 +27,12 @@ public class AutoSizeUtil {
         return width < 50 ? 50 : width;
     }
 
+    /**
+     * 根据消息字符串返回适宜的消息组件高度
+     *
+     * @param msg 消息字符串
+     * @return 适宜的高度
+     */
     public static double getHeight(String msg) {
         int len = msg.length();
         double width = 0;

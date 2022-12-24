@@ -1,4 +1,4 @@
-package com.example.chatroom.model.backend;
+package com.example.chatroom.backend.socket;
 
 import java.io.*;
 import java.net.Socket;
@@ -27,6 +27,7 @@ public class ClientIO {
 
     /**
      * 发送普通信息
+     *
      * @param str 待发送的字符串，格式为“命令/参数1/参数2/……”
      */
     public void sendMsg(String str) {
@@ -43,6 +44,7 @@ public class ClientIO {
 
     /**
      * 发送 命令 参数 一个对象
+     *
      * @param str “命令/参数1/……”
      * @param obj 待发送的对象
      */
@@ -73,7 +75,8 @@ public class ClientIO {
 
     /**
      * 向服务器发送byte数组（主要用于头像图片传输）
-     * @param str “命令/参数1/参数2/……”
+     *
+     * @param str   “命令/参数1/参数2/……”
      * @param bytes 头像对应的byte数组
      * @return 成功返回0，出错返回-1
      */

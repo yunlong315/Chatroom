@@ -3,41 +3,42 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="575.0" prefWidth="240.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chatroom.RoomDetailViewController">
-   <children>
-      <GridPane fx:id="headGrid" alignment="CENTER" prefHeight="276.0" prefWidth="246.0">
-        <columnConstraints>
-          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="80.0" />
-          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="80.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="80.0" />
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
-      </GridPane>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="217.0" spacing="20.0">
-         <children>
-            <TextField fx:id="changeNameTextField" />
-            <Button mnemonicParsing="false" onAction="#onChangeRoomNameButtonClick" text="改名" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
-         <children>
-            <TextField fx:id="inviteFriendTextField" />
-            <Button mnemonicParsing="false" onAction="#onInviteFriendButtonClick" text="邀请" />
-         </children>
-      </HBox>
-   </children>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+      minWidth="-Infinity"
+      prefHeight="575.0" prefWidth="240.0" xmlns="http://javafx.com/javafx/17"
+      fx:controller="com.example.chatroom.RoomDetailViewController">
+    <children>
+        <GridPane fx:id="headGrid" alignment="CENTER" prefHeight="276.0" prefWidth="246.0">
+            <columnConstraints>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0"
+                                   prefWidth="80.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0"
+                                   prefWidth="80.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0"
+                                   prefWidth="80.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES"/>
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES"/>
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES"/>
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+        </GridPane>
+        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="217.0" spacing="20.0">
+            <children>
+                <TextField fx:id="changeNameTextField"/>
+                <Button mnemonicParsing="false" onAction="#onChangeRoomNameButtonClick" text="改名"/>
+            </children>
+        </HBox>
+        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+            <children>
+                <TextField fx:id="inviteFriendTextField"/>
+                <Button mnemonicParsing="false" onAction="#onInviteFriendButtonClick" text="邀请"/>
+            </children>
+        </HBox>
+    </children>
 </VBox>

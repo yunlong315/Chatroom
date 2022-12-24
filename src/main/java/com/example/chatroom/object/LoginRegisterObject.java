@@ -1,9 +1,9 @@
-package com.example.chatroom.model;
+package com.example.chatroom.object;
 
-import com.example.chatroom.model.backend.reponses.IResponse;
-import com.example.chatroom.model.backend.reponses.LoginResponse;
-import com.example.chatroom.model.backend.reponses.RegisterResponse;
-import com.example.chatroom.model.backend.User;
+import com.example.chatroom.backend.entity.User;
+import com.example.chatroom.backend.reponses.IResponse;
+import com.example.chatroom.backend.reponses.LoginResponse;
+import com.example.chatroom.backend.reponses.RegisterResponse;
 
 /**
  * 用户登录和注册请求的返回信息。
@@ -13,11 +13,6 @@ public class LoginRegisterObject {
     private final String errorMessage;
     private final User user;
     private final Mode requestType;
-
-    enum Mode{
-        LOGIN,
-        REGISTER;
-    }
 
     public LoginRegisterObject(IResponse response) {
         wasError = !response.isSuccess();
@@ -52,5 +47,10 @@ public class LoginRegisterObject {
 
     public User getUser() {
         return user;
+    }
+
+    enum Mode {
+        LOGIN,
+        REGISTER
     }
 }

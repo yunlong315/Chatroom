@@ -1,4 +1,4 @@
-package com.example.chatroom.model.backend;
+package com.example.chatroom.backend.entity;
 
 import java.io.File;
 import java.io.Serializable;
@@ -57,8 +57,16 @@ public class User implements Serializable {
         return chatRoomList;
     }
 
+    public void setChatRoomList(List<ChatRoom> chatRoomList) {
+        this.chatRoomList = chatRoomList;
+    }
+
     public List<User> getFriendsList() {
         return friendsList;
+    }
+
+    public void setFriendsList(List<User> friendsList) {
+        this.friendsList = friendsList;
     }
 
     public String getUserName() {
@@ -67,14 +75,6 @@ public class User implements Serializable {
 
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public void setFriendsList(List<User> friendsList) {
-        this.friendsList = friendsList;
-    }
-
-    public void setChatRoomList(List<ChatRoom> chatRoomList) {
-        this.chatRoomList = chatRoomList;
     }
 
     public byte[] getUserImage() {

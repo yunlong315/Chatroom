@@ -1,11 +1,12 @@
 package com.example.chatroom;
 
+import com.example.chatroom.backend.entity.CachedData;
+import com.example.chatroom.backend.entity.ChatRoom;
+import com.example.chatroom.backend.entity.User;
 import com.example.chatroom.model.ChatModel;
-import com.example.chatroom.model.ChatObject;
 import com.example.chatroom.model.Notifications;
-import com.example.chatroom.model.ReceiveObject;
-import com.example.chatroom.model.backend.ChatRoom;
-import com.example.chatroom.model.backend.User;
+import com.example.chatroom.object.ChatObject;
+import com.example.chatroom.object.ReceiveObject;
 import com.example.chatroom.uiComponent.ChatroomBox;
 import com.example.chatroom.uiComponent.FriendBox;
 import com.example.chatroom.uiComponent.MessageBox;
@@ -32,6 +33,8 @@ import java.util.NoSuchElementException;
  * 聊天界面的view层，控制聊天界面的显示。通过订阅接受model层的发布。
  */
 public class ChatViewController {
+    private final ChatModel chatModel = new ChatModel();
+    private final Notifications notifications = new Notifications();
     @FXML
     private Button chatButton;
     @FXML
@@ -54,39 +57,37 @@ public class ChatViewController {
     private TextArea messageTextArea;
     @FXML
     private Button headButton;
-
     @FXML
     private ListView<HBox> chatListView;
-
     @FXML
     private ListView<HBox> messageListView;
-
     @FXML
     private BorderPane chatBorderPane;
-
     //当前所在界面
     private Page nowPage;
-
-    private enum Page {
-        CHATPAGE,
-        FRIENDSPAGE
-    }
-
     private MainApp mainApp;
     private User nowUser;
-
-
     private ChatRoom selectedChatRoom = null;
     private ChatroomBox selectedChatRoomBox = null;
+    private final ReadOnlyObjectProperty<ObservableList<HBox>> chatRoomsProperty =
+            new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    private final ReadOnlyObjectProperty<ObservableList<HBox>> friendsProperty =
+            new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    private final ReadOnlyObjectProperty<ObservableList<HBox>> messagesProperty =
+            new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
-    private final ChatModel chatModel = new ChatModel();
-    private final Notifications notifications = new Notifications();
-    private ReadOnlyObjectProperty<ObservableList<HBox>> chatRoomsProperty =
-            new SimpleObjectProperty<>(FXCollections.observableArrayList());
-    private ReadOnlyObjectProperty<ObservableList<HBox>> friendsProperty =
-            new SimpleObjectProperty<>(FXCollections.observableArrayList());
-    private ReadOnlyObjectProperty<ObservableList<HBox>> messagesProperty =
-            new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    /**
+     * 默认构造函数，构造时进行订阅
+     */
+    public ChatViewController() {
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_FriendsList, this, this::updateFriendsList);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_SENDED, this, this::updateSended);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONE_CHATROOM, this, this::updateOneChatroom);
+        notifications.subscribe(Notifications.EVENT_MODEL_OPERATION_DONE, this, this::checkStatus);
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONE_USER, this, this::updateOneUser);
+    }
 
     /**
      * 传入主程序类。
@@ -121,6 +122,10 @@ public class ChatViewController {
         messagesProperty.get().addAll(messageList);
     }
 
+    /**
+     * 给聊天室列表对应的listview加上监听，
+     * 使能够根据选择的聊天室切换聊天界面
+     */
     public void addChatListViewListener() {
         chatListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -151,16 +156,6 @@ public class ChatViewController {
         for (User user : nowUser.getFriendsList()) {
             friendsProperty.get().addAll(new FriendBox(user));
         }
-    }
-
-    public ChatViewController() {
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ChatList, this, this::updateChatList);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_FriendsList, this, this::updateFriendsList);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_MESSAGE, this, this::updateMessageList);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_SENDED, this, this::updateSended);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONE_CHATROOM, this, this::updateOneChatroom);
-        notifications.subscribe(Notifications.EVENT_MODEL_OPERATION_DONE, this, this::checkStatus);
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE_ONE_USER, this, this::updateOneUser);
     }
 
     /**
@@ -202,7 +197,7 @@ public class ChatViewController {
     /**
      * 更新一个聊天室信息，刷新该聊天室在界面中的所有相关显示。
      *
-     * @param event-该方法订阅的事件。
+     * @param event 该方法订阅的事件。
      */
     public void updateOneChatroom(String event) {
         ChatRoom chatRoom = chatModel.getReceiveObject().getChatRoom();
@@ -310,9 +305,9 @@ public class ChatViewController {
         );
     }
 
-
     /**
      * 更新消息列表。
+     *
      * @param event-该方法事件。
      */
     public void updateMessageList(String event) {
@@ -401,7 +396,6 @@ public class ChatViewController {
         }
     }
 
-
     /**
      * 绑定“发送”按钮，发送消息。
      */
@@ -421,7 +415,11 @@ public class ChatViewController {
         messageTextArea.setText("");
     }
 
-
+    /**
+     * 绑定“聊天室信息”按钮，点击按钮能够展示相应聊天室的信息界面
+     *
+     * @throws IOException
+     */
     @FXML
     public void onDetailButtonClick() throws IOException {
         if (selectedChatRoom != null) {
@@ -450,5 +448,10 @@ public class ChatViewController {
         controller.show(scene);
         System.out.println(nowUser.getImagePath());
         System.out.println(nowUser.isHasImage());
+    }
+
+    private enum Page {
+        CHATPAGE,
+        FRIENDSPAGE
     }
 }

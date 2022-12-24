@@ -1,8 +1,8 @@
-package com.example.chatroom.model;
+package com.example.chatroom.object;
 
-import com.example.chatroom.model.backend.ChatRoom;
-import com.example.chatroom.model.backend.User;
-import com.example.chatroom.model.backend.reponses.*;
+import com.example.chatroom.backend.entity.ChatRoom;
+import com.example.chatroom.backend.entity.User;
+import com.example.chatroom.backend.reponses.*;
 
 /**
  * 聊天界面主动请求后收到的返回存于此处
@@ -28,18 +28,18 @@ public class ChatObject {
             //chatResponse只包含成功与否的信息
         } else if (response instanceof AddFriendResponse addFriendResponse) {
             user = addFriendResponse.getUser();
-        } else if(response instanceof InviteFriendResponse inviteFriendResponse) {
+        } else if (response instanceof InviteFriendResponse inviteFriendResponse) {
             chatRoom = inviteFriendResponse.getChatroom();
-        }else if(response instanceof ChangeChatroomNameResponse chatroomNameResponse) {
+        } else if (response instanceof ChangeChatroomNameResponse chatroomNameResponse) {
             //只包含成功与否
         }
     }
-    public ChatObject(User user)
-    {
+
+    public ChatObject(User user) {
         this.user = user;
     }
-    public ChatObject(ChatRoom chatRoom)
-    {
+
+    public ChatObject(ChatRoom chatRoom) {
         this.chatRoom = chatRoom;
     }
 

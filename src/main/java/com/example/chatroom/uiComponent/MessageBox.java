@@ -1,7 +1,7 @@
 package com.example.chatroom.uiComponent;
 
-import com.example.chatroom.Message;
-import com.example.chatroom.model.backend.User;
+import com.example.chatroom.backend.entity.Message;
+import com.example.chatroom.backend.entity.User;
 import com.example.chatroom.util.AutoSizeUtil;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
@@ -16,6 +16,9 @@ import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 用于生成在消息列表中显示单条消息的UI组件
+ */
 public class MessageBox {
     private HBox mainBox;
     private AnchorPane anchorPane;
@@ -24,6 +27,13 @@ public class MessageBox {
     private ImageView head;
     private TextArea messageText;
 
+    /**
+     * 生成头像在左端的消息组件
+     *
+     * @param user    发消息的用户
+     * @param message 所发的消息内容
+     * @return 一个包含多个组件的HBox
+     */
     public HBox left(User user, String message) {
         mainBox = new HBox();
         anchorPane = new AnchorPane();
@@ -56,6 +66,13 @@ public class MessageBox {
         return mainBox;
     }
 
+    /**
+     * 生成头像在右端的消息组件
+     *
+     * @param user    发消息的用户
+     * @param message 所发的消息内容
+     * @return 一个包含多个组件的HBox
+     */
     public HBox right(User user, String message) {
         mainBox = new HBox();
         anchorPane = new AnchorPane();
@@ -88,6 +105,13 @@ public class MessageBox {
         return mainBox;
     }
 
+    /**
+     * 根据当前用户和消息列表生成对应的消息组件列表
+     *
+     * @param master   当前客户端的用户
+     * @param messages 一个包含至少一条消息的消息列表
+     * @return 生成的消息组件列表
+     */
     public List<HBox> getBoxList(User master, List<Message> messages) {
         List<HBox> boxList = new ArrayList<>();
         for (Message message : messages) {

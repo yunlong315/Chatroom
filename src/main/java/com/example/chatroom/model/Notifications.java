@@ -47,8 +47,8 @@ public class Notifications {
      * 完成了只返回成功与否的操作。
      */
     public final static String EVENT_MODEL_OPERATION_DONE = "operationDone";
+    private static final Notifications instance = new Notifications();
     private final Map<String, List<SubscriberObject>> subscribers = new LinkedHashMap<>();
-    private static Notifications instance = new Notifications();
 
     /**
      * 发布事件。

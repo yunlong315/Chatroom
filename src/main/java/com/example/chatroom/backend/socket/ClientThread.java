@@ -1,9 +1,11 @@
-package com.example.chatroom.model.backend;
+package com.example.chatroom.backend.socket;
+
+import com.example.chatroom.backend.entity.ChatRoom;
+import com.example.chatroom.backend.entity.User;
 
 import java.io.EOFException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -11,9 +13,9 @@ import java.util.Map;
  * 服务端每监听到一个客户端连接，就新建一个线程
  */
 public class ClientThread extends Thread {
-    private ClientIO io;
     CenterServer cs;
     String userAccount = null;
+    private final ClientIO io;
 
     public ClientThread(Socket socket) {
         cs = CenterServer.getCenterServer();
@@ -85,6 +87,7 @@ public class ClientThread extends Thread {
 
     /**
      * 用户注册
+     *
      * @param cmd cmd = ["register", userAccount, pwd, userName]
      */
     private void register(String[] cmd) {
@@ -106,6 +109,7 @@ public class ClientThread extends Thread {
 
     /**
      * 用户登录
+     *
      * @param cmd cmd = ["login", userAccount, pwd]
      */
     private void login(String[] cmd) {
@@ -132,6 +136,7 @@ public class ClientThread extends Thread {
 
     /**
      * 用户创建聊天室
+     *
      * @param cmd cmd = ["createChatroom", userAccount]
      */
     public void createChatroom(String[] cmd) {
@@ -141,7 +146,7 @@ public class ClientThread extends Thread {
         ChatRoom newChatroom = new ChatRoom(chatroomID);
         Map<String, User> clientMap = cs.clientMap;
         User thisUser = clientMap.get(userAccount);
-        newChatroom.userHashMap.put(userAccount, thisUser);
+        newChatroom.getUserHashMap().put(userAccount, thisUser);
         thisUser.getChatRoomList().add(newChatroom);
         cs.chatroomHashMap.put(newChatroom.getID(), newChatroom);
         System.out.println("创建聊天室成功，聊天室ID为：" + chatroomID);
@@ -150,6 +155,7 @@ public class ClientThread extends Thread {
 
     /**
      * 将用户加入聊天室，并向所有聊天室中用户广播这个更新。
+     *
      * @param cmd cmd = ["addChatroom", userAccount, chatroomID]
      */
     public void joinChatroom(String[] cmd) {
@@ -166,20 +172,20 @@ public class ClientThread extends Thread {
         User thisUser = cs.clientMap.get(userAccount);
         ChatRoom thisChatroom = chatroomHashMap.get(chatroomID);
         // 判断用户是否已经在聊天室中
-        if (thisChatroom.userHashMap.containsKey(userAccount)) {
+        if (thisChatroom.getUserHashMap().containsKey(userAccount)) {
             io.sendMsg("joinChatroomResponse/用户已在聊天室中");
             System.out.println(userAccount + "用户已在" + chatroomID + "号聊天室中");
             return;
         }
         // 成功加入
-        thisChatroom.userHashMap.put(userAccount, thisUser);
+        thisChatroom.getUserHashMap().put(userAccount, thisUser);
         thisUser.getChatRoomList().add(thisChatroom);
         io.sendObject("joinChatroomResponse/success/", thisChatroom);
         System.out.printf("%s用户成功加入%d号聊天室\n", userAccount, chatroomID);
         // 向该聊天室中其他成员广播新用户加入的信息
         Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
-        for (User user : thisChatroom.userHashMap.values()) {
-            if (clientIOHashMap.containsKey(user.getUserAccount())){
+        for (User user : thisChatroom.getUserHashMap().values()) {
+            if (clientIOHashMap.containsKey(user.getUserAccount())) {
                 ClientIO io = cs.clientIOMap.get(user.getUserAccount());
                 if (!user.getUserAccount().equals(userAccount)) {
                     io.sendObject("joinChatroomRequest/", thisChatroom);
@@ -191,6 +197,7 @@ public class ClientThread extends Thread {
 
     /**
      * 用户发送聊天信息
+     *
      * @param cmdStr cmd = ["chat", userAccount, chatroomID, chatContents]
      */
     public void chat(String cmdStr) {
@@ -203,11 +210,11 @@ public class ClientThread extends Thread {
         Map<Integer, ChatRoom> chatroomHashMap = cs.chatroomHashMap;
         ChatRoom thisChatroom = chatroomHashMap.get(chatroomID);
         //获取所有成员（包括自己）
-        Map<String, User> userHashMap = thisChatroom.userHashMap;
+        Map<String, User> userHashMap = thisChatroom.getUserHashMap();
         Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
         //对除自己外其他成员发送消息
         for (User user : userHashMap.values()) {
-            if (clientIOHashMap.containsKey(user.getUserAccount()) && !user.getUserAccount().equals(userAccount)){
+            if (clientIOHashMap.containsKey(user.getUserAccount()) && !user.getUserAccount().equals(userAccount)) {
                 ClientIO io = cs.clientIOMap.get(user.getUserAccount());
                 io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, chatContents));
             }
@@ -229,6 +236,7 @@ public class ClientThread extends Thread {
 
     /**
      * 用户添加好友
+     *
      * @param cmd cmd = ["addFriend", userAccount, friendAccount]
      */
     private void addFriend(String[] cmd) {
@@ -257,6 +265,7 @@ public class ClientThread extends Thread {
 
     /**
      * 用户邀请好友进入聊天室
+     *
      * @param cmd cmd = ["inviteFriend", userAccount, friendAccount, chatroomID]
      */
     private void inviteFriend(String[] cmd) {
@@ -268,7 +277,7 @@ public class ClientThread extends Thread {
         Map<String, User> userHashMap = cs.clientMap;
         User self = userHashMap.get(userAccount);
         boolean flag = false;
-        for (User fri: self.getFriendsList()) {
+        for (User fri : self.getFriendsList()) {
             if (fri.getUserAccount().equals(friendAccount)) {
                 flag = true;
                 break;
@@ -287,13 +296,13 @@ public class ClientThread extends Thread {
         }
         // 判断好友是否已在聊天室中
         ChatRoom thisChatroom = cs.chatroomHashMap.get(chatroomID);
-        if (thisChatroom.userHashMap.containsKey(friendAccount)) {
+        if (thisChatroom.getUserHashMap().containsKey(friendAccount)) {
             io.sendMsg("inviteFriendResponse/好友已在聊天室中");
             System.out.println(friendAccount + "用户已在" + chatroomID + "号聊天室中");
             return;
         }
         // 成功加入，并通知好友
-        thisChatroom.userHashMap.put(friendAccount, cs.clientMap.get(friendAccount));
+        thisChatroom.getUserHashMap().put(friendAccount, cs.clientMap.get(friendAccount));
         String friendName = cs.clientMap.get(friendAccount).getUserName();
         io.sendObject("inviteFriendResponse/success/", thisChatroom);
         ClientIO friendIO = cs.clientIOMap.get(friendAccount);
@@ -301,8 +310,8 @@ public class ClientThread extends Thread {
         System.out.printf("%s成功邀请%s进入%d号聊天室\n", userAccount, friendAccount, chatroomID);
         // 广播加入的消息
         Map<String, ClientIO> clientIOHashMap = cs.clientIOMap;
-        for (User user : thisChatroom.userHashMap.values()) {
-            if (clientIOHashMap.containsKey(user.getUserAccount())){
+        for (User user : thisChatroom.getUserHashMap().values()) {
+            if (clientIOHashMap.containsKey(user.getUserAccount())) {
                 ClientIO io = cs.clientIOMap.get(user.getUserAccount());
                 if (!user.getUserAccount().equals(userAccount) && !user.getUserAccount().equals(friendAccount)) {
                     io.sendObject("joinChatroomRequest/", thisChatroom);
@@ -315,12 +324,13 @@ public class ClientThread extends Thread {
 
     /**
      * 用户设置头像
+     *
      * @param data 从客户端发送的原始数据
      */
     private void setImage(byte[] data) {
         String[] cmd = new String(data).split("/", 3);
         String userAccount = cmd[1];
-        System.out.printf("服务器收到%s的新头像\n",userAccount);
+        System.out.printf("服务器收到%s的新头像\n", userAccount);
         // 获取img
         byte[] tmp = (cmd[0] + "/" + cmd[1] + "/").getBytes();
         byte[] img = new byte[data.length - tmp.length];
@@ -331,14 +341,14 @@ public class ClientThread extends Thread {
         user.setUserImage(img);
         // 获取聊天室列表中的所有成员
         HashSet<String> sendSet = new HashSet<>();
-        for (ChatRoom chatRoom: user.getChatRoomList()) {
+        for (ChatRoom chatRoom : user.getChatRoomList()) {
             sendSet.addAll(chatRoom.getUserHashMap().keySet());
         }
         sendSet.remove(userAccount);
         // 给自己发送头像更改通知
         io.sendObject("receiveImageChanged/", user);
         // 给其他成员发送头像更改通知
-        for (String member: sendSet) {
+        for (String member : sendSet) {
             ClientIO memberIO = cs.clientIOMap.get(member);
             memberIO.sendObject("receiveImageChanged/", user);
         }
@@ -346,6 +356,7 @@ public class ClientThread extends Thread {
 
     /**
      * 更改聊天室名称
+     *
      * @param cmd cmd = ["changeChatroomName", chatroomID, chatroomName]
      */
     private void changeChatroomName(String[] cmd) {
@@ -357,7 +368,7 @@ public class ClientThread extends Thread {
         // 成功更改
         io.sendMsg("changeChatroomNameResponse/success");
         // 广播
-        for (User user: chatRoom.getUserHashMap().values()) {
+        for (User user : chatRoom.getUserHashMap().values()) {
             ClientIO clientIO = cs.clientIOMap.get(user.getUserAccount());
             clientIO.sendObject("changeChatroomNameRequest/", chatRoom);
         }

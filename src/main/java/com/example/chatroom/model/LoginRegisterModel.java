@@ -1,8 +1,9 @@
 package com.example.chatroom.model;
 
-import com.example.chatroom.model.backend.Client;
-import com.example.chatroom.model.backend.reponses.LoginResponse;
-import com.example.chatroom.model.backend.reponses.RegisterResponse;
+import com.example.chatroom.backend.reponses.LoginResponse;
+import com.example.chatroom.backend.reponses.RegisterResponse;
+import com.example.chatroom.backend.socket.Client;
+import com.example.chatroom.object.LoginRegisterObject;
 
 import java.util.Optional;
 

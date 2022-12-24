@@ -1,45 +1,44 @@
-package com.example.chatroom.model.backend.reponses;
+package com.example.chatroom.backend.reponses;
 
-import com.example.chatroom.model.backend.User;
+import com.example.chatroom.backend.entity.ChatRoom;
 
-public class AddFriendResponse implements IResponse{
+public class CreateChatroomResponse implements IResponse {
+    private final ChatRoom chatroom;
     private boolean success = false;
     private String errorMessage = "";
     private String tmpMsg = "";
-    private final User user;
 
     //失败信息构造方法
-    public AddFriendResponse(String errorMessage) {
+    public CreateChatroomResponse(String errorMessage) {
         this.success = false;
         this.errorMessage += errorMessage;
-        this.user = null;
+        this.chatroom = null;
     }
 
     //成功信息构造方法
-    public AddFriendResponse(User user) {
+    public CreateChatroomResponse(ChatRoom chatroom) {
         this.success = true;
-        this.user = user;
+        this.chatroom = chatroom;
         this.errorMessage = null;
     }
-    @Override
+
     public String getErrorMessage() {
         return errorMessage;
     }
 
-    @Override
     public boolean isSuccess() {
         return success;
     }
 
-    public void setTmpMsg(String tmpMsg) {
-        this.tmpMsg = tmpMsg;
+    public ChatRoom getChatroom() {
+        return chatroom;
     }
 
     public String getTmpMsg() {
         return tmpMsg;
     }
 
-    public User getUser() {
-        return user;
+    public void setTmpMsg(String tmpMsg) {
+        this.tmpMsg = tmpMsg;
     }
 }

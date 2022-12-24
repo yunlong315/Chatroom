@@ -1,13 +1,15 @@
 package com.example.chatroom;
 
+import com.example.chatroom.backend.entity.User;
 import com.example.chatroom.model.LoginRegisterModel;
 import com.example.chatroom.model.Notifications;
-import com.example.chatroom.model.backend.User;
 import com.example.chatroom.util.AlertUtil;
 import com.example.chatroom.util.PatternUtil;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
@@ -17,6 +19,10 @@ import java.io.IOException;
  * 用户注册与登录的view层。
  */
 public class LoginRegisterViewController {
+    private final LoginRegisterModel loginRegisterModel = new LoginRegisterModel();
+    private final Notifications notifications = new Notifications();
+    private final BooleanProperty wasError = new SimpleBooleanProperty(false);
+    private final StringProperty errorMessage = new SimpleStringProperty("");
     @FXML
     private TextField loginAccountField;
     @FXML
@@ -29,12 +35,13 @@ public class LoginRegisterViewController {
     private PasswordField registerPasswordConfirmField;
     @FXML
     private TextField registerNameField;
-
     private MainApp mainApp;
-    private final LoginRegisterModel loginRegisterModel = new LoginRegisterModel();
-    private final Notifications notifications = new Notifications();
-    private final BooleanProperty wasError = new SimpleBooleanProperty(false);
-    private final StringProperty errorMessage = new SimpleStringProperty("");
+
+    public LoginRegisterViewController() {
+        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE,
+                this,
+                this::update);
+    }
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -43,12 +50,6 @@ public class LoginRegisterViewController {
     @FXML
     private void initialize() {
 
-    }
-
-    public LoginRegisterViewController() {
-        notifications.subscribe(Notifications.EVENT_MODEL_UPDATE,
-                this,
-                this::update);
     }
 
     private void update(String event) {

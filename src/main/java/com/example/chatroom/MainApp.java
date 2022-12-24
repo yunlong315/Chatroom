@@ -1,14 +1,12 @@
 package com.example.chatroom;
 
-import com.example.chatroom.model.backend.Client;
-import com.example.chatroom.model.backend.User;
+import com.example.chatroom.backend.entity.User;
+import com.example.chatroom.backend.socket.Client;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 

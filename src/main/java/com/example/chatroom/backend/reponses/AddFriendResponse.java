@@ -1,41 +1,35 @@
-package com.example.chatroom.model.backend.reponses;
+package com.example.chatroom.backend.reponses;
 
-import com.example.chatroom.model.backend.User;
+import com.example.chatroom.backend.entity.User;
 
-/**
- *后端登录方法的返回类。记录登录操作的信息。
- */
-
-public class LoginResponse implements IResponse{
-    private boolean success = false;
-    private String errorMessage="";
+public class AddFriendResponse implements IResponse {
     private final User user;
-    private String tmpMsg = "";  // tmpMsg用于后端暂时储存返回信息
+    private boolean success = false;
+    private String errorMessage = "";
+    private String tmpMsg = "";
+
     //失败信息构造方法
-    public LoginResponse(String errorMessage)
-    {
+    public AddFriendResponse(String errorMessage) {
         this.success = false;
         this.errorMessage += errorMessage;
         this.user = null;
     }
+
     //成功信息构造方法
-    public LoginResponse(User user)
-    {
+    public AddFriendResponse(User user) {
         this.success = true;
         this.user = user;
         this.errorMessage = null;
     }
 
+    @Override
     public String getErrorMessage() {
         return errorMessage;
     }
 
+    @Override
     public boolean isSuccess() {
         return success;
-    }
-
-    public User getUser() {
-        return user;
     }
 
     public String getTmpMsg() {
@@ -44,5 +38,9 @@ public class LoginResponse implements IResponse{
 
     public void setTmpMsg(String tmpMsg) {
         this.tmpMsg = tmpMsg;
+    }
+
+    public User getUser() {
+        return user;
     }
 }

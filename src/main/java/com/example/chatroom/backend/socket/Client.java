@@ -1,22 +1,48 @@
-package com.example.chatroom.model.backend;
+package com.example.chatroom.backend.socket;
 
+import com.example.chatroom.backend.entity.ChatRoom;
+import com.example.chatroom.backend.entity.User;
+import com.example.chatroom.backend.reponses.*;
 import com.example.chatroom.model.ChatModel;
-import com.example.chatroom.model.Notifications;
-import com.example.chatroom.model.backend.reponses.*;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 /**
  * 客户端中用于与服务端进行信息传输的类
  */
 public class Client {
     private static Client client;
+    private final RegisterResponse registerResponse = new RegisterResponse("");
+    private final LoginResponse loginResponse = new LoginResponse("");
+    private final CreateChatroomResponse createChatroomResponse = new CreateChatroomResponse("");
+    private final JoinChatroomResponse joinChatroomResponse = new JoinChatroomResponse("");
+    private final ChatResponse chatResponse = new ChatResponse("");
+    private final AddFriendResponse addFriendResponse = new AddFriendResponse("");
+    private final InviteFriendResponse inviteFriendResponse = new InviteFriendResponse("");
+    private final ChangeChatroomNameResponse changeChatroomNameResponse = new ChangeChatroomNameResponse("");
     private ChatModel chatModel;
+    private Socket socket = null;
+    private OutputStream outputStream = null;
+    private DataOutputStream dataOutputStream = null;
+    private InputStream inputStream = null;
+    private DataInputStream dataInputStream = null;
+    private Thread readThread = null;
+    private boolean readThreadExit = false;
+    private byte[] retByteArr;  // retByteArr用于记录服务器返回的字符串
+    private String retMsg = "";  // retMsg用于记录服务器返回的字符串
+    private byte[] loginResponseByteArr;
+    private byte[] joinChatroomResponseByteArr;
+    private byte[] joinChatroomRequestByteArr;
+    private byte[] addFriendResponseByteArr;
+    private byte[] addFriendRequestByteArr;
+    private byte[] inviteFriendResponseByteArr;
+    private byte[] inviteFriendRequestByteArr;
+    private byte[] receiveImageChangedByteArr;
+    private byte[] changeChatroomNameRequestByteArr;
 
     private Client() {
         // readFromCenterServer()新建了一个线程，用于不断获取从服务器发送而来的数据，Client被构造时即开始运行
@@ -58,35 +84,9 @@ public class Client {
         }
     }
 
-    private Socket socket = null;
-    private OutputStream outputStream = null;
-    private DataOutputStream dataOutputStream = null;
-    private InputStream inputStream = null;
-    private DataInputStream dataInputStream = null;
-    private Thread readThread = null;
-    private boolean readThreadExit = false;
-    private byte[] retByteArr;  // retByteArr用于记录服务器返回的字符串
-    private String retMsg = "";  // retMsg用于记录服务器返回的字符串
-    private final RegisterResponse registerResponse = new RegisterResponse("");
-    private final LoginResponse loginResponse = new LoginResponse("");
-    private byte[] loginResponseByteArr;
-    private final CreateChatroomResponse createChatroomResponse = new CreateChatroomResponse("");
-    private final JoinChatroomResponse joinChatroomResponse = new JoinChatroomResponse("");
-    private byte[] joinChatroomResponseByteArr;
-    private byte[] joinChatroomRequestByteArr;
-    private final ChatResponse chatResponse = new ChatResponse("");
-    private final AddFriendResponse addFriendResponse = new AddFriendResponse("");
-    private byte[] addFriendResponseByteArr;
-    private byte[] addFriendRequestByteArr;
-    private final InviteFriendResponse inviteFriendResponse = new InviteFriendResponse("");
-    private byte[] inviteFriendResponseByteArr;
-    private byte[] inviteFriendRequestByteArr;
-    private byte[] receiveImageChangedByteArr;
-    private final ChangeChatroomNameResponse changeChatroomNameResponse = new ChangeChatroomNameResponse("");
-    private byte[] changeChatroomNameRequestByteArr;
-
     /**
      * 初始化客户端
+     *
      * @return 成功返回0，失败返回-1
      */
     public int init() {
@@ -111,6 +111,7 @@ public class Client {
 
     /**
      * 向服务器发送一个字符串
+     *
      * @param str 待发送的字符串，格式为“命令/参数1/参数2/……”
      * @return 发送成功返回0，失败返回-1
      */
@@ -130,7 +131,8 @@ public class Client {
 
     /**
      * 向服务器发送byte数组（主要用于头像图片传输）
-     * @param str “命令/参数1/参数2/……”
+     *
+     * @param str   “命令/参数1/参数2/……”
      * @param bytes 头像对应的byte数组
      * @return 成功返回0，出错返回-1
      */
@@ -155,6 +157,7 @@ public class Client {
 
     /**
      * 接收服务器发送的数据
+     *
      * @return 成功返回0，失败返回-1
      */
     private int receiveMsg() {
@@ -298,9 +301,10 @@ public class Client {
 
     /**
      * 用户注册方法（客户端用）
-     * @param userAccount 用户账号
+     *
+     * @param userAccount  用户账号
      * @param userPassWord 用户密码
-     * @param userName 用户名称
+     * @param userName     用户名称
      * @return RegisterResponse
      */
     public RegisterResponse register(String userAccount, String userPassWord, String userName) {
@@ -333,7 +337,8 @@ public class Client {
 
     /**
      * 用户登录方法（客户端用）
-     * @param userAccount 用户账户
+     *
+     * @param userAccount  用户账户
      * @param userPassWord 用户密码
      * @return LoginResponse
      */
@@ -363,7 +368,7 @@ public class Client {
         if (args[1].equals("success")) {
             int len = "loginResponse/success/".getBytes().length;
             User user = null;
-            user = (User)receiveObj(len, loginResponseByteArr);
+            user = (User) receiveObj(len, loginResponseByteArr);
             if (user == null) {
                 return new LoginResponse("接收服务器发送对象失败");
             }
@@ -379,6 +384,7 @@ public class Client {
 
     /**
      * 创建聊天室方法（客户端用）
+     *
      * @param user 用户本身
      * @return CreateChatroomResponse
      */
@@ -407,7 +413,7 @@ public class Client {
         // 判断是否注册成功
         if (args[1].equals("success")) {
             ChatRoom chatRoom = new ChatRoom(Integer.parseInt(args[2]));
-            chatRoom.userHashMap.put(user.getUserAccount(), user);
+            chatRoom.getUserHashMap().put(user.getUserAccount(), user);
             return new CreateChatroomResponse(chatRoom);
         } else {
             return new CreateChatroomResponse(args[1]);
@@ -416,9 +422,10 @@ public class Client {
 
     /**
      * 用户发消息方法（客户端用）
-     * @param message 聊天内容
+     *
+     * @param message     聊天内容
      * @param userAccount 用户账号
-     * @param chatroomID 聊天室ID
+     * @param chatroomID  聊天室ID
      * @return ChatResponse
      */
     public ChatResponse chat(String message, String userAccount, int chatroomID) {
@@ -455,6 +462,7 @@ public class Client {
 
     /**
      * 用户接收聊天室消息方法（服务端用）
+     *
      * @param retMsg 服务器返回数据
      */
     private void receiveChatMsg(String retMsg) {
@@ -463,13 +471,14 @@ public class Client {
         String sender = args[1];
         int chatroomID = Integer.parseInt(args[2]);
         String chatContents = args[3];
-        chatModel.receiveMsg(sender,chatroomID,chatContents);
+        chatModel.receiveMsg(sender, chatroomID, chatContents);
     }
 
     /**
      * 用户加入聊天室方法（客户端用）
+     *
      * @param userAccount 用户账号
-     * @param chatroomID 聊天室ID
+     * @param chatroomID  聊天室ID
      * @return JoinChatroomResponse
      */
     public JoinChatroomResponse joinChatroom(String userAccount, int chatroomID) {
@@ -496,7 +505,7 @@ public class Client {
         if (args[1].equals("success")) {
             int len = "joinChatroomResponse/success/".getBytes().length;
             ChatRoom chatRoom = null;
-            chatRoom = (ChatRoom)receiveObj(len, joinChatroomResponseByteArr);
+            chatRoom = (ChatRoom) receiveObj(len, joinChatroomResponseByteArr);
             if (chatRoom == null) {
                 return new JoinChatroomResponse("接收服务器发送对象失败");
             }
@@ -518,7 +527,8 @@ public class Client {
 
     /**
      * 用户添加好友方法（客户端用）
-     * @param userAccount 用户账号
+     *
+     * @param userAccount   用户账号
      * @param friendAccount 申请好友的账号
      * @return AddFriendResponse
      */
@@ -545,7 +555,7 @@ public class Client {
         if (args[1].equals("success")) {
             int len = "addFriendResponse/success/".getBytes().length;
             User user = null;
-            user = (User)receiveObj(len, addFriendResponseByteArr);
+            user = (User) receiveObj(len, addFriendResponseByteArr);
             if (user == null) {
                 return new AddFriendResponse("接收服务器发送对象失败");
             }
@@ -566,9 +576,10 @@ public class Client {
 
     /**
      * 邀请好友进入聊天室方法（客户端用）
-     * @param userAccount 用户账号
+     *
+     * @param userAccount   用户账号
      * @param friendAccount 好友账号
-     * @param chatroomID 聊天室ID
+     * @param chatroomID    聊天室ID
      * @return InviteFriendResponse
      */
     public InviteFriendResponse inviteFriend(String userAccount, String friendAccount, int chatroomID) {
@@ -616,15 +627,16 @@ public class Client {
 
     /**
      * 设置用户头像
+     *
      * @param userAccount 用户账号
-     * @param imagePath 图片路径
+     * @param imagePath   图片路径
      * @throws IOException 文件操作失败
      */
     public void setImage(String userAccount, String imagePath) throws IOException {
-         byte[] image = Files.readAllBytes(Path.of(imagePath));
-         // System.out.println(Arrays.toString(image));
-         String str = String.format("setImage/%s/", userAccount);
-         sendByteArr(str, image);
+        byte[] image = Files.readAllBytes(Path.of(imagePath));
+        // System.out.println(Arrays.toString(image));
+        String str = String.format("setImage/%s/", userAccount);
+        sendByteArr(str, image);
     }
 
     /**
@@ -633,14 +645,15 @@ public class Client {
     private void receiveImageChanged() {
         int len = "receiveImageChanged/".getBytes().length;
         User user = (User) receiveObj(len, receiveImageChangedByteArr);
-        System.out.printf("客户端接收到%s的头像更新\n",user.getUserName());
+        System.out.printf("客户端接收到%s的头像更新\n", user.getUserName());
         // System.out.println(Arrays.toString(user.getUserImage()));
         chatModel.updateUser(user);
     }
 
     /**
      * 更改聊天室名称（客户端用）
-     * @param chatroomID 聊天室ID
+     *
+     * @param chatroomID   聊天室ID
      * @param chatroomName 新的聊天室名称
      * @return ChangeChatroomNameResponse
      */
