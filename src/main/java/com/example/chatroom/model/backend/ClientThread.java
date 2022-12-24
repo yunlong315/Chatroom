@@ -51,7 +51,7 @@ public class ClientThread extends Thread {
                         break;
                     case "chat":
                         // cmd = ["chat", userAccount,chatroomID,chatcontents]
-                        chat(cmd);
+                        chat(new String(data));
                         break;
                     case "addFriend":
                         // cmd = ["addFriend", userAccount, friendAccount]
@@ -191,10 +191,11 @@ public class ClientThread extends Thread {
 
     /**
      * 用户发送聊天信息
-     * @param cmd cmd = ["chat", userAccount, chatroomID, chatContents]
+     * @param cmdStr cmd = ["chat", userAccount, chatroomID, chatContents]
      */
-    public void chat(String[] cmd) {
+    public void chat(String cmdStr) {
         // cmd = ["chat", userAccount, chatroomID, chatContents]
+        String[] cmd = cmdStr.split("/", 4);
         String chatContents = cmd[3];
         String userAccount = cmd[1];
         int chatroomID = Integer.parseInt(cmd[2]);
