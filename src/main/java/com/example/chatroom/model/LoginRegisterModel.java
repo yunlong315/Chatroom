@@ -59,5 +59,4 @@ public class LoginRegisterModel {
         notifications.publish(Notifications.EVENT_MODEL_UPDATE);
         return loginRegisterObject;
     }
-
 }

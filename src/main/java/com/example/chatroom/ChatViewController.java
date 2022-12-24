@@ -313,7 +313,6 @@ public class ChatViewController {
 
     /**
      * 更新消息列表。
-     *
      * @param event-该方法事件。
      */
     public void updateMessageList(String event) {
