@@ -26,6 +26,10 @@ public class CenterServer {
     private CenterServer() {
     }
 
+    /**
+     * 获取服务器。
+     * @return 服务器
+     */
     public static CenterServer getCenterServer() {
         return cs;
     }

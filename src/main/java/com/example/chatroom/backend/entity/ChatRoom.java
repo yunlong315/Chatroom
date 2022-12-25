@@ -9,7 +9,11 @@ import java.util.Map;
  * 存储聊天室的各种属性的类
  */
 public class ChatRoom implements Serializable {
-    public static int nextID;//赋予给新创建的群，然后nextID++;
+    /**
+     * 赋予给新创建的群，然后nextID++
+     */
+
+    public static int nextID;
     private final int ID;
     private Map<String, User> userHashMap = Collections.synchronizedMap(new HashMap<>());
     private String chatroomName = null;

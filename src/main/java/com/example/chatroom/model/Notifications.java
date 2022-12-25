@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * 实现订阅和发布机制的类。
+ */
 public class Notifications {
 
     public final static String EVENT_MODEL_UPDATE = "modelUpdate";

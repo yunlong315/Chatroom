@@ -38,7 +38,7 @@ public class CachedData {
      * 根据房间号得到聊天室.
      *
      * @param id-房间号
-     * @return
+     * @return 聊天室。
      */
     public static ChatRoom getChatroom(int id) {
         return chatRoomHashMap.get(id);
@@ -60,6 +60,11 @@ public class CachedData {
         messageList.add(new Message(message, userAccount));
     }
 
+    /**
+     * 获取用户。
+     * @param userAccount 用户账号
+     * @return 用户
+     */
     public static User getUser(String userAccount) {
         return userHashMap.get(userAccount);
     }

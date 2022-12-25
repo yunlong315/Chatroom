@@ -192,7 +192,7 @@ public class ChatModel {
     /**
      * 当前用户被邀请入聊天室。此方法只在读线程被调用。
      *
-     * @param chatroom-被邀请入的聊天室
+     * @param chatroom 被邀请入的聊天室
      */
     public void beInvitedToRoom(ChatRoom chatroom) {
         CachedData.addChatRoom(chatroom);
@@ -205,9 +205,9 @@ public class ChatModel {
     /**
      * 更改用户头像。
      *
-     * @param userAccount-用户账号
-     * @param filePath-头像路径
-     * @throws IOException-如果发生IO错误。
+     * @param userAccount 用户账号
+     * @param filePath 头像路径
+     * @throws IOException 如果发生IO错误。
      */
     public void changeUserHead(String userAccount, String filePath) throws IOException {
         client.setImage(userAccount, filePath);

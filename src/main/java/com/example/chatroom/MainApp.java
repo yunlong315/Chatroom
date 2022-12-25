@@ -52,7 +52,7 @@ public class MainApp extends Application {
      * 显示聊天界面。
      *
      * @param user-当前用户
-     * @throws IOException-加载fxml时发生IO异常
+     * @throws IOException 加载fxml时发生IO异常
      */
     public void showChatView(User user) throws IOException {
         FXMLLoader loader = new FXMLLoader();
