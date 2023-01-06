@@ -187,9 +187,7 @@ public class ClientThread extends Thread {
         for (User user : thisChatroom.getUserHashMap().values()) {
             if (clientIOHashMap.containsKey(user.getUserAccount())) {
                 ClientIO io = cs.clientIOMap.get(user.getUserAccount());
-                if (!user.getUserAccount().equals(userAccount)) {
                     io.sendObject("joinChatroomRequest/", thisChatroom);
-                }
                 io.sendMsg(String.format("receiveChatMsg/%s/%d/%s", userAccount, chatroomID, String.format("我是%s，一起聊聊吧！", thisUser.getUserName())));
             }
         }
@@ -302,7 +300,10 @@ public class ClientThread extends Thread {
             return;
         }
         // 成功加入，并通知好友
-        thisChatroom.getUserHashMap().put(friendAccount, cs.clientMap.get(friendAccount));
+        User friend = cs.clientMap.get(friendAccount);
+        thisChatroom.getUserHashMap().put(friendAccount, friend);
+        friend.getChatRoomList().add(thisChatroom);
+
         String friendName = cs.clientMap.get(friendAccount).getUserName();
         io.sendObject("inviteFriendResponse/success/", thisChatroom);
         ClientIO friendIO = cs.clientIOMap.get(friendAccount);

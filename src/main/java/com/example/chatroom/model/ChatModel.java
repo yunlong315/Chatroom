@@ -48,7 +48,6 @@ public class ChatModel {
 
     /**
      * 发送聊天信息。
-     *
      * @param message-聊天信息
      * @param chatroomID-聊天室id
      */
@@ -172,8 +171,9 @@ public class ChatModel {
         ChatObject inviteFriendObject = new ChatObject(inviteFriendResponse);
         chatObject = Optional.of(inviteFriendObject);
         if (chatObject.get().getChatRoom() == null) {
-            System.out.println("拿到了一个空的chatroom");
-            System.out.println(inviteFriendResponse.getErrorMessage());
+            //让view层显示失败信息
+            notifications.publish(Notifications.EVENT_MODEL_OPERATION_DONE);
+            return;
         }
         updateChatroom(chatObject.get().getChatRoom());
     }

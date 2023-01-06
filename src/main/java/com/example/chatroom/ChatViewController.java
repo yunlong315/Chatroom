@@ -268,9 +268,11 @@ public class ChatViewController {
         chatModel.getChatObject().ifPresent(
                 (chatObject) -> {
                     if (!chatObject.wasError()) {
-                        chatRoomsProperty.get().addAll(new ChatroomBox(chatObject.getChatRoom()));
                         ChatRoom chatroom = chatObject.getChatRoom();
                         CachedData.addChatRoom(chatroom);
+                        chatroom = CachedData.getChatroom(chatroom.getID());
+                        chatRoomsProperty.get().addAll(new ChatroomBox(chatroom));
+
                     } else {
                         AlertUtil.showAlert(chatObject.getErrorMessage());
                     }
@@ -315,12 +317,13 @@ public class ChatViewController {
         User user = CachedData.getUser(receiveObject.getSender());
         HBox messageBox;
         if (selectedChatRoom != null && selectedChatRoom.equals(receiveObject.getChatRoom())) {
-            if (user.equals(nowUser)) {
-                messageBox = new MessageBox().right(user, receiveObject.getMessage());
-            } else {
-                messageBox = new MessageBox().left(user, receiveObject.getMessage());
-            }
-            messagesProperty.get().addAll(messageBox);
+//            if (user.equals(nowUser)) {
+//                messageBox = new MessageBox().right(user, receiveObject.getMessage());
+//            } else {
+//                messageBox = new MessageBox().left(user, receiveObject.getMessage());
+//            }
+//            messagesProperty.get().addAll(messageBox);
+            changeToOneChatroom(selectedChatRoom);
         }
     }
 
