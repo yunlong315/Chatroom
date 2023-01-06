@@ -139,7 +139,7 @@ public class ClientThread extends Thread {
      *
      * @param cmd cmd = ["createChatroom", userAccount]
      */
-    public void createChatroom(String[] cmd) {
+    private void createChatroom(String[] cmd) {
         // cmd = ["createChatroom", userAccount]
         int chatroomID = ChatRoom.nextID++;
         String userAccount = cmd[1];
@@ -158,7 +158,7 @@ public class ClientThread extends Thread {
      *
      * @param cmd cmd = ["addChatroom", userAccount, chatroomID]
      */
-    public void joinChatroom(String[] cmd) {
+    private void joinChatroom(String[] cmd) {
         // cmd = ["addChatroom", userAccount, chatroomID]
         String userAccount = cmd[1];
         int chatroomID = Integer.parseInt(cmd[2]);
@@ -198,7 +198,7 @@ public class ClientThread extends Thread {
      *
      * @param cmdStr cmd = ["chat", userAccount, chatroomID, chatContents]
      */
-    public void chat(String cmdStr) {
+    private void chat(String cmdStr) {
         // cmd = ["chat", userAccount, chatroomID, chatContents]
         String[] cmd = cmdStr.split("/", 4);
         String chatContents = cmd[3];
