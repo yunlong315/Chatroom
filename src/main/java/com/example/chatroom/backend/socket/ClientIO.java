@@ -73,29 +73,4 @@ public class ClientIO {
         }
     }
 
-    /**
-     * 向服务器发送byte数组（主要用于头像图片传输）
-     *
-     * @param str   “命令/参数1/参数2/……”
-     * @param bytes 头像对应的byte数组
-     * @return 成功返回0，出错返回-1
-     */
-    public int sendByteArr(String str, byte[] bytes) {
-        try {
-            byte[] strBytes = str.getBytes();
-            // 将以上两个byte[]合并成一个byte[]
-            byte[] data = new byte[strBytes.length + bytes.length];
-            System.arraycopy(strBytes, 0, data, 0, strBytes.length);
-            System.arraycopy(bytes, 0, data, strBytes.length, bytes.length);
-            // 输出给客户端
-            int len = data.length + 5;
-            dataOutputStream.writeInt(len);
-            dataOutputStream.write(data);
-            dataOutputStream.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return -1;
-        }
-        return 0;
-    }
 }

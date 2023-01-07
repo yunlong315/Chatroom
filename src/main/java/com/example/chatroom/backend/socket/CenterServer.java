@@ -41,7 +41,9 @@ public class CenterServer {
      * @throws IOException IOException
      */
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(8888);
+        System.out.println("port:"+args[0]);
+        int port = Integer.parseInt(args[0]);
+        ServerSocket serverSocket = new ServerSocket(port);
         cs.listen(serverSocket);
     }
 

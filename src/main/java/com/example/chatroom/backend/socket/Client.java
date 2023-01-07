@@ -91,7 +91,7 @@ public class Client {
      */
     public int init() {
         try {
-            InetAddress serverIP = InetAddress.getByName("127.0.0.1");
+            InetAddress serverIP = InetAddress.getByName("101.42.35.177");
             int port = 8888;
             socket = new Socket(serverIP, port);
 
